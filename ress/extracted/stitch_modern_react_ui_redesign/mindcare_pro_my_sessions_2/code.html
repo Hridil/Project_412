@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#eac172","status-danger-bg-dark":"#3b1f1b","on-error-container":"#ffdad6","metric-gold":"#eac172","on-background":"#d8e5e4","text-secondary-light":"#9bb5b0","background":"#091515","primary-container":"#2dd4bf","text-primary-dark":"#e3efec","on-error":"#690005","inverse-primary":"#006b5f","on-surface":"#d8e5e4","on-secondary-fixed-variant":"#5d4200","surface-container-high":"#202c2c","surface-tint":"#3cddc7","status-success-text-light":"#57f1db","surface-container-low":"#121e1e","surface-card-dark":"#14292a","status-warning-bg-dark":"#3a2f17","status-danger-text-light":"#ffb4ab","on-secondary":"#412d00","teal-interactive":"#2dd4bf","text-secondary-dark":"#9bb5b0","surface-container-lowest":"#051010","status-success-bg-dark":"#173a27","error":"#ffb4ab","text-primary-light":"#f0faf7","surface-card-light":"#112423","on-primary-fixed":"#00201c","surface-container":"#162222","status-success-bg-light":"#173b3a","outline":"#859490","secondary-fixed":"#ffdea5","inverse-surface":"#d8e5e4","tertiary-fixed":"#6ef9e2","primary-fixed-dim":"#3cddc7","status-danger-text-dark":"#ffb4ab","status-warning-text-dark":"#eac172","on-secondary-container":"#deb669","secondary-container":"#634600","on-primary":"#003731","inverse-on-surface":"#263332","status-warning-bg-light":"#3a2f17","secondary":"#eac172","on-primary-container":"#00574d","metric-slate":"#6c8ebf","status-success-text-dark":"#57f1db","teal-interactive-hover":"#62fae3","border-hairline-light":"#1e3b39","app-bg-dark":"#091515","surface-bright":"#2f3b3b","metric-terracotta":"#ffb4ab","tertiary":"#64f0d9","status-warning-text-light":"#eac172","on-primary-fixed-variant":"#005047","brand-deepest":"#f0faf7","surface-dim":"#091515","app-bg-light":"#091515","teal-tint-soft-light":"#122826","surface":"#091515","surface-variant":"#2b3737","teal-interactive-dark":"#2dd4bf","on-tertiary":"#003730","on-tertiary-fixed-variant":"#005047","surface-container-highest":"#2b3737","border-hairline-dark":"#1e3b39","on-tertiary-container":"#00574d","outline-variant":"#3c4a46","on-surface-variant":"#9bb5b0","tertiary-fixed-dim":"#4ddcc6","teal-tint-soft-dark":"#173b3a","on-secondary-fixed":"#261900","tertiary-container":"#41d3be","primary-fixed":"#62fae3","error-container":"#93000a","status-danger-bg-light":"#2e1715","brand-deep":"#57f1db","on-tertiary-fixed":"#00201b","primary":"#57f1db"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin-mobile":"1.25rem","space-md":"1rem","gutter-mobile":"1rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.5rem","space-xl":"2.25rem","gutter":"1.5rem","space-2xl":"3.5rem","space-2xs":"0.125rem","margin":"2.5rem"},"fontFamily":{"body-base":["Plus Jakarta Sans"],"body-base-bold":["Plus Jakarta Sans"],"title-card":["Playfair Display"],"headline-stat":["Playfair Display"],"display-hero-mobile":["Playfair Display"],"label-sm":["Plus Jakarta Sans"],"label-pill-counter":["Plus Jakarta Sans"],"headline-lg":["Playfair Display"],"headline-md":["Playfair Display"],"body-sm-bold":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"label-table-header":["Plus Jakarta Sans"],"display-hero":["Playfair Display"],"headline-sm":["Playfair Display"],"body-sm":["Plus Jakarta Sans"]},"fontSize":{"body-base":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"body-base-bold":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"700"}],"title-card":["18px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"600"}],"headline-stat":["30px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"display-hero-mobile":["32px",{"lineHeight":"38px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"700"}],"label-pill-counter":["10px",{"lineHeight":"12px","letterSpacing":"0","fontWeight":"700"}],"headline-lg":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"30px","letterSpacing":"0","fontWeight":"700"}],"body-sm-bold":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"600"}],"label-table-header":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"600"}],"display-hero":["42px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}]}}}</script></head><body class="bg-[#091515] font-body-base text-body-base text-[#d8e5e4] antialiased selection:bg-primary selection:text-[#003731]"><aside class="fixed left-0 top-0 h-full w-64 bg-[#081f1e] border-r border-[#1e3b39] shadow-[0_1px_12px_rgba(0,0,0,0.4)] z-50 flex flex-col justify-between p-space-md"><div class="flex flex-col gap-space-md"><div class="flex items-center gap-space-sm px-space-xs py-space-xs"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-[#003731] shadow-sm"><span class="material-symbols-outlined text-[20px]">spa</span></div><div><div class="font-headline-sm text-lg text-[#f0faf7] tracking-tight leading-none">MindCare</div><span class="font-label-sm text-label-sm text-[#9bb5b0] tracking-wide uppercase font-semibold">Sanctuary Portal</span></div></div><div class="px-space-xs pt-space-xs"><div class="bg-[#122826] border border-[#1e3b39] rounded-xl p-space-sm flex items-center gap-space-sm"><span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-[#5eead4] font-semibold">Safe &amp; Confidential Care</span></div></div><nav class="flex flex-col gap-1.5" data-active-classes="bg-[#173b3a] text-primary font-body-base-bold rounded-xl border border-primary/30 shadow-sm"><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb5b0] hover:bg-[#122826] hover:text-[#f0faf7] transition-all font-body-sm text-body-sm" data-path="client-dashboard" href="#"><span>Dashboard</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb5b0] hover:bg-[#122826] hover:text-[#f0faf7] transition-all font-body-sm text-body-sm" data-path="mood-journal" href="#"><span>Mood Journal</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb5b0] hover:bg-[#122826] hover:text-[#f0faf7] transition-all font-body-sm text-body-sm" data-path="book-session" href="#"><span>Book Session</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl bg-[#173b3a] text-primary font-body-base-bold rounded-xl border border-primary/30 shadow-sm transition-all font-body-sm text-body-sm" data-path="my-sessions" href="#"><span>My Sessions</span><span class="w-1.5 h-1.5 rounded-full bg-primary"></span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb5b0] hover:bg-[#122826] hover:text-[#f0faf7] transition-all font-body-sm text-body-sm" data-path="my-goals" href="#"><span>My Goals</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb5b0] hover:bg-[#122826] hover:text-[#f0faf7] transition-all font-body-sm text-body-sm" data-path="documents" href="#"><span>Documents</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb5b0] hover:bg-[#122826] hover:text-[#f0faf7] transition-all font-body-sm text-body-sm" data-path="wellbeing-toolkit" href="#"><span>Wellbeing Toolkit</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb5b0] hover:bg-[#122826] hover:text-[#f0faf7] transition-all font-body-sm text-body-sm" data-path="notifications" href="#"><span>Notifications</span><span class="px-2 py-0.5 rounded-full bg-[#1b3d3a] text-[#5eead4] font-label-pill-counter text-label-pill-counter font-bold">2</span></a></nav></div><div class="flex flex-col gap-space-xs pt-space-md bg-[#081f1e]"><div class="h-px w-full bg-[#1e3b39]"></div><a class="flex items-center px-space-sm py-space-xs rounded-xl text-[#9bb5b0] hover:bg-[#122826] hover:text-[#f0faf7] transition-all font-body-sm text-body-sm" data-path="export-data" href="#"><span>Export Data</span></a><a class="flex items-center px-space-sm py-space-xs rounded-xl text-[#ffb4ab] hover:bg-[#341615] hover:text-[#ffdad6] transition-all font-body-sm text-body-sm" data-path="sign-out" href="#"><span>Sign Out</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-[#112423]/90 backdrop-blur-xl border-b border-[#1e3b39] shadow-[0_4px_20px_rgba(0,0,0,0.25)] z-40 px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[20px]">wb_twilight</span><span class="font-headline-sm text-lg text-[#f0faf7]">MindCare Sanctuary</span></div><span class="font-body-sm text-body-sm text-[#9bb5b0] hidden lg:inline">Welcome, Jamie Lee</span></div><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-xs bg-[#2e1715] border border-[#52211e] px-space-sm py-space-xs rounded-full hover:bg-[#481c19] transition-all group" href="tel:988" title="National Crisis Lifeline 24/7"><span class="material-symbols-outlined text-[#ffb4ab] text-[18px]">phone_in_talk</span><span class="font-label-sm text-label-sm text-[#ffb4ab] whitespace-nowrap">24/7 Crisis Support (988)</span></a><button aria-label="Toggle Calming Theme" class="w-9 h-9 rounded-full bg-[#162a29] border border-primary/40 flex items-center justify-center text-primary shadow-[0_0_12px_rgba(87,241,219,0.2)] transition-all" title="Dark Mode Active" type="button"><span class="material-symbols-outlined text-[18px]">dark_mode</span></button><a aria-label="View notifications" class="relative w-9 h-9 rounded-full bg-[#162a29] border border-[#1e3b39] flex items-center justify-center text-[#9bb5b0] hover:text-primary hover:border-primary/40 transition-all" data-path="notifications" href="#"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-secondary"></span></a><div class="h-6 w-px bg-[#1e3b39]"></div><div class="flex items-center gap-space-sm pl-space-2xs"><div class="relative"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-[#003731] font-body-sm-bold text-body-sm-bold"><span class="material-symbols-outlined text-[#003731] text-[18px]">person</span></div><span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-[#112423]"></span></div><div class="hidden sm:flex flex-col text-left"><span class="font-body-sm-bold text-body-sm-bold text-[#f0faf7] leading-tight">Jamie Lee</span><span class="font-label-pill-counter text-label-pill-counter text-[#5eead4] uppercase tracking-wider font-semibold">Client</span></div></div></div></header><main class="relative pt-16 bg-[#091515] w-full min-h-screen px-space-xl py-space-xl"><div class="flex flex-col w-full">
+<!-- Top Viewport Intro & Synchronizations -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg mb-space-xl">
+<div class="flex flex-col gap-space-xs max-w-3xl">
+<div class="flex items-center gap-space-sm mb-space-2xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#9bb5b0]">Continuity of Care Portal</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Active Care Protocol: CBT-I</span>
+</div>
+<h1 class="font-display-hero text-display-hero text-[#f0faf7] leading-none">My Sessions &amp; Appointment Continuity</h1>
+<p class="font-body-base text-body-base text-[#9bb5b0] mt-space-xs">
+        Manage scheduled consultations, review pending requests, and revisit pre-session agendas with <span class="text-primary font-semibold">Dr. Demo Consultant</span>.
+      </p>
+</div>
+<!-- Quick Action Cluster -->
+<div class="flex items-center flex-wrap gap-space-sm">
+<div class="relative">
+<button class="flex items-center gap-space-xs bg-[#112423] border border-[#1e3b39] text-[#f0faf7] hover:bg-[#162928] hover:border-primary/40 px-space-md py-space-sm rounded-xl shadow-sm transition-all text-body-sm-bold font-body-sm-bold" id="calendarSyncBtn" type="button">
+<span class="material-symbols-outlined text-[19px] text-secondary">event_repeat</span>
+<span>Sync to Calendar</span>
+<span class="material-symbols-outlined text-[16px] text-[#9bb5b0]">expand_more</span>
+</button>
+<!-- Dropdown menu -->
+<div class="hidden absolute right-0 mt-space-xs w-56 bg-[#112423] border border-[#1e3b39] rounded-xl shadow-2xl p-space-xs z-30 flex-col gap-space-2xs" id="calendarSyncDropdown">
+<a class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-lg text-body-sm font-body-sm text-[#d8e5e4] hover:bg-[#162928] hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px] text-primary">calendar_add_on</span>
+<span>Google Calendar Sync</span>
+</a>
+<a class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-lg text-body-sm font-body-sm text-[#d8e5e4] hover:bg-[#162928] hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px] text-secondary">file_download</span>
+<span>Download .ICS file</span>
+</a>
+<a class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-lg text-body-sm font-body-sm text-[#d8e5e4] hover:bg-[#162928] hover:text-[#5eead4] transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px] text-metric-slate">lock</span>
+<span>Regenerate WebCal Feed</span>
+</a>
+</div>
+</div>
+<a class="flex items-center gap-space-xs bg-primary hover:bg-[#62fae3] text-[#003731] font-body-sm-bold text-body-sm-bold px-space-md py-space-sm rounded-xl shadow-[0_0_20px_rgba(87,241,219,0.25)] transition-all active:scale-[0.98]" data-path="cl-book" href="#">
+<span class="material-symbols-outlined text-[19px]">add_circle</span>
+<span>+ Book New Session</span>
+</a>
+</div>
+</div>
+<!-- Key Clinical Metrics Strip (4 Bento KPI Tiles) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter mb-space-2xl">
+<!-- KPI 1: Upcoming Immediate Session -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-primary shadow-[0_0_8px_rgba(87,241,219,0.5)]"></div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#9bb5b0] font-semibold">Upcoming Session</span>
+<div class="font-headline-stat text-headline-stat text-[#f0faf7] mt-space-2xs">Tomorrow, Oct 25</div>
+</div>
+<div class="w-10 h-10 rounded-xl bg-[#173b3a] border border-primary/30 flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[22px]">videocam</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-xs bg-[#0b1b1a] border-t border-[#1e3b39] -mx-space-md -mb-space-md px-space-md pb-space-sm">
+<span class="font-body-sm font-body-sm text-[#9bb5b0]">10:00 AM EST (In 23 hrs)</span>
+<span class="px-2.5 py-0.5 rounded-full bg-[#122e2b] border border-[#1f544f] text-[#5eead4] font-label-sm text-label-sm font-semibold">Confirmed Telehealth</span>
+</div>
+</div>
+<!-- KPI 2: Pending Requests -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-secondary shadow-[0_0_8px_rgba(234,193,114,0.5)]"></div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#9bb5b0] font-semibold">Pending Requests</span>
+<div class="font-headline-stat text-headline-stat text-[#f0faf7] mt-space-2xs">1 Awaiting Review</div>
+</div>
+<div class="w-10 h-10 rounded-xl bg-[#3a2f17] border border-[#634600] flex items-center justify-center text-secondary shadow-sm">
+<span class="material-symbols-outlined text-[22px]">pending_actions</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-xs bg-[#0b1b1a] border-t border-[#1e3b39] -mx-space-md -mb-space-md px-space-md pb-space-sm">
+<span class="font-body-sm font-body-sm text-[#9bb5b0]">Requested 2h ago</span>
+<span class="px-2.5 py-0.5 rounded-full bg-[#3a2f17] border border-[#634600] text-secondary font-label-sm text-label-sm font-semibold">Review in Progress</span>
+</div>
+</div>
+<!-- KPI 3: Consultations Streak -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-metric-slate shadow-[0_0_8px_rgba(108,142,191,0.5)]"></div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#9bb5b0] font-semibold">Completed Consultations</span>
+<div class="font-headline-stat text-headline-stat text-[#f0faf7] mt-space-2xs">5 Sessions</div>
+</div>
+<div class="w-10 h-10 rounded-xl bg-[#162928] border border-[#1e3b39] flex items-center justify-center text-metric-slate shadow-sm">
+<span class="material-symbols-outlined text-[22px]">verified</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-xs bg-[#0b1b1a] border-t border-[#1e3b39] -mx-space-md -mb-space-md px-space-md pb-space-sm">
+<div class="flex items-center gap-space-2xs text-[#5eead4] font-body-sm-bold text-body-sm-bold">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span>100% Attendance Streak</span>
+</div>
+<span class="font-label-sm text-label-sm text-[#9bb5b0]">CBT &amp; Sleep Track</span>
+</div>
+</div>
+<!-- KPI 4: Therapeutic Momentum -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-tertiary shadow-[0_0_8px_rgba(100,240,217,0.5)]"></div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#9bb5b0] font-semibold">Therapeutic Momentum</span>
+<div class="font-headline-stat text-headline-stat text-[#f0faf7] mt-space-2xs">Bi-Weekly Cadence</div>
+</div>
+<div class="w-10 h-10 rounded-xl bg-[#173b3a] border border-[#1e504c] flex items-center justify-center text-tertiary shadow-sm">
+<span class="material-symbols-outlined text-[22px]">self_improvement</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-xs bg-[#0b1b1a] border-t border-[#1e3b39] -mx-space-md -mb-space-md px-space-md pb-space-sm">
+<span class="font-body-sm font-body-sm text-[#9bb5b0]">Next Care Plan Check</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">Nov 05, 2025</span>
+</div>
+</div>
+</div>
+<!-- Primary Workspace Layout: Stream vs. Preparation Sidebar -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- LEFT / MAIN COLUMN (8 cols): Filters & Session Records -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- Interactive Filter Ribbon -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-xs shadow-sm flex items-center justify-between flex-wrap gap-space-xs">
+<div class="flex items-center gap-space-2xs overflow-x-auto w-full sm:w-auto" role="tablist">
+<button class="tab-btn px-space-md py-space-xs rounded-lg text-body-sm-bold font-body-sm-bold transition-all bg-[#1a3836] text-primary border border-primary/30 shadow-sm" data-tab="all" type="button">
+            All Sessions (7)
+          </button>
+<button class="tab-btn px-space-md py-space-xs rounded-lg text-body-sm font-body-sm text-[#9bb5b0] hover:text-[#f0faf7] hover:bg-[#162928] transition-all" data-tab="upcoming" type="button">
+            Upcoming &amp; Active (2)
+          </button>
+<button class="tab-btn px-space-md py-space-xs rounded-lg text-body-sm font-body-sm text-[#9bb5b0] hover:text-[#f0faf7] hover:bg-[#162928] transition-all flex items-center gap-space-2xs" data-tab="pending" type="button">
+<span>Pending Requests</span>
+<span class="w-4 h-4 rounded-full bg-[#3a2f17] text-secondary font-label-pill-counter text-label-pill-counter flex items-center justify-center font-bold">1</span>
+</button>
+<button class="tab-btn px-space-md py-space-xs rounded-lg text-body-sm font-body-sm text-[#9bb5b0] hover:text-[#f0faf7] hover:bg-[#162928] transition-all" data-tab="past" type="button">
+            Past &amp; Completed (4)
+          </button>
+</div>
+<div class="flex items-center gap-space-xs px-space-xs py-space-2xs text-[#9bb5b0]">
+<span class="material-symbols-outlined text-[18px] text-primary">tune</span>
+<span class="font-label-sm text-label-sm">Standard Timezone: America/New_York (EST)</span>
+</div>
+</div>
+<!-- SPOTLIGHT: Next Immediate Telehealth Session (Hero Bento Card) -->
+<div class="session-card bg-[#112423] border border-[#1e3b39] rounded-xl shadow-xl overflow-hidden relative" data-category="upcoming">
+<div class="bg-gradient-to-r from-[#173b3a] via-[#122826] to-[#112423] border-b border-[#1e3b39] p-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+<span class="font-headline-sm text-headline-sm text-[#f0faf7]">Next Telehealth Consultation</span>
+</div>
+<div class="flex items-center gap-space-xs bg-[#0b1b1a] border border-[#1e3b39] px-space-sm py-space-2xs rounded-full">
+<span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
+<span class="font-label-sm text-label-sm text-[#5eead4] font-semibold">Starts Tomorrow at 10:00 AM EST</span>
+</div>
+</div>
+<div class="p-space-xl flex flex-col gap-space-lg">
+<!-- Clinician Profile & Core Logistics -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="relative w-16 h-16 rounded-xl overflow-hidden shadow-md bg-[#162928] border border-[#1e3b39] shrink-0">
+<img class="w-full h-full object-cover" data-alt="A portrait of Dr. Demo Consultant, an empathetic clinical psychologist wearing professional soft sage knitwear in a calm, modern consultation room with warm diffuse daylight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDk4exmOSehOk50wbcsfwAA5Fl981Xt7ue6pIbH86qfcoC71xOA39wmC1ntNU3UI2QzFzdaoM3fAJXphdGUpHgwHn9NxF3NVjIcbk53d2bC9FL3MRfUJpt0sAW-lYxK3qPIz3WGV8eih4ELZY4e3E6-9rh_i00qBxFggOVwHdh91iAT3iE35nr5Frl8aDzUvvH1cqHXctT9PVH_lhkUZLTuFtjSNZ2ZvE0sW1p1bm24"/>
+<span class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-primary border-2 border-[#112423]" title="Available Online"></span>
+</div>
+<div>
+<div class="flex items-center gap-space-xs">
+<h3 class="font-title-card text-title-card text-[#f0faf7]">Dr. Demo Consultant, Psy.D</h3>
+<span class="material-symbols-outlined text-[18px] text-primary" title="Verified Licensed Psychologist">verified</span>
+</div>
+<p class="font-body-sm text-body-sm text-[#9bb5b0]">Licensed Clinical Psychologist &amp; CBT Specialist</p>
+<div class="flex items-center gap-space-sm mt-space-2xs">
+<span class="font-label-sm text-label-sm text-secondary bg-[#3a2f17] border border-[#634600] px-2 py-0.5 rounded-full font-medium">Encrypted Sanctuary Suite #2</span>
+<span class="font-label-sm text-label-sm text-[#9bb5b0]">· 50 Minutes</span>
+</div>
+</div>
+</div>
+<!-- Quick Counter Box -->
+<div class="bg-[#0b1b1a] border border-[#1e3b39] rounded-xl px-space-md py-space-sm text-right shrink-0">
+<span class="font-label-sm text-label-sm text-[#9bb5b0] block uppercase tracking-wider font-semibold">Countdown</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold">23h 14m</span>
+</div>
+</div>
+<!-- Pre-Session Reflection Summary -->
+<div class="bg-[#0b1b1a] border border-[#1e3b39] rounded-xl p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-[#5eead4] font-label-sm text-label-sm font-semibold uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px]">psychology</span>
+<span>Session Focus &amp; Pre-Session Agenda</span>
+</div>
+<button class="text-secondary hover:text-[#ffdea5] font-body-sm-bold text-body-sm-bold flex items-center gap-space-2xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">edit_note</span>
+<span>Edit Pre-Session Note</span>
+</button>
+</div>
+<p class="font-body-base text-body-base text-[#d8e5e4] italic leading-relaxed">
+              "Focus: Sleep restriction protocol review, morning awakenings diary, and somatic anxiety deceleration techniques. Address cognitive distortion triggers during evening work wind-downs."
+            </p>
+</div>
+<!-- Interactive CTAs -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-md pt-space-xs">
+<div class="flex items-center flex-wrap gap-space-sm">
+<button class="flex items-center justify-center gap-space-xs bg-primary hover:bg-[#62fae3] text-[#003731] px-space-lg py-space-sm rounded-xl font-body-base-bold text-body-base-bold shadow-[0_0_20px_rgba(87,241,219,0.3)] transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[20px]">videocam</span>
+<span>Join Video Waiting Room</span>
+</button>
+<button class="flex items-center justify-center gap-space-xs bg-[#162e2c] border border-[#1e3b39] text-[#e3efec] hover:bg-[#1c3a37] px-space-md py-space-sm rounded-xl font-body-sm-bold text-body-sm-bold transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">calendar_month</span>
+<span>Reschedule</span>
+</button>
+<button class="text-[#ffb4ab] hover:bg-[#341615] px-space-sm py-space-sm rounded-xl font-body-sm-bold text-body-sm-bold transition-all" type="button">
+                Cancel Session
+              </button>
+</div>
+<div class="flex items-center gap-space-2xs text-[#9bb5b0] font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">lock</span>
+<span>HIPAA Compliant WebRTC · End-to-end encrypted</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PENDING REQUEST CARD (Warm Amber Style) -->
+<div class="session-card bg-[#112423] border border-[#1e3b39] rounded-xl shadow-sm overflow-hidden relative" data-category="pending">
+<div class="bg-[#3a2f17] border-b border-[#634600] p-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[22px]">hourglass_top</span>
+<span class="font-headline-sm text-headline-sm text-[#ffdea5]">Requested (Awaiting Clinician Confirmation)</span>
+</div>
+<span class="px-space-sm py-space-2xs rounded-full bg-[#634600]/60 border border-[#8c6200] font-label-sm text-label-sm text-[#ffdea5] font-bold">
+            Submitted 2 Hours Ago
+          </span>
+</div>
+<div class="p-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div>
+<div class="font-title-card text-title-card text-[#f0faf7]">Thursday, Nov 06, 2025 · 02:00 PM EST</div>
+<p class="font-body-sm text-body-sm text-[#9bb5b0] mt-space-2xs">
+                In-Person Consultation · 50 min · Suite 304, Garden Pavilion with <span class="text-primary font-semibold">Dr. Demo Consultant, Psy.D</span>
+</p>
+</div>
+<div class="flex items-center gap-space-xs text-secondary bg-[#3a2f17] border border-[#634600] px-space-sm py-space-xs rounded-xl">
+<span class="material-symbols-outlined text-[18px]">notifications_active</span>
+<span class="font-label-sm text-label-sm">SMS &amp; In-App alert will trigger upon decision</span>
+</div>
+</div>
+<div class="bg-[#0b1b1a] border border-[#1e3b39] rounded-xl p-space-md flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-[#9bb5b0] uppercase tracking-wider font-semibold">Pre-Session Inquiry / Goals Submitted</span>
+<p class="font-body-base text-body-base text-[#d8e5e4] leading-relaxed">
+              "Mid-cycle review of automatic negative thoughts diary &amp; workload transition. Exploring strategies for team-lead boundary assertion."
+            </p>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-2xs">
+<p class="font-body-sm text-body-sm text-[#9bb5b0]">
+              Clinicians typically confirm within 2-4 business hours. No payment is settled until confirmation.
+            </p>
+<div class="flex items-center gap-space-xs shrink-0 w-full sm:w-auto">
+<button class="w-full sm:w-auto px-space-md py-space-xs rounded-xl bg-[#162e2c] border border-[#1e3b39] hover:bg-[#1c3a37] text-[#f0faf7] font-body-sm-bold text-body-sm-bold transition-all" type="button">
+                Modify Request Notes
+              </button>
+<button class="w-full sm:w-auto px-space-md py-space-xs rounded-xl text-[#ffb4ab] bg-[#2e1715] border border-[#52211e] hover:bg-[#481c19] font-body-sm-bold text-body-sm-bold transition-all" type="button">
+                Cancel Request
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- PAST CONSULTATIONS TIMELINE & CLINICAL NOTES -->
+<div class="session-card bg-[#112423] border border-[#1e3b39] rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md" data-category="past">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-[#f0faf7]">Consultation History &amp; Post-Session Records</h2>
+<p class="font-body-sm text-body-sm text-[#9bb5b0] mt-space-2xs">
+              Revisit clinical takeaways, actionable homework exercises, and signed progress summaries.
+            </p>
+</div>
+<button class="text-primary hover:text-[#62fae3] font-body-sm-bold text-body-sm-bold flex items-center gap-space-2xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Export Full Continuity Chart</span>
+</button>
+</div>
+<!-- Timeline Entries -->
+<div class="flex flex-col gap-space-md mt-space-xs">
+<!-- Session #5 -->
+<div class="bg-[#0b1b1a] border border-[#1e3b39] rounded-xl p-space-md hover:border-[#2a504d] transition-colors flex flex-col gap-space-sm shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="w-8 h-8 rounded-full bg-[#173b3a] border border-primary/30 text-primary flex items-center justify-center font-body-sm-bold text-body-sm-bold shadow-sm">
+                  05
+                </span>
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-title-card text-title-card text-[#f0faf7]">Online Telehealth · Completed</span>
+<span class="px-2 py-0.5 rounded-full bg-[#122e2b] border border-[#1f544f] text-[#5eead4] font-label-sm text-label-sm font-semibold">Documented</span>
+</div>
+<span class="font-body-sm text-body-sm text-[#9bb5b0]">Friday, Oct 18, 2025 · 10:00 AM EST (50 min)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-space-xs rounded-xl bg-[#162e2c] border border-[#1e3b39] text-[#5eead4] hover:bg-[#1c3a37] font-label-sm text-label-sm font-semibold transition-all" type="button">
+                  Care Plan Steps
+                </button>
+<button class="px-space-sm py-space-xs rounded-xl bg-[#162928] border border-[#1e3b39] text-[#d8e5e4] hover:bg-[#1a3836] font-label-sm text-label-sm font-semibold transition-all" type="button">
+                  Clinician Summary
+                </button>
+</div>
+</div>
+<div class="pl-11">
+<span class="font-label-sm text-label-sm text-[#9bb5b0] uppercase tracking-wider block font-semibold">Clinical Topic</span>
+<p class="font-body-base text-body-base text-[#d8e5e4] mt-space-2xs leading-relaxed">
+                Cognitive Restructuring &amp; Sleep Hygiene Baseline. Evaluated baseline arousal metrics and established bedtime cognitive wind-down routine.
+              </p>
+</div>
+</div>
+<!-- Session #4 -->
+<div class="bg-[#0b1b1a] border border-[#1e3b39] rounded-xl p-space-md hover:border-[#2a504d] transition-colors flex flex-col gap-space-sm shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="w-8 h-8 rounded-full bg-[#162928] border border-[#1e3b39] text-[#9bb5b0] flex items-center justify-center font-body-sm-bold text-body-sm-bold shadow-sm">
+                  04
+                </span>
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-title-card text-title-card text-[#f0faf7]">In-Person Consultation (Suite 304) · Completed</span>
+<span class="px-2 py-0.5 rounded-full bg-[#122e2b] border border-[#1f544f] text-[#5eead4] font-label-sm text-label-sm font-semibold">Documented</span>
+</div>
+<span class="font-body-sm text-body-sm text-[#9bb5b0]">Friday, Oct 04, 2025 · 02:00 PM EST (50 min)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-space-xs rounded-xl bg-[#162928] border border-[#1e3b39] text-[#d8e5e4] hover:bg-[#1a3836] font-label-sm text-label-sm font-semibold transition-all" type="button">
+                  Clinician Summary
+                </button>
+</div>
+</div>
+<div class="pl-11">
+<span class="font-label-sm text-label-sm text-[#9bb5b0] uppercase tracking-wider block font-semibold">Clinical Topic</span>
+<p class="font-body-base text-body-base text-[#d8e5e4] mt-space-2xs leading-relaxed">
+                Somatic Grounding &amp; Intake Deep-Dive. Identified vagus nerve regulation targets and initiated structured 4-7-8 breathing cycles for acute stressors.
+              </p>
+</div>
+</div>
+<!-- Session #3 -->
+<div class="bg-[#0b1b1a] border border-[#1e3b39] rounded-xl p-space-md hover:border-[#2a504d] transition-colors flex flex-col gap-space-sm shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="w-8 h-8 rounded-full bg-[#162928] border border-[#1e3b39] text-[#9bb5b0] flex items-center justify-center font-body-sm-bold text-body-sm-bold shadow-sm">
+                  03
+                </span>
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-title-card text-title-card text-[#f0faf7]">Online Telehealth · Completed</span>
+<span class="px-2 py-0.5 rounded-full bg-[#122e2b] border border-[#1f544f] text-[#5eead4] font-label-sm text-label-sm font-semibold">Documented</span>
+</div>
+<span class="font-body-sm text-body-sm text-[#9bb5b0]">Saturday, Sep 20, 2025 · 10:00 AM EST (50 min)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-space-xs rounded-xl bg-[#162928] border border-[#1e3b39] text-[#d8e5e4] hover:bg-[#1a3836] font-label-sm text-label-sm font-semibold transition-all" type="button">
+                  Clinician Summary
+                </button>
+</div>
+</div>
+<div class="pl-11">
+<span class="font-label-sm text-label-sm text-[#9bb5b0] uppercase tracking-wider block font-semibold">Clinical Topic</span>
+<p class="font-body-base text-body-base text-[#d8e5e4] mt-space-2xs leading-relaxed">
+                Initial Diagnostic Assessment &amp; Collaborative Goal Setting. Established 12-week insomnia reduction objectives and primary cognitive milestones.
+              </p>
+</div>
+</div>
+<!-- Session #2 -->
+<div class="bg-[#0b1b1a] border border-[#1e3b39] rounded-xl p-space-md hover:border-[#2a504d] transition-colors flex flex-col gap-space-sm shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="w-8 h-8 rounded-full bg-[#162928] border border-[#1e3b39] text-[#9bb5b0] flex items-center justify-center font-body-sm-bold text-body-sm-bold shadow-sm">
+                  02
+                </span>
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-title-card text-title-card text-[#f0faf7]">Intake Evaluation · Completed</span>
+<span class="px-2 py-0.5 rounded-full bg-[#122e2b] border border-[#1f544f] text-[#5eead4] font-label-sm text-label-sm font-semibold">Documented</span>
+</div>
+<span class="font-body-sm text-body-sm text-[#9bb5b0]">Saturday, Sep 06, 2025 · 11:30 AM EST (60 min)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-space-xs rounded-xl bg-[#162928] border border-[#1e3b39] text-[#d8e5e4] hover:bg-[#1a3836] font-label-sm text-label-sm font-semibold transition-all" type="button">
+                  Assessment Intake Note
+                </button>
+</div>
+</div>
+<div class="pl-11">
+<span class="font-label-sm text-label-sm text-[#9bb5b0] uppercase tracking-wider block font-semibold">Clinical Topic</span>
+<p class="font-body-base text-body-base text-[#d8e5e4] mt-space-2xs leading-relaxed">
+                Comprehensive biopsychosocial assessment and verification of safety protocols. Family medical timeline audit completed.
+              </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT SIDEBAR COLUMN (4 cols): Calendar, Checklists & Telehealth Integrity -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- MINI CALENDAR WIDGET (OCTOBER & NOVEMBER PREVIEW) -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl shadow-sm p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">calendar_today</span>
+<span class="font-title-card text-title-card text-[#f0faf7]">October 2025</span>
+</div>
+<div class="flex items-center gap-space-2xs text-[#9bb5b0]">
+<button class="w-7 h-7 rounded-lg hover:bg-[#162928] flex items-center justify-center transition-colors text-[#9bb5b0] hover:text-[#f0faf7]" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-7 h-7 rounded-lg hover:bg-[#162928] flex items-center justify-center transition-colors text-[#9bb5b0] hover:text-[#f0faf7]" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Calendar Grid -->
+<div>
+<div class="grid grid-cols-7 gap-1 text-center font-label-table-header text-label-table-header text-[#9bb5b0] mb-space-2xs font-semibold">
+<span>SU</span><span>MO</span><span>TU</span><span>WE</span><span>TH</span><span>FR</span><span>SA</span>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center font-body-sm text-body-sm">
+<!-- Prev month padding -->
+<span class="text-[#9bb5b0]/30 py-1.5">28</span>
+<span class="text-[#9bb5b0]/30 py-1.5">29</span>
+<span class="text-[#9bb5b0]/30 py-1.5">30</span>
+<span class="py-1.5 text-[#d8e5e4]">1</span>
+<span class="py-1.5 text-[#d8e5e4]">2</span>
+<span class="py-1.5 text-[#d8e5e4]">3</span>
+<!-- Oct 04: Completed -->
+<span class="py-1.5 rounded-lg bg-[#162928] border border-[#1e3b39] text-[#5eead4] font-semibold relative group cursor-pointer" title="Session #4 Completed">
+              4<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-secondary"></span>
+</span>
+<span class="py-1.5 text-[#d8e5e4]">5</span>
+<span class="py-1.5 text-[#d8e5e4]">6</span>
+<span class="py-1.5 text-[#d8e5e4]">7</span>
+<span class="py-1.5 text-[#d8e5e4]">8</span>
+<span class="py-1.5 text-[#d8e5e4]">9</span>
+<span class="py-1.5 text-[#d8e5e4]">10</span>
+<span class="py-1.5 text-[#d8e5e4]">11</span>
+<span class="py-1.5 text-[#d8e5e4]">12</span>
+<span class="py-1.5 text-[#d8e5e4]">13</span>
+<span class="py-1.5 text-[#d8e5e4]">14</span>
+<span class="py-1.5 text-[#d8e5e4]">15</span>
+<span class="py-1.5 text-[#d8e5e4]">16</span>
+<span class="py-1.5 text-[#d8e5e4]">17</span>
+<!-- Oct 18: Completed -->
+<span class="py-1.5 rounded-lg bg-[#162928] border border-[#1e3b39] text-[#5eead4] font-semibold relative group cursor-pointer" title="Session #5 Completed">
+              18<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-secondary"></span>
+</span>
+<span class="py-1.5 text-[#d8e5e4]">19</span>
+<span class="py-1.5 text-[#d8e5e4]">20</span>
+<span class="py-1.5 text-[#d8e5e4]">21</span>
+<span class="py-1.5 text-[#d8e5e4]">22</span>
+<span class="py-1.5 text-[#d8e5e4]">23</span>
+<span class="py-1.5 text-[#d8e5e4] font-semibold">24</span>
+<!-- Oct 25: TOMORROW'S SESSION -->
+<span class="py-1.5 rounded-lg bg-primary text-[#003731] font-bold shadow-[0_0_12px_rgba(87,241,219,0.5)] relative group cursor-pointer" title="Session Tomorrow 10:00 AM">
+              25<span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-secondary"></span>
+</span>
+<span class="py-1.5 text-[#d8e5e4]">26</span>
+<span class="py-1.5 text-[#d8e5e4]">27</span>
+<span class="py-1.5 text-[#d8e5e4]">28</span>
+<span class="py-1.5 text-[#d8e5e4]">29</span>
+<span class="py-1.5 text-[#d8e5e4]">30</span>
+<span class="py-1.5 text-[#d8e5e4]">31</span>
+<span class="text-[#9bb5b0]/30 py-1.5">1</span>
+</div>
+</div>
+<!-- Legend Ribbon -->
+<div class="flex items-center justify-between pt-space-xs text-[#9bb5b0] font-label-sm text-label-sm border-t border-[#1e3b39]">
+<div class="flex items-center gap-space-2xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="text-[#d8e5e4]">Confirmed Telehealth</span>
+</div>
+<div class="flex items-center gap-space-2xs">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="text-[#d8e5e4]">Pending (Nov 06)</span>
+</div>
+</div>
+</div>
+<!-- PRE-SESSION PREPARATION CHECKLIST -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl shadow-sm p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">fact_check</span>
+<h3 class="font-title-card text-title-card text-[#f0faf7]">Pre-Session Preparation</h3>
+</div>
+<span class="font-label-pill-counter text-label-pill-counter bg-[#173b3a] border border-primary/30 text-primary px-2 py-0.5 rounded-full font-bold">
+            2 of 4 Ready
+          </span>
+</div>
+<p class="font-body-sm text-body-sm text-[#9bb5b0]">
+          Maximizing therapeutic efficacy starts prior to joining the video suite.
+        </p>
+<!-- Dynamic Checklist Items -->
+<div class="flex flex-col gap-space-sm" id="prepChecklist">
+<!-- Item 1 (Done) -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-[#0b1b1a] border border-[#1e3b39] cursor-pointer hover:border-[#2a504d] transition-colors">
+<input checked="" class="mt-1 h-4 w-4 rounded bg-[#091515] border-[#1e3b39] text-primary focus:ring-0 accent-primary cursor-pointer" type="checkbox"/>
+<div>
+<span class="font-body-sm-bold text-body-sm-bold text-[#7d9e98] line-through">Complete 7-Day Sleep Log</span>
+<p class="font-label-sm text-label-sm text-[#5eead4] mt-0.5">Completed yesterday at 9:15 PM</p>
+</div>
+</label>
+<!-- Item 2 (Done) -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-[#0b1b1a] border border-[#1e3b39] cursor-pointer hover:border-[#2a504d] transition-colors">
+<input checked="" class="mt-1 h-4 w-4 rounded bg-[#091515] border-[#1e3b39] text-primary focus:ring-0 accent-primary cursor-pointer" type="checkbox"/>
+<div>
+<span class="font-body-sm-bold text-body-sm-bold text-[#7d9e98] line-through">Log Somatic Mood Check-in</span>
+<p class="font-label-sm text-label-sm text-[#5eead4] mt-0.5">Recorded: 4.0 (Grounded)</p>
+</div>
+</label>
+<!-- Item 3 (Pending) -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-[#112423] border border-[#1e3b39] hover:border-primary/40 transition-colors cursor-pointer shadow-sm">
+<input class="mt-1 h-4 w-4 rounded bg-[#091515] border-[#1e3b39] text-primary focus:ring-0 accent-primary cursor-pointer" type="checkbox"/>
+<div>
+<span class="font-body-sm-bold text-body-sm-bold text-[#f0faf7]">Private, confidential space ready</span>
+<p class="font-label-sm text-label-sm text-[#9bb5b0] mt-0.5">Use headphones &amp; silence notifications</p>
+</div>
+</label>
+<!-- Item 4 (Pending with interactive AV Test) -->
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg bg-[#112423] border border-[#1e3b39] hover:border-primary/40 transition-colors cursor-pointer shadow-sm">
+<input class="mt-1 h-4 w-4 rounded bg-[#091515] border-[#1e3b39] text-primary focus:ring-0 accent-primary cursor-pointer" type="checkbox"/>
+<div class="flex-1">
+<span class="font-body-sm-bold text-body-sm-bold text-[#f0faf7]">Test video &amp; microphone audio</span>
+<p class="font-label-sm text-label-sm text-[#9bb5b0] mt-0.5">Ensure low latency and echo cancellation</p>
+<button class="mt-space-xs inline-flex items-center gap-space-2xs px-space-sm py-1 rounded-md bg-secondary text-[#261900] text-label-sm font-label-sm font-bold hover:bg-[#ffdea5] transition-all shadow-sm" id="testAvBtn" type="button">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+<span>Test AV Equipment</span>
+</button>
+</div>
+</label>
+</div>
+</div>
+<!-- TELEHEALTH TECH CHECK & CLINICAL SAFEGUARD BANNER -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl shadow-sm p-space-md flex flex-col gap-space-md">
+<div class="flex items-center gap-space-xs text-[#5eead4]">
+<span class="material-symbols-outlined text-[20px]">format_image_left</span>
+<span class="font-body-sm-bold text-body-sm-bold">Sanctuary Suite Verified</span>
+</div>
+<!-- Diagnostic Meters -->
+<div class="flex flex-col gap-space-xs font-label-sm text-label-sm text-[#9bb5b0]">
+<div class="flex items-center justify-between">
+<span>WebRTC Media Engine:</span>
+<span class="text-[#5eead4] font-semibold">Active &amp; Ready</span>
+</div>
+<div class="flex items-center justify-between">
+<span>Bandwidth Latency:</span>
+<span class="text-primary font-semibold">18ms (Optimal)</span>
+</div>
+<div class="flex items-center justify-between">
+<span>Per-session Privacy Token:</span>
+<span class="text-secondary font-semibold">0x7F...9A4</span>
+</div>
+</div>
+<div class="h-px w-full bg-[#1e3b39]"></div>
+<!-- Grounding / Crisis Safety Net Card -->
+<div class="bg-[#0b1b1a] border border-[#1e3b39] rounded-xl p-space-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">spa</span>
+<div class="flex flex-col">
+<span class="font-body-sm-bold text-body-sm-bold text-[#f0faf7] leading-tight">Need Urgent Grounding?</span>
+<span class="font-label-sm text-label-sm text-[#9bb5b0]">Guided breathing &amp; 988 access</span>
+</div>
+</div>
+<a class="px-space-sm py-1 rounded-lg bg-[#2e1715] border border-[#52211e] text-[#ffb4ab] font-label-sm text-label-sm font-bold hover:bg-[#481c19] transition-all whitespace-nowrap" href="tel:988">
+            988 Hotline
+          </a>
+</div>
+</div>
+<!-- CLINICIAN BIO / PRACTICE IDENTITY TILE -->
+<div class="bg-gradient-to-br from-[#112423] via-[#142d2a] to-[#112423] border border-[#1e3b39] text-[#f0faf7] rounded-xl p-space-md shadow-md flex flex-col gap-space-sm relative overflow-hidden">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">psychology_alt</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-[#5eead4] uppercase tracking-wider block font-semibold">Care Philosophy</span>
+<span class="font-title-card text-title-card text-[#f0faf7]">Relational CBT &amp; Sleep Ecology</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-[#9bb5b0] leading-relaxed">
+          Dr. Consultant employs evidence-informed insomnia intervention with gentle cognitive restructuring. Between sessions, client-reported mood markers inform subsequent discussion threads.
+        </p>
+<div class="pt-space-xs flex items-center justify-between text-[#5eead4] font-label-sm text-label-sm">
+<span>License #PSY-84092-NY</span>
+<a class="underline hover:text-white transition-colors" href="#">Care Agreement →</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Simple Interactive Logic for Filters and Menus -->
+<script>
+  (function() {
+    // Dropdown Sync Menu Toggle
+    const syncBtn = document.getElementById('calendarSyncBtn');
+    const syncDropdown = document.getElementById('calendarSyncDropdown');
+    if (syncBtn && syncDropdown) {
+      syncBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        syncDropdown.classList.toggle('hidden');
+        syncDropdown.classList.toggle('flex');
+      });
+      document.addEventListener('click', () => {
+        syncDropdown.classList.add('hidden');
+        syncDropdown.classList.remove('flex');
+      });
+    }
+
+    // Tab Filtering
+    const tabs = document.querySelectorAll('.tab-btn');
+    const cards = document.querySelectorAll('.session-card');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const filter = tab.getAttribute('data-tab');
+        
+        // Tab Styles Update
+        tabs.forEach(t => {
+          t.className = 'tab-btn px-space-md py-space-xs rounded-lg text-body-sm font-body-sm text-[#9bb5b0] hover:text-[#f0faf7] hover:bg-[#162928] transition-all';
+        });
+        tab.className = 'tab-btn px-space-md py-space-xs rounded-lg text-body-sm-bold font-body-sm-bold transition-all bg-[#1a3836] text-primary border border-primary/30 shadow-sm';
+
+        // Filter Content Cards
+        cards.forEach(card => {
+          const category = card.getAttribute('data-category');
+          if (filter === 'all') {
+            card.classList.remove('hidden');
+          } else if (filter === category) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // AV Equipment Test Feedback Micro-interaction
+    const testAvBtn = document.getElementById('testAvBtn');
+    if (testAvBtn) {
+      testAvBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        testAvBtn.innerHTML = '<span class="material-symbols-outlined text-[14px] animate-spin">autorenew</span> Testing Mic & Cam...';
+        setTimeout(() => {
+          testAvBtn.innerHTML = '<span class="material-symbols-outlined text-[14px]">check_circle</span> Hardware Optimal';
+          testAvBtn.classList.remove('bg-secondary', 'text-[#261900]');
+          testAvBtn.classList.add('bg-[#122e2b]', 'text-[#5eead4]', 'border', 'border-[#1f544f]');
+        }, 1200);
+      });
+    }
+  })();
+</script></main></div></body></html>

@@ -4,9 +4,96 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>project-412</title>
+    <title>MindCare Pro · Modern Clinical Sanctuary</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#005c55',
+              'on-primary': '#ffffff',
+              'primary-container': '#0f766e',
+              'on-primary-container': '#a3faef',
+              'inverse-primary': '#80d5cb',
+              secondary: '#3b6661',
+              'on-secondary': '#ffffff',
+              'secondary-container': '#bbe9e2',
+              'on-secondary-container': '#406a65',
+              tertiary: '#893822',
+              'on-tertiary': '#ffffff',
+              'tertiary-container': '#a84f37',
+              'on-tertiary-container': '#ffe4de',
+              surface: '#e6fef9',
+              'surface-dim': '#c7dfda',
+              'surface-bright': '#e6fef9',
+              'surface-container-lowest': '#ffffff',
+              'surface-container-low': '#e1f9f3',
+              'surface-container': '#dbf3ee',
+              'surface-container-high': '#d5ede8',
+              'surface-container-highest': '#d0e7e2',
+              'on-surface': '#091f1c',
+              'on-surface-variant': '#3e4947',
+              'app-bg-light': '#f2f5f3',
+              'app-bg-dark': '#0d1b1a',
+              'surface-card-light': '#ffffff',
+              'surface-card-dark': '#14292a',
+              'border-hairline-light': '#dde7e3',
+              'border-hairline-dark': '#23403f',
+              'text-primary-light': '#14302c',
+              'text-primary-dark': '#e3efec',
+              'text-secondary-light': '#5f7571',
+              'text-secondary-dark': '#8fa8a3',
+              'brand-deep': '#0c3b37',
+              'brand-deepest': '#081f1e',
+              'teal-interactive': '#0f766e',
+              'teal-interactive-hover': '#115e59',
+              'teal-interactive-dark': '#2dd4bf',
+              'teal-tint-soft-light': '#e3f1ee',
+              'teal-tint-soft-dark': '#173b3a',
+              'metric-terracotta': '#e07a5f',
+              'metric-gold': '#e9b44c',
+              'metric-slate': '#6c8ebf',
+              'status-warning-bg-light': '#fff3df',
+              'status-warning-text-light': '#8a5a12',
+              'status-warning-bg-dark': '#3a2f17',
+              'status-warning-text-dark': '#f2c879',
+              'status-success-bg-light': '#dff3e6',
+              'status-success-text-light': '#1f6b3d',
+              'status-success-bg-dark': '#173a27',
+              'status-success-text-dark': '#8fdcae',
+              'status-danger-bg-light': '#fde8e4',
+              'status-danger-text-light': '#b3392a',
+              'status-danger-bg-dark': '#3b1f1b',
+              'status-danger-text-dark': '#f4a496',
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+              serif: ['"Playfair Display"', 'Georgia', 'serif'],
+              'headline-lg': ['"Playfair Display"', 'serif'],
+              'headline-stat': ['"Playfair Display"', 'serif'],
+              'title-card': ['"Playfair Display"', 'serif'],
+              'body-base': ['"Plus Jakarta Sans"', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
   </head>
-  <body>
+  <body class="bg-[#f2f5f3] dark:bg-[#0d1b1a] text-[#14302c] dark:text-[#e3efec] antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

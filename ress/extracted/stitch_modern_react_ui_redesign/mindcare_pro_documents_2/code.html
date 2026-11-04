@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "outline-variant": "#3c4a46",
+          "on-secondary-fixed-variant": "#5d4200",
+          "secondary-fixed-dim": "#eac172",
+          "tertiary": "#64f0d9",
+          "surface-container": "#162222",
+          "on-surface-variant": "#bacac5",
+          "surface-tint": "#3cddc7",
+          "error": "#ffb4ab",
+          "primary": "#57f1db",
+          "inverse-on-surface": "#263332",
+          "surface-container-lowest": "#051010",
+          "on-secondary-fixed": "#261900",
+          "inverse-surface": "#d8e5e4",
+          "primary-fixed-dim": "#3cddc7",
+          "on-surface": "#d8e5e4",
+          "on-primary": "#003731",
+          "on-background": "#d8e5e4",
+          "on-tertiary-fixed-variant": "#005047",
+          "on-tertiary-fixed": "#00201b",
+          "on-tertiary": "#003730",
+          "background": "#091515",
+          "tertiary-container": "#41d3be",
+          "surface-bright": "#2f3b3b",
+          "surface-variant": "#2b3737",
+          "secondary": "#eac172",
+          "tertiary-fixed-dim": "#4ddcc6",
+          "on-secondary": "#412d00",
+          "outline": "#859490",
+          "secondary-container": "#634600",
+          "secondary-fixed": "#ffdea5",
+          "surface-container-low": "#121e1e",
+          "inverse-primary": "#006b5f",
+          "primary-fixed": "#62fae3",
+          "error-container": "#93000a",
+          "surface": "#091515",
+          "on-error-container": "#ffdad6",
+          "on-primary-container": "#00574d",
+          "on-tertiary-container": "#00574d",
+          "on-primary-fixed": "#00201c",
+          "tertiary-fixed": "#6ef9e2",
+          "surface-dim": "#091515",
+          "primary-container": "#2dd4bf",
+          "surface-container-high": "#202c2c",
+          "on-error": "#690005",
+          "on-primary-fixed-variant": "#005047",
+          "surface-container-highest": "#2b3737",
+          "on-secondary-container": "#deb669"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-2xl": "3.5rem",
+          "space-xs": "0.25rem",
+          "space-sm": "0.5rem",
+          "gutter-mobile": "1rem",
+          "space-lg": "1.5rem",
+          "space-md": "1rem",
+          "gutter": "1.5rem",
+          "margin-mobile": "1.25rem",
+          "margin": "2.5rem",
+          "space-xl": "2.25rem"
+        },
+        "fontFamily": {
+          "headline-sm": [
+            "Playfair Display"
+          ],
+          "headline-md": [
+            "Playfair Display"
+          ],
+          "label-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Playfair Display"
+          ],
+          "body-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "display": [
+            "Playfair Display"
+          ],
+          "body-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg-mobile": [
+            "Playfair Display"
+          ],
+          "body-md": [
+            "Plus Jakarta Sans"
+          ],
+          "label-md": [
+            "Plus Jakarta Sans"
+          ],
+          "caption": [
+            "Plus Jakarta Sans"
+          ],
+          "title": [
+            "Plus Jakarta Sans"
+          ]
+        },
+        "fontSize": {
+          "headline-sm": [
+            "1.375rem",
+            {
+              "lineHeight": "1.875rem",
+              "fontWeight": "500"
+            }
+          ],
+          "headline-md": [
+            "1.75rem",
+            {
+              "lineHeight": "2.25rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "500"
+            }
+          ],
+          "label-lg": [
+            "0.875rem",
+            {
+              "lineHeight": "1.25rem",
+              "letterSpacing": "0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-lg": [
+            "2.25rem",
+            {
+              "lineHeight": "2.75rem",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-sm": [
+            "0.875rem",
+            {
+              "lineHeight": "1.375rem",
+              "fontWeight": "400"
+            }
+          ],
+          "display": [
+            "3rem",
+            {
+              "lineHeight": "3.5rem",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "1.125rem",
+            {
+              "lineHeight": "1.75rem",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-lg-mobile": [
+            "1.75rem",
+            {
+              "lineHeight": "2.25rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-md": [
+            "1rem",
+            {
+              "lineHeight": "1.6rem",
+              "fontWeight": "400"
+            }
+          ],
+          "label-md": [
+            "0.75rem",
+            {
+              "lineHeight": "1rem",
+              "letterSpacing": "0.02em",
+              "fontWeight": "500"
+            }
+          ],
+          "caption": [
+            "0.6875rem",
+            {
+              "lineHeight": "0.875rem",
+              "fontWeight": "400"
+            }
+          ],
+          "title": [
+            "1.125rem",
+            {
+              "lineHeight": "1.625rem",
+              "fontWeight": "600"
+            }
+          ]
+        }
+      }
+    }
+  }
+</script></head><body class="bg-[#091515] font-body-md text-[#d8e5e4] antialiased selection:bg-primary-container selection:text-[#003731]"><aside class="fixed left-0 top-0 h-full w-64 bg-[#061413] border-r border-[#1e3b39] shadow-[0_1px_12px_rgba(0,0,0,0.4)] z-50 flex flex-col justify-between p-space-md"><div class="flex flex-col gap-space-md"><div class="flex items-center gap-space-sm px-space-xs py-space-xs"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-[#003731] shadow-sm"><span class="material-symbols-outlined text-[20px]">spa</span></div><div><div class="font-headline-sm text-lg text-[#f2f9f7] tracking-tight leading-none">MindCare</div><span class="font-caption text-caption text-[#9bb3ae] tracking-wider uppercase font-semibold">Sanctuary Portal</span></div></div><div class="px-space-xs pt-space-xs"><div class="bg-[#122826] border border-[#1e3b39] rounded-xl p-space-sm flex items-center gap-space-sm"><span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span><span class="font-label-md text-label-md text-[#5eead4]">Safe &amp; Confidential Care</span></div></div><nav class="flex flex-col gap-1.5" data-active-classes="bg-[#173b3a] text-primary font-semibold rounded-xl border border-primary/30"><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb3ae] hover:bg-[#122826] hover:text-[#f2f9f7] transition-all font-body-sm text-body-sm" data-path="client-dashboard" href="#"><span>Dashboard</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb3ae] hover:bg-[#122826] hover:text-[#f2f9f7] transition-all font-body-sm text-body-sm" data-path="mood-journal" href="#"><span>Mood Journal</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb3ae] hover:bg-[#122826] hover:text-[#f2f9f7] transition-all font-body-sm text-body-sm" data-path="book-session" href="#"><span>Book Session</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb3ae] hover:bg-[#122826] hover:text-[#f2f9f7] transition-all font-body-sm text-body-sm" data-path="my-sessions" href="#"><span>My Sessions</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb3ae] hover:bg-[#122826] hover:text-[#f2f9f7] transition-all font-body-sm text-body-sm" data-path="my-goals" href="#"><span>My Goals</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl bg-[#173b3a] text-primary font-semibold border border-primary/30 shadow-sm transition-all font-body-sm text-body-sm" data-path="documents" href="#"><span>Documents</span><span class="w-1.5 h-1.5 rounded-full bg-primary"></span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb3ae] hover:bg-[#122826] hover:text-[#f2f9f7] transition-all font-body-sm text-body-sm" data-path="wellbeing-toolkit" href="#"><span>Wellbeing Toolkit</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-[#9bb3ae] hover:bg-[#122826] hover:text-[#f2f9f7] transition-all font-body-sm text-body-sm" data-path="notifications" href="#"><span>Notifications</span><span class="px-2 py-0.5 rounded-full bg-[#1b3d3a] text-[#5eead4] font-caption text-caption font-bold">2</span></a></nav></div><div class="flex flex-col gap-space-xs pt-space-md bg-[#061413]"><div class="h-px w-full bg-[#1e3b39]"></div><a class="flex items-center px-space-sm py-space-xs rounded-xl text-[#9bb3ae] hover:bg-[#122826] hover:text-[#f2f9f7] transition-all font-body-sm text-body-sm" data-path="export-data" href="#"><span>Export Data</span></a><a class="flex items-center px-space-sm py-space-xs rounded-xl text-[#ffb4ab] hover:bg-[#341615] hover:text-[#ffdad6] transition-all font-body-sm text-body-sm" data-path="sign-out" href="#"><span>Sign Out</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-[#112423]/90 backdrop-blur-xl border-b border-[#1e3b39] shadow-[0_4px_20px_rgba(0,0,0,0.25)] z-40 px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[20px]">wb_twilight</span><span class="font-headline-sm text-lg text-[#f2f9f7]">MindCare Sanctuary</span></div><span class="font-body-sm text-body-sm text-[#9bb3ae] hidden lg:inline">Welcome, Jamie Lee</span></div><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-xs bg-[#2e1715] border border-[#52211e] px-space-sm py-space-xs rounded-full hover:bg-[#481c19] transition-all group" href="tel:988" title="National Crisis Lifeline 24/7"><span class="material-symbols-outlined text-[#ffb4ab] text-[18px]">phone_in_talk</span><span class="font-label-md text-label-md text-[#ffb4ab] whitespace-nowrap">24/7 Crisis Support (988)</span></a><button aria-label="Toggle Calming Theme" class="w-9 h-9 rounded-full bg-[#162a29] border border-[#1e3b39] flex items-center justify-center text-primary transition-all shadow-[0_0_10px_rgba(45,212,191,0.2)]" type="button"><span class="material-symbols-outlined text-[18px]">contrast</span></button><a aria-label="View notifications" class="relative w-9 h-9 rounded-full bg-[#162a29] border border-[#1e3b39] flex items-center justify-center text-[#9bb3ae] hover:text-primary hover:border-primary/40 transition-all" data-path="notifications" href="#"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#eac172]"></span></a><div class="h-6 w-px bg-[#1e3b39]"></div><div class="flex items-center gap-space-sm pl-space-2xs"><div class="relative"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-[#003731] font-bold"><span class="material-symbols-outlined text-[18px]">person</span></div><span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-[#112423]"></span></div><div class="hidden sm:flex flex-col text-left"><span class="font-title text-sm text-[#f2f9f7] leading-tight font-semibold">Jamie Lee</span><span class="font-caption text-caption text-[#5eead4] uppercase tracking-wider font-semibold">Client</span></div></div></div></header><main class="relative pt-16 bg-[#091515] w-full min-h-screen px-space-xl py-space-xl"><div class="flex flex-col w-full">
+<!-- Decorative subtle ambient background glow -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-24 -right-24 w-96 h-96 bg-[#2dd4bf]/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-96 -left-32 w-80 h-80 bg-[#163a36]/30 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex flex-col gap-space-xl max-w-[1300px] mx-auto w-full relative z-10">
+<!-- Top Context & Page Header -->
+<section class="flex flex-col gap-space-md">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-space-xs text-[#9bb3ae] font-caption text-caption uppercase tracking-wider mb-space-2xs">
+<span class="material-symbols-outlined text-[16px] text-primary">shield_lock</span>
+<span>Client Portal</span>
+<span class="text-[#3c4a46]">/</span>
+<span class="text-[#f2f9f7] font-semibold tracking-normal">Secure Document Vault</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-[#f2f9f7] tracking-tight">Documents &amp; Clinical Records</h1>
+<p class="font-body-md text-body-md text-[#9bb3ae] mt-space-2xs max-w-2xl leading-relaxed">
+            Securely upload, organize, and share clinical worksheets, intake forms, and diagnostic summaries with <span class="font-semibold text-primary">Dr. Demo Consultant</span>.
+          </p>
+</div>
+<div class="flex items-center gap-space-sm self-start lg:self-auto">
+<div class="bg-[#112423] border border-[#1e3b39] px-space-md py-space-sm rounded-xl flex items-center gap-space-sm shadow-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-[#f2f9f7] font-semibold">Full Document Vault Unlocked</span>
+<span class="font-caption text-caption text-[#5eead4] uppercase tracking-wider font-semibold">HIPAA &amp; HITECH Compliant • AES-256</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Metrics Strip -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="bg-[#112423] border border-[#1e3b39] p-space-md rounded-xl shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+<div class="flex items-center justify-between">
+<span class="font-caption text-caption text-[#9bb3ae] uppercase tracking-wider font-semibold">Total Documents</span>
+<span class="material-symbols-outlined text-primary text-[20px]">inventory_2</span>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-md text-headline-md text-[#f2f9f7] font-bold leading-none">8 <span class="font-body-sm text-body-sm text-[#9bb3ae] font-normal">files</span></div>
+<p class="font-body-sm text-body-sm text-[#bacac5] mt-space-2xs">14.2 MB encrypted storage</p>
+</div>
+</div>
+<div class="bg-[#112423] border border-[#1e3b39] p-space-md rounded-xl shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-[#6c8ebf]"></div>
+<div class="flex items-center justify-between">
+<span class="font-caption text-caption text-[#9bb3ae] uppercase tracking-wider font-semibold">Clinician Shared</span>
+<span class="material-symbols-outlined text-[#6c8ebf] text-[20px]">psychology</span>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-md text-headline-md text-[#f2f9f7] font-bold leading-none">5 <span class="font-body-sm text-body-sm text-[#9bb3ae] font-normal">resources</span></div>
+<p class="font-body-sm text-body-sm text-[#bacac5] mt-space-2xs">Care plans, thought records &amp; audio</p>
+</div>
+</div>
+<div class="bg-[#112423] border border-[#1e3b39] p-space-md rounded-xl shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-[#eac172]"></div>
+<div class="flex items-center justify-between">
+<span class="font-caption text-caption text-[#9bb3ae] uppercase tracking-wider font-semibold">Uploaded by You</span>
+<span class="material-symbols-outlined text-[#eac172] text-[20px]">upload_file</span>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-md text-headline-md text-[#f2f9f7] font-bold leading-none">3 <span class="font-body-sm text-body-sm text-[#9bb3ae] font-normal">records</span></div>
+<p class="font-body-sm text-body-sm text-[#bacac5] mt-space-2xs">Intake packet, sleep log &amp; lab results</p>
+</div>
+</div>
+<div class="bg-[#112423] border border-[#1e3b39] p-space-md rounded-xl shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-surface-tint"></div>
+<div class="flex items-center justify-between">
+<span class="font-caption text-caption text-[#9bb3ae] uppercase tracking-wider font-semibold">Vault Security</span>
+<span class="material-symbols-outlined text-surface-tint text-[20px]">verified_user</span>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-md text-headline-md text-primary font-bold leading-none">100%</div>
+<p class="font-body-sm text-body-sm text-[#bacac5] mt-space-2xs">Zero third-party telemetry / Indexing</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Two-Column Workspace Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter items-start">
+<!-- Primary Column (Left 8 Cols): Upload Studio & Document Repository -->
+<section class="xl:col-span-8 flex flex-col gap-space-lg">
+<!-- Interactive Drag-and-Drop Vault Upload Panel -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[22px]">cloud_upload</span>
+<h2 class="font-title text-title text-[#f2f9f7]">Secure Document Upload</h2>
+</div>
+<span class="font-label-md text-label-md bg-[#122826] border border-[#1e3b39] text-[#5eead4] px-space-sm py-1 rounded-full font-semibold">Encrypted Transport</span>
+</div>
+<!-- Drop Area -->
+<div class="bg-[#0b1b1a] border-2 border-dashed border-[#1e3b39] rounded-xl p-space-xl flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary/50 hover:bg-[#122826]/60 transition-all group" id="dropzone">
+<div class="w-14 h-14 rounded-full bg-[#162a29] border border-[#1e3b39] flex items-center justify-center text-primary mb-space-sm shadow-sm group-hover:scale-105 transition-all">
+<span class="material-symbols-outlined text-[30px]">note_add</span>
+</div>
+<p class="font-title text-base text-[#f2f9f7] font-semibold">
+              Drag and drop clinical documents, or <span class="text-primary underline">browse files</span>
+</p>
+<p class="font-body-sm text-body-sm text-[#9bb3ae] mt-space-2xs max-w-md">
+              Supports PDF, DOCX, PNG, JPG, or MP3 up to 25 MB. Immediately encrypted and timestamped for Dr. Demo Consultant.
+            </p>
+<input accept=".pdf,.docx,.png,.jpg,.mp3" class="hidden" id="file-input" multiple="" type="file"/>
+</div>
+<!-- Metadata Fields and Options -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md pt-space-xs">
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-md text-label-md text-[#d8e5e4] font-semibold" for="doc-category">Document Category</label>
+<div class="relative">
+<select class="w-full bg-[#0b1b1a] text-[#f2f9f7] border border-[#1e3b39] rounded-lg px-3.5 py-2.5 font-body-sm text-body-sm shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary pr-10" id="doc-category">
+<option class="bg-[#0b1b1a] text-[#f2f9f7]" value="worksheet">Therapeutic Worksheet (CBT / Somatic)</option>
+<option class="bg-[#0b1b1a] text-[#f2f9f7]" value="intake">Intake, Assessment &amp; Consent</option>
+<option class="bg-[#0b1b1a] text-[#f2f9f7]" value="logs">Biometric / Sleep / Mood Log</option>
+<option class="bg-[#0b1b1a] text-[#f2f9f7]" value="external">External Medical Record / Lab Result</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-[#9bb3ae] pointer-events-none text-[20px]">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-md text-label-md text-[#d8e5e4] font-semibold" for="doc-notes">Clinical Note / Context (Optional)</label>
+<input class="w-full bg-[#0b1b1a] text-[#f2f9f7] border border-[#1e3b39] rounded-lg px-3.5 py-2.5 font-body-sm text-body-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-[#9bb3ae]/50" id="doc-notes" placeholder="e.g., Completed Session 4 Thought Record with annotations" type="text"/>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pt-space-2xs">
+<label class="flex items-center gap-space-sm cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded bg-[#0b1b1a] border-[#1e3b39] text-primary focus:ring-primary focus:ring-offset-[#091515] accent-primary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-[#bacac5]">Notify Dr. Demo Consultant immediately upon upload</span>
+</label>
+<button class="bg-primary hover:bg-[#62fae3] text-[#003731] px-space-md py-2.5 rounded-lg font-semibold flex items-center justify-center gap-space-xs transition-all shadow-[0_0_20px_rgba(45,212,191,0.25)] active:scale-[0.98]" id="upload-cta" type="button">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Encrypt &amp; Upload to Vault</span>
+</button>
+</div>
+</div>
+<!-- Filter, Search, and Document List Container -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<!-- Filter Controls & Action Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-xs">
+<!-- Search bar -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3.5 top-2.5 text-[#9bb3ae] text-[20px]">search</span>
+<input class="w-full bg-[#0b1b1a] text-[#f2f9f7] border border-[#1e3b39] pl-10 pr-4 py-2.5 rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-[#9bb3ae]/50" placeholder="Search documents by name, tag, or clinician note..." type="search"/>
+</div>
+<!-- Sort By -->
+<div class="flex items-center gap-space-xs shrink-0">
+<span class="font-label-md text-label-md text-[#9bb3ae] whitespace-nowrap">Sort by:</span>
+<select class="bg-[#0b1b1a] text-[#f2f9f7] border border-[#1e3b39] rounded-lg px-3 py-2 font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary">
+<option class="bg-[#0b1b1a] text-[#f2f9f7]">Recently Added</option>
+<option class="bg-[#0b1b1a] text-[#f2f9f7]">File Size (High - Low)</option>
+<option class="bg-[#0b1b1a] text-[#f2f9f7]">Alphabetical (A - Z)</option>
+</select>
+</div>
+</div>
+<!-- Category Filter Pills -->
+<div class="flex flex-wrap items-center gap-space-xs">
+<button class="bg-[#1a3836] text-primary border border-primary/30 px-space-sm py-1.5 rounded-full font-label-md text-label-md shadow-sm font-semibold">All Documents (8)</button>
+<button class="bg-[#162a29] border border-[#1e3b39] text-[#9bb3ae] hover:text-[#f2f9f7] hover:border-primary/30 px-space-sm py-1.5 rounded-full font-label-md text-label-md transition-colors">Therapeutic Worksheets (3)</button>
+<button class="bg-[#162a29] border border-[#1e3b39] text-[#9bb3ae] hover:text-[#f2f9f7] hover:border-primary/30 px-space-sm py-1.5 rounded-full font-label-md text-label-md transition-colors">Intake &amp; Legal (2)</button>
+<button class="bg-[#162a29] border border-[#1e3b39] text-[#9bb3ae] hover:text-[#f2f9f7] hover:border-primary/30 px-space-sm py-1.5 rounded-full font-label-md text-label-md transition-colors">Biometric &amp; Logs (2)</button>
+<button class="bg-[#162a29] border border-[#1e3b39] text-[#9bb3ae] hover:text-[#f2f9f7] hover:border-primary/30 px-space-sm py-1.5 rounded-full font-label-md text-label-md transition-colors">Audio &amp; Media (1)</button>
+</div>
+<!-- Document List Table/Cards -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<!-- File 1: Sleep Restriction Log -->
+<div class="p-space-md rounded-xl bg-[#0b1b1a] border border-[#1e3b39] hover:border-[#2a504d] hover:bg-[#122826]/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-[#341615] border border-[#52211e] text-[#ffb4ab] flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[26px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-title text-sm text-[#f2f9f7] font-semibold break-all">Sleep_Restriction_Log_Week1.pdf</span>
+<span class="bg-[#122e2b] border border-[#1f544f] text-[#5eead4] font-label-md text-label-md px-2 py-0.5 rounded-full font-semibold">Reviewed by Clinician ✓</span>
+</div>
+<div class="flex items-center gap-space-sm text-[#9bb3ae] font-body-sm text-body-sm mt-space-2xs flex-wrap">
+<span>142 KB</span>
+<span>•</span>
+<span>Uploaded yesterday at 5:20 PM by Jamie Lee</span>
+<span>•</span>
+<span class="text-[#5eead4] font-caption text-caption bg-[#173b3a] border border-[#1e504c] px-2 py-0.5 rounded font-semibold">#SleepHygiene</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end md:self-center shrink-0">
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Preview document">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+<span class="hidden sm:inline">Preview</span>
+</button>
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Download document">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="hidden sm:inline">Download</span>
+</button>
+<button class="p-2 rounded-lg bg-[#341615] border border-[#52211e] text-[#ffb4ab] hover:bg-[#481c19] hover:text-[#ffdad6] transition-colors shadow-sm" title="Delete document">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- File 2: Automatic Thought Diary -->
+<div class="p-space-md rounded-xl bg-[#0b1b1a] border border-[#1e3b39] hover:border-[#2a504d] hover:bg-[#122826]/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-[#341615] border border-[#52211e] text-[#ffb4ab] flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[26px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-title text-sm text-[#f2f9f7] font-semibold break-all">Automatic_Thought_Diary_Session4.pdf</span>
+<span class="bg-[#3a2f17] border border-[#634600] text-[#eac172] font-label-md text-label-md px-2 py-0.5 rounded-full font-semibold">Annotated by Dr. Demo Consultant</span>
+</div>
+<div class="flex items-center gap-space-sm text-[#9bb3ae] font-body-sm text-body-sm mt-space-2xs flex-wrap">
+<span>88 KB</span>
+<span>•</span>
+<span>Uploaded Oct 18, 2025 by Jamie Lee</span>
+<span>•</span>
+<span class="text-[#5eead4] font-caption text-caption bg-[#173b3a] border border-[#1e504c] px-2 py-0.5 rounded font-semibold">#CBTWorksheet</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end md:self-center shrink-0">
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Preview document">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+<span class="hidden sm:inline">Preview</span>
+</button>
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Download document">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="hidden sm:inline">Download</span>
+</button>
+<button class="p-2 rounded-lg bg-[#341615] border border-[#52211e] text-[#ffb4ab] hover:bg-[#481c19] hover:text-[#ffdad6] transition-colors shadow-sm" title="Delete document">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- File 3: MindCare Intake Consent -->
+<div class="p-space-md rounded-xl bg-[#0b1b1a] border border-[#1e3b39] hover:border-[#2a504d] hover:bg-[#122826]/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-[#341615] border border-[#52211e] text-[#ffb4ab] flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[26px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-title text-sm text-[#f2f9f7] font-semibold break-all">MindCare_Client_Intake_Consent_Signed.pdf</span>
+<span class="bg-[#1b3d3a] border border-[#23534f] text-[#5eead4] font-label-md text-label-md px-2 py-0.5 rounded-full flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[13px]">lock</span> Verified &amp; Locked
+                    </span>
+</div>
+<div class="flex items-center gap-space-sm text-[#9bb3ae] font-body-sm text-body-sm mt-space-2xs flex-wrap">
+<span>1.8 MB</span>
+<span>•</span>
+<span>Signed &amp; Stamped Oct 12, 2025</span>
+<span>•</span>
+<span class="text-[#5eead4] font-caption text-caption bg-[#173b3a] border border-[#1e504c] px-2 py-0.5 rounded font-semibold">#LegalConsent</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end md:self-center shrink-0">
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Preview document">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+<span class="hidden sm:inline">Preview</span>
+</button>
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Download document">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="hidden sm:inline">Download</span>
+</button>
+</div>
+</div>
+<!-- File 4: Guided Audio Relaxation -->
+<div class="p-space-md rounded-xl bg-[#0b1b1a] border border-[#1e3b39] hover:border-[#2a504d] hover:bg-[#122826]/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-[#173b3a] border border-[#1e504c] text-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[26px]">headphones</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-title text-sm text-[#f2f9f7] font-semibold break-all">Progressive_Muscle_Relaxation_Guided_Audio.mp3</span>
+<span class="bg-[#122e2b] border border-[#1f544f] text-[#5eead4] font-label-md text-label-md px-2 py-0.5 rounded-full font-semibold">Clinical Resource</span>
+</div>
+<div class="flex items-center gap-space-sm text-[#9bb3ae] font-body-sm text-body-sm mt-space-2xs flex-wrap">
+<span>8.4 MB (18 mins)</span>
+<span>•</span>
+<span>Shared by Dr. Demo Consultant on Oct 19</span>
+<span>•</span>
+<span class="text-[#5eead4] font-caption text-caption bg-[#173b3a] border border-[#1e504c] px-2 py-0.5 rounded font-semibold">#SomaticTool</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end md:self-center shrink-0">
+<button class="p-2 rounded-lg bg-primary text-[#003731] hover:bg-[#62fae3] font-semibold transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Play Audio">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+<span>Play Audio</span>
+</button>
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Download document">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="hidden sm:inline">Download</span>
+</button>
+</div>
+</div>
+<!-- File 5: Cognitive Restructuring Template -->
+<div class="p-space-md rounded-xl bg-[#0b1b1a] border border-[#1e3b39] hover:border-[#2a504d] hover:bg-[#122826]/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-[#3a2f17] border border-[#634600] text-[#eac172] flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[26px]">description</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-title text-sm text-[#f2f9f7] font-semibold break-all">Cognitive_Restructuring_ANTs_Template.docx</span>
+<span class="bg-[#3a2f17] border border-[#634600] text-[#eac172] font-label-md text-label-md px-2 py-0.5 rounded-full font-semibold">Pending Client Input</span>
+</div>
+<div class="flex items-center gap-space-sm text-[#9bb3ae] font-body-sm text-body-sm mt-space-2xs flex-wrap">
+<span>320 KB</span>
+<span>•</span>
+<span>Assigned by Dr. Demo Consultant on Oct 15</span>
+<span>•</span>
+<span class="text-[#5eead4] font-caption text-caption bg-[#173b3a] border border-[#1e504c] px-2 py-0.5 rounded font-semibold">#Homework</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end md:self-center shrink-0">
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Open &amp; Edit">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+<span>Open</span>
+</button>
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Download document">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="hidden sm:inline">Download</span>
+</button>
+</div>
+</div>
+<!-- File 6: Biopsychosocial Summary -->
+<div class="p-space-md rounded-xl bg-[#0b1b1a] border border-[#1e3b39] hover:border-[#2a504d] hover:bg-[#122826]/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-[#341615] border border-[#52211e] text-[#ffb4ab] flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[26px]">clinical_notes</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-title text-sm text-[#f2f9f7] font-semibold break-all">Comprehensive_Intake_Biopsychosocial_Summary.pdf</span>
+<span class="bg-[#1b3d3a] border border-[#23534f] text-[#5eead4] font-label-md text-label-md px-2 py-0.5 rounded-full font-semibold">Official Record</span>
+</div>
+<div class="flex items-center gap-space-sm text-[#9bb3ae] font-body-sm text-body-sm mt-space-2xs flex-wrap">
+<span>2.1 MB</span>
+<span>•</span>
+<span>Authored by Dr. Demo Consultant on Sep 06</span>
+<span>•</span>
+<span class="text-[#5eead4] font-caption text-caption bg-[#173b3a] border border-[#1e504c] px-2 py-0.5 rounded font-semibold">#ClinicalRecord</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-end md:self-center shrink-0">
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="View Summary">
+<span class="material-symbols-outlined text-[18px]">description</span>
+<span>View Summary</span>
+</button>
+<button class="p-2 rounded-lg bg-[#162a29] border border-[#1e3b39] text-[#e3efec] hover:text-primary hover:border-primary/30 transition-colors shadow-sm flex items-center gap-1 font-label-md text-label-md" title="Download document">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="hidden sm:inline">Download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination / Vault Footer -->
+<div class="flex items-center justify-between pt-space-sm text-[#9bb3ae] font-body-sm text-body-sm">
+<span>Showing 6 of 8 clinical items</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1 rounded-lg bg-[#112423] border border-[#1e3b39] text-[#9bb3ae] hover:text-[#f2f9f7] font-label-md text-label-md disabled:opacity-40" disabled="">Previous</button>
+<button class="px-space-sm py-1 rounded-lg bg-[#1a3836] border border-primary/30 text-primary font-semibold font-label-md text-label-md">1</button>
+<button class="px-space-sm py-1 rounded-lg bg-[#112423] border border-[#1e3b39] text-[#9bb3ae] hover:text-[#f2f9f7] font-label-md text-label-md">2</button>
+<button class="px-space-sm py-1 rounded-lg bg-[#112423] border border-[#1e3b39] text-[#9bb3ae] hover:text-[#f2f9f7] font-label-md text-label-md">Next</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Auxiliary Side Panel (Right 4 Cols): Clinician Exchange, Vault Specs & Sanctuary Tools -->
+<aside class="xl:col-span-4 flex flex-col gap-space-lg">
+<!-- Clinician Document Exchange Card -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<div class="flex items-center gap-space-md">
+<div class="relative">
+<img class="w-14 h-14 rounded-full object-cover shadow-sm border border-[#1e3b39]" data-alt="Portrait photo of Dr. Demo Consultant, a warm and empathetic clinical psychologist wearing professional glasses in a serene consultation office with soft natural lighting and warm wood accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3boWJzkJxuYaD2TantviHhiSWRa1n8GZJ0iSUpoUPIGf0cxC7vSmxh3mgqFnTlpji-TBgzMZqE-JHjWRKlQCdB1vXmm2hYFi8Xhay4GZ1-AhY2Oqvffu35S1m6v341UmBVO9E7ceDGLgpCfU40bGBkZ5128d72qMkhDGgE33NYzW8doK30t9jsUVJ_1WIkvDMxhMNpbHUIZUpyzHjy3pRK7XPWg2TvKbj6Vc3KB3i"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary rounded-full border-2 border-[#112423]"></span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-title text-base text-[#f2f9f7] font-semibold leading-snug">Dr. Demo Consultant, Psy.D</h3>
+<span class="font-caption text-caption text-primary font-bold mt-0.5">Primary Attending Clinician</span>
+<span class="font-caption text-caption text-[#9bb3ae]">Lic. #PSY-48902 • CBT &amp; Somatics</span>
+</div>
+</div>
+<div class="bg-[#0b1b1a] border border-[#1e3b39] p-space-md rounded-xl flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-2xs text-[#f2f9f7] font-semibold text-sm">
+<span class="material-symbols-outlined text-[18px] text-primary">schedule</span>
+<span>Review Turnaround Protocol</span>
+</div>
+<p class="font-body-sm text-body-sm text-[#9bb3ae] leading-relaxed">
+              Dr. Consultant typically reviews uploaded thought diaries and sleep tracking records within <strong class="text-[#d8e5e4]">24–48 hours</strong> or during your scheduled Thursday consultation session.
+            </p>
+</div>
+<button class="w-full bg-[#162e2c] hover:bg-[#1c3a37] border border-primary/40 text-primary py-2.5 rounded-lg font-semibold flex items-center justify-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span>Send Message about Documents</span>
+</button>
+</div>
+<!-- Storage & Encryption Meter -->
+<div class="bg-[#112423] border border-[#1e3b39] rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-title text-base text-[#f2f9f7] font-semibold">Vault Storage</h3>
+<span class="font-label-md text-label-md text-[#5eead4] font-bold">14.2 MB / 100 MB</span>
+</div>
+<!-- Progress Bar SVG Visualization -->
+<div class="flex flex-col gap-space-2xs">
+<div class="w-full bg-[#0b1b1a] border border-[#1e3b39] rounded-full h-2.5 overflow-hidden">
+<div class="bg-primary h-2.5 rounded-full shadow-[0_0_8px_rgba(45,212,191,0.6)] transition-all duration-500" style="width: 14.2%;"></div>
+</div>
+<div class="flex justify-between font-caption text-caption text-[#9bb3ae] pt-1">
+<span>Complimentary Tier</span>
+<span>85.8 MB Available</span>
+</div>
+</div>
+<div class="pt-space-xs flex flex-col gap-space-sm">
+<div class="flex items-start gap-space-sm p-space-sm bg-[#0b1b1a] border border-[#1e3b39] rounded-lg">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">key</span>
+<div class="flex flex-col">
+<span class="font-title text-sm text-[#f2f9f7] font-semibold">Client-Side Encryption</span>
+<span class="font-caption text-caption text-[#9bb3ae]">AES-256-GCM symmetric session keys protect your data at rest and in transit.</span>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm bg-[#0b1b1a] border border-[#1e3b39] rounded-lg">
+<span class="material-symbols-outlined text-surface-tint text-[20px] shrink-0 mt-0.5">history_toggle_off</span>
+<div class="flex flex-col">
+<span class="font-title text-sm text-[#f2f9f7] font-semibold">Immutable Access Trail</span>
+<span class="font-caption text-caption text-[#9bb3ae]">Last access: Today at 09:42 AM by Dr. Demo Consultant (viewed Sleep Log).</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Therapeutic Grounding Note / Sanctuary Breathing Reminder -->
+<div class="bg-gradient-to-br from-[#112423] via-[#142d2a] to-[#112423] border border-[#1e3b39] rounded-xl p-space-lg shadow-sm flex flex-col gap-space-sm relative overflow-hidden">
+<div class="flex items-center gap-space-xs text-[#f2f9f7]">
+<span class="material-symbols-outlined text-[20px] text-primary">spa</span>
+<span class="font-title text-base font-semibold">Mindful Moment</span>
+</div>
+<p class="font-body-sm text-body-sm text-[#9bb3ae] leading-relaxed">
+            Filling out therapeutic logs can sometimes activate feelings of anxiety or fatigue. Remember to ground yourself with a slow exhalation before reviewing your reflections.
+          </p>
+<div class="flex items-center gap-space-sm pt-space-xs">
+<div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-sm animate-pulse">
+<span class="material-symbols-outlined text-[18px]">air</span>
+</div>
+<span class="font-label-md text-label-md text-[#5eead4] font-semibold">Inhale 4s • Hold 4s • Exhale 6s</span>
+</div>
+</div>
+<!-- Crisis 988 Lifeline Safety Card -->
+<div class="bg-[#2e1715] border border-[#52211e] p-space-md rounded-xl flex items-start gap-space-sm shadow-sm">
+<span class="material-symbols-outlined text-[#ffb4ab] text-[22px] shrink-0">emergency</span>
+<div class="flex flex-col">
+<span class="font-title text-sm font-semibold text-[#ffb4ab]">Need Immediate Assistance?</span>
+<p class="font-body-sm text-body-sm text-[#ffdad6]/90 mt-0.5">
+              The document portal is not monitored for real-time acute crises. If you are experiencing distress, call or text <a class="underline font-bold text-white" href="tel:988">988</a> (National Lifeline, free &amp; confidential 24/7).
+            </p>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</div>
+<!-- Interactive JavaScript for Drag & Drop + Client Action Toasts -->
+<script>
+    (function() {
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('file-input');
+      const uploadCTA = document.getElementById('upload-cta');
+
+      if (dropzone && fileInput) {
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('border-primary', 'bg-[#122826]');
+          }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('border-primary', 'bg-[#122826]');
+          }, false);
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files && files.length > 0) {
+            handleSelectedFiles(files[0].name);
+          }
+        });
+
+        fileInput.addEventListener('change', () => {
+          if (fileInput.files.length > 0) {
+            handleSelectedFiles(fileInput.files[0].name);
+          }
+        });
+      }
+
+      function handleSelectedFiles(fileName) {
+        const dropText = dropzone.querySelector('p');
+        if (dropText) {
+          dropText.innerHTML = 'Selected: <span class="text-primary font-bold">' + fileName + '</span>';
+        }
+      }
+
+      if (uploadCTA) {
+        uploadCTA.addEventListener('click', () => {
+          const originalText = uploadCTA.innerHTML;
+          uploadCTA.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span><span>Encrypting File...</span>';
+          uploadCTA.classList.add('opacity-80', 'pointer-events-none');
+
+          setTimeout(() => {
+            uploadCTA.innerHTML = '<span class="material-symbols-outlined text-[18px]">done</span><span>Vault Updated!</span>';
+            uploadCTA.classList.remove('opacity-80');
+            setTimeout(() => {
+              uploadCTA.innerHTML = originalText;
+              uploadCTA.classList.remove('pointer-events-none');
+            }, 2500);
+          }, 1200);
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>

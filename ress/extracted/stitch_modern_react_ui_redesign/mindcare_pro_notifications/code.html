@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-variant":"#d0e7e2","secondary-container":"#bbe9e2","teal-tint-soft-dark":"#173b3a","status-warning-text-light":"#8a5a12","primary-fixed-dim":"#80d5cb","on-tertiary-container":"#ffe4de","inverse-primary":"#80d5cb","app-bg-light":"#f2f5f3","surface-card-light":"#ffffff","inverse-on-surface":"#def6f1","tertiary-fixed-dim":"#ffb4a1","on-background":"#091f1c","inverse-surface":"#1f3431","secondary-fixed-dim":"#a3cfc9","background":"#e6fef9","surface-container":"#dbf3ee","on-secondary-container":"#406a65","text-primary-dark":"#e3efec","metric-terracotta":"#e07a5f","on-surface-variant":"#3e4947","on-primary-fixed":"#00201d","surface-tint":"#006a63","primary":"#005c55","text-secondary-light":"#5f7571","on-primary-fixed-variant":"#00504a","secondary-fixed":"#beebe5","surface-container-low":"#e1f9f3","status-success-bg-light":"#dff3e6","status-danger-bg-dark":"#3b1f1b","status-danger-text-light":"#b3392a","on-secondary-fixed-variant":"#234e49","on-primary":"#ffffff","brand-deepest":"#081f1e","surface-container-highest":"#d0e7e2","primary-container":"#0f766e","on-secondary-fixed":"#00201d","text-primary-light":"#14302c","teal-interactive":"#0f766e","secondary":"#3b6661","status-danger-text-dark":"#f4a496","status-success-text-light":"#1f6b3d","surface-bright":"#e6fef9","app-bg-dark":"#0d1b1a","metric-gold":"#e9b44c","error":"#ba1a1a","text-secondary-dark":"#8fa8a3","on-secondary":"#ffffff","on-error":"#ffffff","status-success-bg-dark":"#173a27","outline":"#6e7977","on-tertiary":"#ffffff","primary-fixed":"#9cf2e8","teal-interactive-dark":"#2dd4bf","border-hairline-light":"#dde7e3","teal-interactive-hover":"#115e59","error-container":"#ffdad6","border-hairline-dark":"#23403f","on-tertiary-fixed":"#3c0800","outline-variant":"#bdc9c6","surface-dim":"#c7dfda","surface":"#e6fef9","tertiary-fixed":"#ffdbd2","tertiary-container":"#a84f37","on-primary-container":"#a3faef","status-danger-bg-light":"#fde8e4","teal-tint-soft-light":"#e3f1ee","status-warning-text-dark":"#f2c879","status-warning-bg-light":"#fff3df","brand-deep":"#0c3b37","status-success-text-dark":"#8fdcae","surface-container-lowest":"#ffffff","on-tertiary-fixed-variant":"#7c2e19","on-surface":"#091f1c","surface-container-high":"#d5ede8","status-warning-bg-dark":"#3a2f17","surface-card-dark":"#14292a","on-error-container":"#93000a","tertiary":"#893822","metric-slate":"#6c8ebf"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-md":"1rem","space-xl":"1.75rem","space-2xs":"0.125rem","gutter":"1.125rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"1.75rem","gutter-mobile":"0.75rem","space-lg":"1.25rem","margin-mobile":"1rem","space-2xl":"2.5rem"},"fontFamily":{"body-sm":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-stat":["Playfair Display"],"headline-md":["Playfair Display"],"body-base":["Plus Jakarta Sans"],"display-hero-mobile":["Playfair Display"],"label-table-header":["Plus Jakarta Sans"],"headline-sm":["Playfair Display"],"headline-lg":["Playfair Display"],"label-pill-counter":["Plus Jakarta Sans"],"title-card":["Playfair Display"],"label-sm":["Plus Jakarta Sans"],"display-hero":["Playfair Display"],"body-lg":["Plus Jakarta Sans"],"body-base-bold":["Plus Jakarta Sans"],"body-sm-bold":["Plus Jakarta Sans"]},"fontSize":{"body-sm":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"600"}],"headline-stat":["30px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"30px","letterSpacing":"0","fontWeight":"700"}],"body-base":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"display-hero-mobile":["32px",{"lineHeight":"38px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-table-header":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"700"}],"headline-lg":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-pill-counter":["10px",{"lineHeight":"12px","letterSpacing":"0","fontWeight":"700"}],"title-card":["18px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"600"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"700"}],"display-hero":["42px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"400"}],"body-base-bold":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"700"}],"body-sm-bold":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"600"}]}}}</script></head><body class="bg-app-bg-light font-body-base text-body-base text-text-primary-light min-h-screen"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-card-light shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-30 flex flex-col justify-between border-r border-border-hairline-light"><div class="flex flex-col"><div class="h-16 px-space-md flex items-center gap-space-sm border-b border-border-hairline-light"><img alt="MindCare Pro Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UbEZBZpg8kxLsVw9rPG4mcQ2xbLbIZEKRuN0LtczYlfSBC7veVXB59e-UsF6V9htEt1Q1XRnV4FlhCMgc1vuM2SNSQDq5l2PZybcTYcOG5RBcn15WTDpf7rYsu9TfiNhVbmrS8miSfcQs8ynwfKZxwjMiXCsSiAEmw-bww8tLB3Gy4j6Khc5bpdyxMx8W7kumzAnJOf7O2PysTApaDOsWi0A1pMy9I2kwNMblZ_o044w"/><span class="font-headline-sm text-headline-sm text-primary tracking-tight">MindCare Pro</span></div><div class="px-space-md pt-space-md pb-space-xs"><span class="font-label-table-header text-label-table-header text-text-secondary-light uppercase tracking-wider">Practice Management</span></div><nav class="flex flex-col gap-space-2xs px-space-sm" data-active-classes="bg-teal-tint-soft-light text-primary font-body-sm-bold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">home</span><span>Overview</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="clients" href="#"><span class="material-symbols-outlined text-[20px]">mood</span><span>Clients</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="schedule" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Schedule</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="session-notes" href="#"><span class="material-symbols-outlined text-[20px]">edit_note</span><span>Session Notes</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="care-plans" href="#"><span class="material-symbols-outlined text-[20px]">fact_check</span><span>Care Plans</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="notifications" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">notifications</span><span>Notifications</span></div><span class="bg-status-warning-bg-light text-status-warning-text-light font-label-pill-counter text-label-pill-counter px-space-xs py-space-2xs rounded-full">4</span></a></nav></div><div class="p-space-md border-t border-border-hairline-light flex flex-col gap-space-xs"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="export-data" href="#"><span class="material-symbols-outlined text-[20px]">download</span><span>Export Data</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-status-danger-text-light hover:bg-status-danger-bg-light hover:text-status-danger-text-light transition-colors font-body-sm text-body-sm" data-path="login" href="#"><span class="material-symbols-outlined text-[20px]">logout</span><span>Sign Out</span></a></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-card-light/95 backdrop-blur-xl border-b border-border-hairline-light shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-10 flex items-center justify-between px-space-xl"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-text-secondary-light font-body-sm text-body-sm"><span class="material-symbols-outlined text-[18px] text-primary">health_and_safety</span><span class="font-label-md text-label-md text-text-primary-light">Clinical Session Guard</span><span class="w-2 h-2 rounded-full bg-teal-interactive inline-block ml-space-xs"></span></div></div><div class="flex items-center gap-space-md"><button aria-label="Toggle Theme" class="w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">contrast</span></button><button aria-label="Notifications" class="relative w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-metric-terracotta ring-2 ring-surface-card-light"></span></button><div class="h-6 w-px bg-border-hairline-light"></div><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-hairline-light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBICd3i0gM5quwooX44dheh5vDs-618XVXn3Nccw_-rQ-XFkxSvuw1x_pjH9Aoh1uVLREGCJZTx-F8vwdM9nemcyWX7uf9-t9h2Kbrsy2lu7PlomvBXSEQN8UuPzLxw4QUYduaZgait5Twi0UoSng9l0hRo1wJH_4aMYe28nPpj0XND8Y91PJRaepqPJbw6HXvya0h7ynNI2i5YzsIp66UtRd69Du-SXZmeZTNRgrFH"/><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-text-primary-light leading-none">Dr. Demo Consultant</span><span class="font-label-sm text-label-sm text-text-secondary-light leading-tight">Consultant</span></div></div></div></header><main class="w-full pt-16 bg-app-bg-light flex-1 px-space-xl py-space-xl"><div class="flex flex-col w-full">
+<div class="flex flex-col gap-space-xl">
+<!-- Top Narrative & Global Clinical Meta Bar -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs text-primary">
+<span class="material-symbols-outlined text-[18px]">notifications_active</span>
+<span class="font-label-table-header text-label-table-header uppercase tracking-wider text-text-secondary-light">Practitioner Triage Queue</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary-light">Notifications</h1>
+<p class="font-body-base text-body-base text-text-secondary-light">Intake requests, client check-ins, and actionable clinical alerts requiring oversight.</p>
+</div>
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="flex items-center gap-space-xs px-space-md py-space-xs bg-surface-card-light rounded-xl shadow-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-status-success-text-light animate-pulse"></span>
+<span class="font-body-sm-bold text-body-sm-bold text-text-primary-light">Live Sync</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">· Encrypted</span>
+</div>
+<button class="flex items-center gap-space-xs px-space-md py-[9px] bg-teal-tint-soft-light text-primary hover:bg-surface-container-high transition-colors rounded-xl font-body-sm-bold text-body-sm-bold shadow-sm" id="markAllReadBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">done_all</span>
+<span>Mark all as read</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-[9px] bg-teal-interactive hover:bg-teal-interactive-hover text-on-primary transition-colors rounded-xl font-body-sm-bold text-body-sm-bold shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>Notification Settings</span>
+</button>
+</div>
+</div>
+<!-- KPI Metric Summary Ribbon with Specialized Domain Highlights -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Unread Triage Item -->
+<div class="bg-surface-card-light rounded-2xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-metric-terracotta"></div>
+<div class="flex items-start justify-between">
+<span class="font-label-table-header text-label-table-header uppercase text-text-secondary-light">Attention Needed</span>
+<span class="p-1.5 rounded-lg bg-status-danger-bg-light text-status-danger-text-light">
+<span class="material-symbols-outlined text-[18px]">priority_high</span>
+</span>
+</div>
+<div class="mt-space-md flex flex-col">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-text-primary-light" id="unreadCountDisplay">3</span>
+<span class="font-label-md text-label-md text-status-danger-text-light font-body-sm-bold">Actionable</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary-light mt-1">Requires clinical intervention</span>
+</div>
+</div>
+<!-- Access & Intake Requests -->
+<div class="bg-surface-card-light rounded-2xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-metric-gold"></div>
+<div class="flex items-start justify-between">
+<span class="font-label-table-header text-label-table-header uppercase text-text-secondary-light">Intake Requests</span>
+<span class="p-1.5 rounded-lg bg-status-warning-bg-light text-status-warning-text-light">
+<span class="material-symbols-outlined text-[18px]">assignment_ind</span>
+</span>
+</div>
+<div class="mt-space-md flex flex-col">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-text-primary-light">2</span>
+<span class="font-label-md text-label-md text-status-warning-text-light font-body-sm-bold">Pending Triage</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary-light mt-1">Sophia Patel, Demo Client</span>
+</div>
+</div>
+<!-- Telehealth Booking Requests -->
+<div class="bg-surface-card-light rounded-2xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-metric-slate"></div>
+<div class="flex items-start justify-between">
+<span class="font-label-table-header text-label-table-header uppercase text-text-secondary-light">Session Bookings</span>
+<span class="p-1.5 rounded-lg bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-[18px]">calendar_clock</span>
+</span>
+</div>
+<div class="mt-space-md flex flex-col">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-text-primary-light">1</span>
+<span class="font-label-md text-label-md text-secondary font-body-sm-bold">Requested</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary-light mt-1">Telehealth booking for tomorrow</span>
+</div>
+</div>
+<!-- Care Plan Milestones -->
+<div class="bg-surface-card-light rounded-2xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+<div class="flex items-start justify-between">
+<span class="font-label-table-header text-label-table-header uppercase text-text-secondary-light">Care Milestones</span>
+<span class="p-1.5 rounded-lg bg-status-success-bg-light text-status-success-text-light">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</span>
+</div>
+<div class="mt-space-md flex flex-col">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-text-primary-light">4</span>
+<span class="font-label-md text-label-md text-status-success-text-light font-body-sm-bold">Completed</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary-light mt-1">Goal check-ins logged today</span>
+</div>
+</div>
+</div>
+<!-- Main Workspace Split: Feed (8 Cols) vs Protocol Sidebar (4 Cols) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Primary Notifications Stream (8 cols) -->
+<section class="lg:col-span-8 flex flex-col gap-space-md">
+<!-- Controls: Search & Category Filter Pills -->
+<div class="bg-surface-card-light rounded-2xl p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-sm">
+<div class="relative flex-1">
+<span class="material-symbols-outlined text-[20px] text-text-secondary-light absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-app-bg-light text-text-primary-light placeholder:text-text-secondary-light rounded-xl font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary shadow-none" id="searchInput" placeholder="Search by client, MRN (#MC-), or action..." type="text"/>
+</div>
+<div class="flex items-center gap-space-xs">
+<select class="px-3 py-2.5 bg-app-bg-light text-text-primary-light rounded-xl font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary" id="priorityFilter">
+<option value="all">All Priorities</option>
+<option value="high">High Priority</option>
+<option value="routine">Routine</option>
+</select>
+</div>
+</div>
+<!-- Dynamic Tabs -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1" id="filterTabs">
+<button class="filter-tab px-3.5 py-1.5 rounded-full font-label-md text-label-md transition-all bg-primary text-on-primary shadow-sm flex items-center gap-1.5 whitespace-nowrap" data-filter="all">
+<span>All Notifications</span>
+<span class="bg-primary-fixed text-on-primary-fixed text-[11px] font-bold px-1.5 py-0.2 rounded-full">6</span>
+</button>
+<button class="filter-tab px-3.5 py-1.5 rounded-full font-label-md text-label-md transition-all bg-app-bg-light text-text-secondary-light hover:text-text-primary-light flex items-center gap-1.5 whitespace-nowrap" data-filter="unread">
+<span>Unread</span>
+<span class="bg-status-warning-bg-light text-status-warning-text-light text-[11px] font-bold px-1.5 py-0.2 rounded-full">3</span>
+</button>
+<button class="filter-tab px-3.5 py-1.5 rounded-full font-label-md text-label-md transition-all bg-app-bg-light text-text-secondary-light hover:text-text-primary-light whitespace-nowrap" data-filter="intake">
+              Access &amp; Intake
+            </button>
+<button class="filter-tab px-3.5 py-1.5 rounded-full font-label-md text-label-md transition-all bg-app-bg-light text-text-secondary-light hover:text-text-primary-light whitespace-nowrap" data-filter="booking">
+              Bookings &amp; Telehealth
+            </button>
+<button class="filter-tab px-3.5 py-1.5 rounded-full font-label-md text-label-md transition-all bg-app-bg-light text-text-secondary-light hover:text-text-primary-light whitespace-nowrap" data-filter="milestone">
+              Care Plan Milestones
+            </button>
+</div>
+</div>
+<!-- Notification List -->
+<div class="flex flex-col gap-space-sm" id="notificationList">
+<!-- Card 1: Sophia Patel (ACCESS REQUEST - Unread) -->
+<article class="notif-card bg-teal-tint-soft-light rounded-2xl p-space-md sm:p-space-lg shadow-sm transition-all duration-200 hover:shadow-md flex flex-col gap-space-md" data-category="intake" data-status="unread">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="relative flex-shrink-0">
+<img class="w-12 h-12 rounded-xl object-cover shadow-sm" data-alt="Warm studio clinical portrait of a young South Asian woman with gentle posture and soft neutral studio backdrop suited for therapeutic client records" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs4TOKtljILCBQv5nT_eywHmllX51tZJkARgPD03u05KeFg1mav8Sj7v4MfEL61Zdr-7nSQnG-lCWAm9ko9tk1GXMXK0DIroLYihfvJLRvboIC8XX-OSxgtOzovIPW4B0seJFCC-TJWYZXayDUpGHRSTEfio4TCjgicmVj59jFdwl_0a3T_azAVbf5u9nSbTf0i5COV6P9Ykkhl9UdknKfrPTOR2diCtVlf7vH-iib"/>
+<span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-teal-interactive ring-2 ring-surface-card-light"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="bg-status-warning-bg-light text-status-warning-text-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">ACCESS REQUEST</span>
+<span class="bg-teal-tint-soft-light text-primary font-label-table-header text-label-table-header px-2 py-0.5 rounded uppercase">MRN #MC-1090</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">· 12m ago</span>
+</div>
+<h2 class="font-title-card text-title-card text-text-primary-light mt-1">Sophia Patel submitted clinical access request</h2>
+</div>
+</div>
+<div class="flex items-center gap-space-2xs text-text-secondary-light flex-shrink-0">
+<button class="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors" title="Dismiss or archive" type="button">
+<span class="material-symbols-outlined text-[18px]">archive</span>
+</button>
+</div>
+</div>
+<!-- Clinical Excerpt Box -->
+<div class="bg-surface-card-light rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-space-xs text-text-secondary-light mb-1">
+<span class="material-symbols-outlined text-[16px] text-metric-terracotta">notes</span>
+<span class="font-label-md text-label-md text-text-primary-light">Self-Reported Intake Focus:</span>
+</div>
+<p class="font-body-base text-body-base text-text-secondary-light italic">
+                “Experiencing acute postpartum anxiety and chronic sleep disruptions since week 6. Seeking cognitive restructuring and stabilization techniques before returning to work.”
+              </p>
+<div class="flex items-center gap-space-md mt-space-sm pt-space-xs text-text-secondary-light font-body-sm text-body-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-primary">verified_user</span> Insurance: Pre-verified (Aetna PPO)</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-secondary">schedule</span> Urgency: Moderate (Within 48h)</span>
+</div>
+</div>
+<!-- Actions Ribbon -->
+<div class="flex items-center justify-between gap-space-sm pt-space-2xs flex-wrap">
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-2 bg-teal-interactive hover:bg-teal-interactive-hover text-on-primary rounded-xl font-body-sm-bold text-body-sm-bold transition-colors shadow-sm flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Accept Patient</span>
+</button>
+<button class="px-space-md py-2 bg-surface-card-light hover:bg-surface-container-high text-primary rounded-xl font-body-sm-bold text-body-sm-bold transition-colors shadow-sm flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+<span>Quick Review Intake</span>
+</button>
+</div>
+<button class="mark-single-read font-body-sm text-body-sm text-text-secondary-light hover:text-primary transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span>Mark Read</span>
+</button>
+</div>
+</article>
+<!-- Card 2: Jamie Lee (BOOKING REQUEST - Unread) -->
+<article class="notif-card bg-teal-tint-soft-light rounded-2xl p-space-md sm:p-space-lg shadow-sm transition-all duration-200 hover:shadow-md flex flex-col gap-space-md" data-category="booking" data-status="unread">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="relative flex-shrink-0">
+<img class="w-12 h-12 rounded-xl object-cover shadow-sm" data-alt="Portrait of an East Asian male client in casual olive crewneck sitting peacefully in calm indoor window light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8p24di1cIf1iJGWLmcMp1cJ5kJJzDw9VT4Kt-DHidQwKpvhT79YARgl1aYjZ8yYO2rho3ezIequMtckqnjaUCDsUOqnLECiI2wUYW_DRDP1Uqy6J1IW8QSFiKD0TdSSlBZAZ6C1fPiWxuyoTYBCuffxX-G3yPlkR5WvqSxursozGhXwt_Z6B-JLZexPR-xbGZRlW_foeRwzYCpGVUyypiMKtzPnI3QxVfAFZe1_yj"/>
+<span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-teal-interactive ring-2 ring-surface-card-light"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="bg-surface-container-high text-primary font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">BOOKING REQUEST</span>
+<span class="bg-teal-tint-soft-light text-primary font-label-table-header text-label-table-header px-2 py-0.5 rounded uppercase">MRN #MC-1042</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">· 2h ago (Today, 08:30 AM)</span>
+</div>
+<h2 class="font-title-card text-title-card text-text-primary-light mt-1">Jamie Lee requested a Telehealth Consultation</h2>
+</div>
+</div>
+<div class="flex items-center gap-space-2xs text-text-secondary-light flex-shrink-0">
+<button class="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors" title="View in calendar" type="button">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+</button>
+</div>
+</div>
+<!-- Appointment Details Card -->
+<div class="bg-surface-card-light rounded-xl p-space-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="p-2.5 rounded-xl bg-teal-tint-soft-light text-primary">
+<span class="material-symbols-outlined text-[22px]">videocam</span>
+</span>
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Tomorrow · 04:00 PM – 04:50 PM EST</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">Clinical Room: Encrypted Virtual Suite 2</span>
+<span class="font-body-sm text-body-sm text-primary mt-1">Session Target: “Discuss insomnia flare-up &amp; CBT-I adjustments”</span>
+</div>
+</div>
+<div class="px-space-md py-1.5 bg-status-success-bg-light text-status-success-text-light rounded-lg text-center font-label-md text-label-md">
+                Slot Available
+              </div>
+</div>
+<!-- Actions Ribbon -->
+<div class="flex items-center justify-between gap-space-sm pt-space-2xs flex-wrap">
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-2 bg-teal-interactive hover:bg-teal-interactive-hover text-on-primary rounded-xl font-body-sm-bold text-body-sm-bold transition-colors shadow-sm flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">event_available</span>
+<span>Confirm Session</span>
+</button>
+<button class="px-space-md py-2 bg-surface-card-light hover:bg-surface-container-high text-status-danger-text-light rounded-xl font-body-sm-bold text-body-sm-bold transition-colors shadow-sm flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">event_busy</span>
+<span>Reschedule / Decline</span>
+</button>
+</div>
+<button class="mark-single-read font-body-sm text-body-sm text-text-secondary-light hover:text-primary transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span>Mark Read</span>
+</button>
+</div>
+</article>
+<!-- Card 3: Elena Rostova (CARE PLAN MILESTONE - Unread) -->
+<article class="notif-card bg-teal-tint-soft-light rounded-2xl p-space-md sm:p-space-lg shadow-sm transition-all duration-200 hover:shadow-md flex flex-col gap-space-md" data-category="milestone" data-status="unread">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="relative flex-shrink-0">
+<img class="w-12 h-12 rounded-xl object-cover shadow-sm" data-alt="Portrait of a young European woman with auburn hair in soft daylight, serene expression representing psychological recovery and therapy milestones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABxYzy2_wx6Qd7lVzq30BkNLodz2viwA9EAMrLF0D6cokBEKk6klw8s-17IO4GE-jg6HvRX3kTev2B6Vp71Vh7ZZsuntSahrFw6Osmk-ppa9M5Gp82OCqQIVIQGR_xUInfJgznAY0UvQRaRjo-EZSeyXrZR3JSQVTDa-HoDooXb4ol49nvnKnj5UyB224cGdlTHGUDoKGFmE67WOd-xhiKJxEy4WJk83p6rO91QisN"/>
+<span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-teal-interactive ring-2 ring-surface-card-light"></span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="bg-status-success-bg-light text-status-success-text-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">CARE PLAN MILESTONE</span>
+<span class="bg-teal-tint-soft-light text-primary font-label-table-header text-label-table-header px-2 py-0.5 rounded uppercase">MRN #MC-0982</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">· 3h ago (Today, 07:15 AM)</span>
+</div>
+<h2 class="font-title-card text-title-card text-text-primary-light mt-1">Elena Rostova completed action step</h2>
+</div>
+</div>
+<div class="flex items-center gap-space-2xs text-text-secondary-light flex-shrink-0">
+<span class="px-2 py-0.5 bg-surface-card-light text-text-primary-light font-label-pill-counter text-label-pill-counter rounded-full">Step 3 of 4</span>
+</div>
+</div>
+<!-- Behavioral Goal Check-In Detail -->
+<div class="bg-surface-card-light rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">5-4-3-2-1 Sensory Grounding Practice</span>
+<span class="font-body-sm-bold text-body-sm-bold text-status-success-text-light flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">trending_down</span> Tension -57%
+                </span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">
+                Logged during an acute somatic anxiety spike. Client recorded self-assessed tension dropping from <strong>7/10</strong> to <strong>3/10</strong> within 12 minutes of audio guide execution.
+              </p>
+<!-- Progress visual bar -->
+<div class="w-full bg-app-bg-light h-2 rounded-full overflow-hidden flex">
+<div class="bg-status-success-text-light h-full rounded-full" style="width: 75%;"></div>
+</div>
+</div>
+<!-- Actions Ribbon -->
+<div class="flex items-center justify-between gap-space-sm pt-space-2xs flex-wrap">
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-2 bg-surface-card-light hover:bg-surface-container-high text-primary rounded-xl font-body-sm-bold text-body-sm-bold transition-colors shadow-sm flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">fact_check</span>
+<span>View Care Plan</span>
+</button>
+<button class="px-space-md py-2 bg-transparent hover:bg-surface-card-light text-text-secondary-light rounded-xl font-body-sm-bold text-body-sm-bold transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Send Encouragement</span>
+</button>
+</div>
+<button class="mark-single-read font-body-sm text-body-sm text-text-secondary-light hover:text-primary transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span>Mark Read</span>
+</button>
+</div>
+</article>
+<!-- Card 4: Jamie Lee (DOCUMENT UPLOAD - Read) -->
+<article class="notif-card bg-surface-card-light rounded-2xl p-space-md sm:p-space-lg shadow-sm transition-all duration-200 hover:shadow-md flex flex-col gap-space-md opacity-90 hover:opacity-100" data-category="intake" data-status="read">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="p-2.5 rounded-xl bg-app-bg-light text-text-secondary-light flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">folder_open</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="bg-surface-container-high text-text-secondary-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">DOCUMENT UPLOAD</span>
+<span class="bg-app-bg-light text-text-secondary-light font-label-table-header text-label-table-header px-2 py-0.5 rounded uppercase">MRN #MC-1042</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">· Yesterday at 05:20 PM</span>
+</div>
+<h2 class="font-title-card text-title-card text-text-primary-light mt-1">Jamie Lee added 2 intake clinical records</h2>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-text-secondary-light">Archived in Vault</span>
+</div>
+<!-- Documents List Mini-Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div class="flex items-center justify-between p-space-sm bg-app-bg-light rounded-xl">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-[20px] text-metric-terracotta">picture_as_pdf</span>
+<div class="truncate text-body-sm text-text-primary-light font-body-sm-bold">Sleep_Restriction_Log_Week1.pdf</div>
+</div>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light pl-2">142 KB</span>
+</div>
+<div class="flex items-center justify-between p-space-sm bg-app-bg-light rounded-xl">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-[20px] text-metric-terracotta">picture_as_pdf</span>
+<div class="truncate text-body-sm text-text-primary-light font-body-sm-bold">Automatic_Thought_Diary.pdf</div>
+</div>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light pl-2">88 KB</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-2xs">
+<button class="px-space-md py-2 bg-app-bg-light hover:bg-surface-container-high text-primary rounded-xl font-body-sm-bold text-body-sm-bold transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span>Open Document Vault</span>
+</button>
+<span class="font-body-sm text-body-sm text-text-secondary-light">Read by Dr. Demo Consultant</span>
+</div>
+</article>
+<!-- Card 5: Marcus Vance (CARE PLAN COMPLETION - Read) -->
+<article class="notif-card bg-surface-card-light rounded-2xl p-space-md sm:p-space-lg shadow-sm transition-all duration-200 hover:shadow-md flex flex-col gap-space-md opacity-90 hover:opacity-100" data-category="milestone" data-status="read">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="p-2.5 rounded-xl bg-status-success-bg-light text-status-success-text-light flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">workspace_premium</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="bg-status-success-bg-light text-status-success-text-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">MILESTONE UNLOCKED</span>
+<span class="bg-app-bg-light text-text-secondary-light font-label-table-header text-label-table-header px-2 py-0.5 rounded uppercase">MRN #MC-1019</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">· Oct 22, 2025 at 09:14 AM</span>
+</div>
+<h2 class="font-title-card text-title-card text-text-primary-light mt-1">Marcus Vance checked in: 5-Day Mood Streak milestone</h2>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-1">Marcus recorded 5 consecutive days of morning mood tracking without cognitive avoidance indicators.</p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-2xs">
+<button class="px-space-md py-2 bg-app-bg-light hover:bg-surface-container-high text-primary rounded-xl font-body-sm-bold text-body-sm-bold transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+<span>View Longitudinal Progress</span>
+</button>
+<span class="font-body-sm text-body-sm text-text-secondary-light">Acknowledged</span>
+</div>
+</article>
+<!-- Card 6: SYSTEM & CLINICAL COMPLIANCE (Read) -->
+<article class="notif-card bg-surface-card-light rounded-2xl p-space-md sm:p-space-lg shadow-sm transition-all duration-200 hover:shadow-md flex flex-col gap-space-md opacity-90 hover:opacity-100" data-category="system" data-status="read">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="p-2.5 rounded-xl bg-teal-tint-soft-light text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">health_and_safety</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="bg-surface-container-high text-primary font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">SYSTEM AUDIT</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">· Oct 20, 2025 · Automated Service</span>
+</div>
+<h2 class="font-title-card text-title-card text-text-primary-light mt-1">Clinical Session Guard: Bi-weekly HIPAA audit complete</h2>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-1">100% encrypted session logs verified across 38 consultation hours. Zero credential leaks or unassigned notes detected.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-status-success-text-light">check_circle</span>
+</div>
+</article>
+</div>
+</section>
+<!-- Secondary Panel: Preferences & Crisis Escalation Protocols (4 cols) -->
+<aside class="lg:col-span-4 flex flex-col gap-space-md">
+<!-- Emergency Escalation Protocols Card -->
+<div class="bg-surface-card-light rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-metric-terracotta"></div>
+<div class="flex items-center gap-space-xs text-status-danger-text-light">
+<span class="material-symbols-outlined text-[22px]">crisis_alert</span>
+<h3 class="font-title-card text-title-card text-text-primary-light">Crisis Escalation Protocols</h3>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">
+            Notifications flagged with elevated distress indicators trigger automatic protocol safeguards under MindCare Duty of Care regulations.
+          </p>
+<div class="bg-status-danger-bg-light rounded-xl p-space-md flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-status-danger-text-light font-body-sm-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">call</span> Immediate Crisis Line (988)
+            </span>
+<span class="font-body-sm text-body-sm text-status-danger-text-light">
+              In-app emergency dispatch triggers on any severe self-harm questionnaire score (&gt;2 on PHQ-9 Q9).
+            </span>
+</div>
+<div class="flex items-center justify-between pt-space-xs text-text-secondary-light font-body-sm text-body-sm">
+<span>On-Call Partner:</span>
+<span class="font-body-sm-bold text-body-sm-bold text-text-primary-light">Metro Health Crisis Center</span>
+</div>
+</div>
+<!-- Alert Delivery Channels & Preferences -->
+<div class="bg-surface-card-light rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-title-card text-title-card text-text-primary-light">Delivery Preferences</h3>
+<span class="material-symbols-outlined text-[20px] text-primary">tune</span>
+</div>
+<div class="flex flex-col gap-space-md">
+<!-- Preference Row 1 -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Desktop Chime &amp; Banner</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">Real-time alerts for booking changes</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer mt-1">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-surface-container rounded-full peer peer-checked:bg-teal-interactive peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-card-light after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+</label>
+</div>
+<!-- Preference Row 2 -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">SMS Critical Triage</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">Immediate SMS to +1 (555) 0199</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer mt-1">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-surface-container rounded-full peer peer-checked:bg-teal-interactive peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-card-light after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+</label>
+</div>
+<!-- Preference Row 3 -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Daily Morning Briefing</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">Summary digest sent daily at 08:00 AM</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer mt-1">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-surface-container rounded-full peer peer-checked:bg-teal-interactive peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-card-light after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+</label>
+</div>
+<!-- Preference Row 4 -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Care Milestone Digest</span>
+<span class="font-body-sm text-body-sm text-text-secondary-light">Batch weekly client habit completions</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer mt-1">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-10 h-5 bg-surface-container rounded-full peer peer-checked:bg-teal-interactive peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-card-light after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+</label>
+</div>
+</div>
+<div class="pt-space-xs">
+<button class="w-full py-2 bg-app-bg-light hover:bg-surface-container-high text-primary font-body-sm-bold text-body-sm-bold rounded-xl transition-colors text-center" type="button">
+              Configure Quiet Hours
+            </button>
+</div>
+</div>
+<!-- 14-Day Activity & Response Velocity -->
+<div class="bg-surface-card-light rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-title-card text-title-card text-text-primary-light">Response Velocity</h3>
+<span class="font-label-pill-counter text-label-pill-counter bg-status-success-bg-light text-status-success-text-light px-2 py-0.5 rounded-full">Top 5% Practice</span>
+</div>
+<!-- Mini Inline Chart SVG Visualization -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-stat text-headline-stat text-text-primary-light">18m</span>
+<span class="font-body-sm text-body-sm text-status-success-text-light flex items-center">
+<span class="material-symbols-outlined text-[16px]">arrow_downward</span> 4m faster vs last week
+              </span>
+</div>
+<span class="font-body-sm text-body-sm text-text-secondary-light">Average practitioner intake triage time</span>
+</div>
+<div class="w-full pt-space-xs">
+<svg class="w-full h-16 text-primary overflow-visible" fill="none" preserveaspectratio="none" viewbox="0 0 280 60">
+<!-- Gradient under sparkline -->
+<defs>
+<lineargradient id="velocityGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0f766e" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#0f766e" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0 45 Q 35 50, 70 32 T 140 28 T 210 18 T 280 12 L 280 60 L 0 60 Z" fill="url(#velocityGrad)"></path>
+<path d="M0 45 Q 35 50, 70 32 T 140 28 T 210 18 T 280 12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Data dots -->
+<circle class="fill-surface-card-light stroke-primary" cx="210" cy="18" r="3.5" stroke-width="2"></circle>
+<circle class="fill-primary" cx="280" cy="12" r="4"></circle>
+</svg>
+<div class="flex justify-between font-label-table-header text-label-table-header text-text-secondary-light uppercase pt-1">
+<span>Day 1</span>
+<span>Day 7</span>
+<span>Today</span>
+</div>
+</div>
+<div class="bg-teal-tint-soft-light rounded-xl p-space-sm flex items-center gap-space-sm text-primary">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+<span class="font-body-sm text-body-sm">All pending clients reached within standard 24h SLA.</span>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</div>
+<script>
+  (function initNotificationsController() {
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const notifCards = document.querySelectorAll('.notif-card');
+    const searchInput = document.getElementById('searchInput');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    const unreadCountDisplay = document.getElementById('unreadCountDisplay');
+
+    let currentFilter = 'all';
+
+    function updateBadgeCount() {
+      const remainingUnread = document.querySelectorAll('.notif-card[data-status="unread"]').length;
+      if (unreadCountDisplay) {
+        unreadCountDisplay.textContent = remainingUnread;
+      }
+    }
+
+    // Filter by Tab
+    filterTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        filterTabs.forEach(t => {
+          t.classList.remove('bg-primary', 'text-on-primary');
+          t.classList.add('bg-app-bg-light', 'text-text-secondary-light');
+        });
+        tab.classList.remove('bg-app-bg-light', 'text-text-secondary-light');
+        tab.classList.add('bg-primary', 'text-on-primary');
+
+        currentFilter = tab.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    function applyFilters() {
+      const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+      notifCards.forEach(card => {
+        const cat = card.getAttribute('data-category');
+        const status = card.getAttribute('data-status');
+        const cardText = card.textContent.toLowerCase();
+
+        let matchesTab = false;
+        if (currentFilter === 'all') matchesTab = true;
+        else if (currentFilter === 'unread' && status === 'unread') matchesTab = true;
+        else if (currentFilter === cat) matchesTab = true;
+
+        let matchesSearch = !searchTerm || cardText.includes(searchTerm);
+
+        if (matchesTab && matchesSearch) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilters);
+    }
+
+    // Mark single as read
+    document.querySelectorAll('.mark-single-read').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const card = e.target.closest('.notif-card');
+        if (card) {
+          card.setAttribute('data-status', 'read');
+          card.classList.remove('bg-teal-tint-soft-light');
+          card.classList.add('bg-surface-card-light', 'opacity-90');
+          const pingDot = card.querySelector('.bg-teal-interactive.ring-2');
+          if (pingDot) pingDot.remove();
+          btn.parentElement.innerHTML = '<span class="font-body-sm text-body-sm text-text-secondary-light flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">done</span> Marked read</span>';
+          updateBadgeCount();
+        }
+      });
+    });
+
+    // Mark all as read action
+    if (markAllReadBtn) {
+      markAllReadBtn.addEventListener('click', () => {
+        document.querySelectorAll('.notif-card[data-status="unread"]').forEach(card => {
+          card.setAttribute('data-status', 'read');
+          card.classList.remove('bg-teal-tint-soft-light');
+          card.classList.add('bg-surface-card-light', 'opacity-90');
+          const pingDot = card.querySelector('.bg-teal-interactive.ring-2');
+          if (pingDot) pingDot.remove();
+          const readBtn = card.querySelector('.mark-single-read');
+          if (readBtn) {
+            readBtn.parentElement.innerHTML = '<span class="font-body-sm text-body-sm text-text-secondary-light flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">done</span> Marked read</span>';
+          }
+        });
+        updateBadgeCount();
+      });
+    }
+  })();
+</script></main></div></body></html>

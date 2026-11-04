@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#a3cfc9","status-danger-bg-dark":"#3b1f1b","on-error-container":"#93000a","metric-gold":"#e9b44c","on-background":"#091f1c","text-secondary-light":"#5f7571","background":"#e6fef9","primary-container":"#0f766e","text-primary-dark":"#e3efec","on-error":"#ffffff","inverse-primary":"#80d5cb","on-surface":"#091f1c","on-secondary-fixed-variant":"#234e49","surface-container-high":"#d5ede8","surface-tint":"#006a63","status-success-text-light":"#1f6b3d","surface-container-low":"#e1f9f3","surface-card-dark":"#14292a","status-warning-bg-dark":"#3a2f17","status-danger-text-light":"#b3392a","on-secondary":"#ffffff","teal-interactive":"#0f766e","text-secondary-dark":"#8fa8a3","surface-container-lowest":"#ffffff","status-success-bg-dark":"#173a27","error":"#ba1a1a","text-primary-light":"#14302c","surface-card-light":"#ffffff","on-primary-fixed":"#00201d","surface-container":"#dbf3ee","status-success-bg-light":"#dff3e6","outline":"#6e7977","secondary-fixed":"#beebe5","inverse-surface":"#1f3431","tertiary-fixed":"#ffdbd2","primary-fixed-dim":"#80d5cb","status-danger-text-dark":"#f4a496","status-warning-text-dark":"#f2c879","on-secondary-container":"#406a65","secondary-container":"#bbe9e2","on-primary":"#ffffff","inverse-on-surface":"#def6f1","status-warning-bg-light":"#fff3df","secondary":"#3b6661","on-primary-container":"#a3faef","metric-slate":"#6c8ebf","status-success-text-dark":"#8fdcae","teal-interactive-hover":"#115e59","border-hairline-light":"#dde7e3","app-bg-dark":"#0d1b1a","surface-bright":"#e6fef9","metric-terracotta":"#e07a5f","tertiary":"#893822","status-warning-text-light":"#8a5a12","on-primary-fixed-variant":"#00504a","brand-deepest":"#081f1e","surface-dim":"#c7dfda","app-bg-light":"#f2f5f3","teal-tint-soft-light":"#e3f1ee","surface":"#e6fef9","surface-variant":"#d0e7e2","teal-interactive-dark":"#2dd4bf","on-tertiary":"#ffffff","on-tertiary-fixed-variant":"#7c2e19","surface-container-highest":"#d0e7e2","border-hairline-dark":"#23403f","on-tertiary-container":"#ffe4de","outline-variant":"#bdc9c6","on-surface-variant":"#3e4947","tertiary-fixed-dim":"#ffb4a1","teal-tint-soft-dark":"#173b3a","on-secondary-fixed":"#00201d","tertiary-container":"#a84f37","primary-fixed":"#9cf2e8","error-container":"#ffdad6","status-danger-bg-light":"#fde8e4","brand-deep":"#0c3b37","on-tertiary-fixed":"#3c0800","primary":"#005c55"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin-mobile":"1rem","space-md":"1rem","gutter-mobile":"0.75rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.25rem","space-xl":"1.75rem","gutter":"1.125rem","space-2xl":"2.5rem","space-2xs":"0.125rem","margin":"1.75rem"},"fontFamily":{"body-base":["Plus Jakarta Sans"],"body-base-bold":["Plus Jakarta Sans"],"title-card":["Playfair Display"],"headline-stat":["Playfair Display"],"display-hero-mobile":["Playfair Display"],"label-sm":["Plus Jakarta Sans"],"label-pill-counter":["Plus Jakarta Sans"],"headline-lg":["Playfair Display"],"headline-md":["Playfair Display"],"body-sm-bold":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"label-table-header":["Plus Jakarta Sans"],"display-hero":["Playfair Display"],"headline-sm":["Playfair Display"],"body-sm":["Plus Jakarta Sans"]},"fontSize":{"body-base":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"body-base-bold":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"700"}],"title-card":["18px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"600"}],"headline-stat":["30px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"display-hero-mobile":["32px",{"lineHeight":"38px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"700"}],"label-pill-counter":["10px",{"lineHeight":"12px","letterSpacing":"0","fontWeight":"700"}],"headline-lg":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"30px","letterSpacing":"0","fontWeight":"700"}],"body-sm-bold":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"600"}],"label-table-header":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"600"}],"display-hero":["42px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}]}}}</script></head><body class="bg-app-bg-light font-body-base text-body-base text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between p-space-md"><div class="flex flex-col gap-space-md"><div class="flex items-center gap-space-sm px-space-xs py-space-xs"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[20px]">spa</span></div><div><div class="font-title-card text-title-card text-brand-deep tracking-tight leading-none">MindCare</div><span class="font-label-sm text-label-sm text-text-secondary-light tracking-wide uppercase">Sanctuary Portal</span></div></div><div class="px-space-xs pt-space-xs"><div class="bg-teal-tint-soft-light rounded-xl p-space-sm flex items-center gap-space-sm"><span class="w-2.5 h-2.5 rounded-full bg-status-success-text-light animate-pulse"></span><span class="font-label-sm text-label-sm text-on-secondary-container">Safe &amp; Confidential Care</span></div></div><nav class="flex flex-col gap-space-2xs" data-active-classes="bg-primary-container text-on-primary font-body-base-bold rounded-xl shadow-sm"><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="client-dashboard" href="#"><span>Dashboard</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="mood-journal" href="#"><span>Mood Journal</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="book-session" href="#"><span>Book Session</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="my-sessions" href="#"><span>My Sessions</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="my-goals" href="#"><span>My Goals</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="documents" href="#"><span>Documents</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="wellbeing-toolkit" href="#"><span>Wellbeing Toolkit</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="notifications" href="#"><span>Notifications</span><span class="px-space-xs py-space-2xs rounded-full bg-secondary-container text-on-secondary-container font-label-pill-counter text-label-pill-counter">2</span></a></nav></div><div class="flex flex-col gap-space-xs pt-space-md bg-surface-container-low"><div class="h-px w-full bg-border-hairline-light"></div><a class="flex items-center px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="export-data" href="#"><span>Export Data</span></a><a class="flex items-center px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-status-danger-bg-light hover:text-status-danger-text-light transition-all font-body-sm text-body-sm" data-path="sign-out" href="#"><span>Sign Out</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[20px]">wb_twilight</span><span class="font-headline-sm text-headline-sm text-brand-deepest">MindCare Sanctuary</span></div><span class="font-body-sm text-body-sm text-text-secondary-light hidden lg:inline">Welcome, Jamie Lee</span></div><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-xs bg-status-danger-bg-light px-space-sm py-space-xs rounded-full hover:bg-status-danger-text-light hover:text-on-error transition-all group" href="tel:988" title="National Crisis Lifeline 24/7"><span class="material-symbols-outlined text-status-danger-text-light text-[18px] group-hover:text-on-error">phone_in_talk</span><span class="font-label-sm text-label-sm text-status-danger-text-light group-hover:text-on-error whitespace-nowrap">24/7 Crisis Support (988)</span></a><button aria-label="Toggle Calming Theme" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" type="button"><span class="material-symbols-outlined text-[18px]">contrast</span></button><a aria-label="View notifications" class="relative w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="notifications" href="#"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-metric-terracotta"></span></a><div class="h-6 w-px bg-border-hairline-light"></div><div class="flex items-center gap-space-sm pl-space-2xs"><div class="relative"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-body-sm-bold text-body-sm-bold"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-status-success-text-light border-2 border-surface-container-lowest"></span></div><div class="hidden sm:flex flex-col text-left"><span class="font-body-sm-bold text-body-sm-bold text-brand-deepest leading-tight">Jamie Lee</span><span class="font-label-pill-counter text-label-pill-counter text-on-secondary-container uppercase tracking-wider">Client</span></div></div></div></header><main class="relative pt-16 bg-app-bg-light w-full min-h-screen px-space-xl py-space-xl"><div class="flex flex-col w-full">
+<!-- Interactive Script for Toolkit State -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Highlight wellbeing-toolkit in app shell sidebar
+      const navLinks = document.querySelectorAll('aside nav a[data-path]');
+      navLinks.forEach(link => {
+        if (link.getAttribute('data-path') === 'wellbeing-toolkit') {
+          link.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high');
+          link.classList.add('bg-primary-container', 'text-on-primary', 'font-body-base-bold', 'rounded-xl', 'shadow-sm');
+        }
+      });
+
+      // Breathing Cycle Logic
+      const circleVisual = document.getElementById('breathing-orb');
+      const breathPhaseText = document.getElementById('breath-phase-text');
+      const breathSubtext = document.getElementById('breath-subtext');
+      const breathTimerDisplay = document.getElementById('breath-timer-display');
+      const startBreathBtn = document.getElementById('breath-toggle-btn');
+      const startBreathIcon = document.getElementById('breath-btn-icon');
+      const startBreathLabel = document.getElementById('breath-btn-label');
+
+      let isBreathing = false;
+      let breathInterval = null;
+      let breathTimeLeft = 75; // 1:15 remaining
+      let currentCycle = 2;
+      let phaseIndex = 0; // 0: In (4s), 1: Hold (7s), 2: Out (8s)
+
+      const phases = [
+        { label: 'Breathe In', sub: 'Inhale gently through nose', duration: 4, scale: 'scale-125' },
+        { label: 'Hold Breath', sub: 'Retain softness in chest', duration: 7, scale: 'scale-125' },
+        { label: 'Exhale Completely', sub: 'Slow release through parted lips', duration: 8, scale: 'scale-90' }
+      ];
+
+      function formatTime(s) {
+        const m = Math.floor(s / 60);
+        const rem = s % 60;
+        return `${m}:${rem < 10 ? '0' : ''}${rem}`;
+      }
+
+      function updatePhase() {
+        if (!isBreathing) return;
+        const current = phases[phaseIndex];
+        breathPhaseText.textContent = `${current.label} (${current.duration}s)`;
+        breathSubtext.textContent = current.sub;
+        
+        if (phaseIndex === 0) {
+          circleVisual.classList.add('scale-125');
+          circleVisual.classList.remove('scale-90');
+        } else if (phaseIndex === 2) {
+          circleVisual.classList.remove('scale-125');
+          circleVisual.classList.add('scale-90');
+        }
+
+        setTimeout(() => {
+          if (!isBreathing) return;
+          phaseIndex = (phaseIndex + 1) % phases.length;
+          if (phaseIndex === 0) {
+            currentCycle = currentCycle < 4 ? currentCycle + 1 : 1;
+          }
+          updatePhase();
+        }, current.duration * 1000);
+      }
+
+      startBreathBtn?.addEventListener('click', () => {
+        isBreathing = !isBreathing;
+        if (isBreathing) {
+          startBreathIcon.textContent = 'pause';
+          startBreathLabel.textContent = 'Pause Exercise';
+          updatePhase();
+          breathInterval = setInterval(() => {
+            if (breathTimeLeft > 0) {
+              breathTimeLeft--;
+              breathTimerDisplay.textContent = `Cycle ${currentCycle} of 4 · ${formatTime(breathTimeLeft)} remaining`;
+            } else {
+              breathTimeLeft = 80;
+            }
+          }, 1000);
+        } else {
+          startBreathIcon.textContent = 'play_arrow';
+          startBreathLabel.textContent = 'Resume Breathing';
+          clearInterval(breathInterval);
+          breathPhaseText.textContent = 'Paused';
+          breathSubtext.textContent = 'Press resume to continue pacing';
+          circleVisual.classList.remove('scale-125', 'scale-90');
+        }
+      });
+
+      // Somatic Slider live counter
+      const distressSlider = document.getElementById('distress-slider');
+      const distressValueDisplay = document.getElementById('distress-val');
+      const distressDescriptor = document.getElementById('distress-descriptor');
+
+      const descriptors = {
+        1: 'Deep serenity · Baseline parasympathetic calm',
+        2: 'Tranquil · Very minor somatic sensation',
+        3: 'Mild alertness · Functional tension',
+        4: 'Moderate engagement · Manageable physical tension',
+        5: 'Noticeable arousal · Somatic tightening in jaw/shoulders',
+        6: 'Elevated stress · Scattered cognitive flow',
+        7: 'High activation · Shallow breathing observed',
+        8: 'Acute distress · Sensory overwhelm onset',
+        9: 'Severe flight/fight · Vagal braking necessary',
+        10: 'Overwhelming panic · Activate immediate crisis safety plan'
+      };
+
+      distressSlider?.addEventListener('input', (e) => {
+        const val = e.target.value;
+        distressValueDisplay.textContent = `${val}/10`;
+        distressDescriptor.textContent = descriptors[val] || 'Moderate somatic engagement';
+      });
+
+      // Grounding Checkboxes counter
+      const sensoryCheckboxes = document.querySelectorAll('.grounding-checkbox');
+      const groundingBadge = document.getElementById('grounding-progress-badge');
+
+      function updateGroundingCount() {
+        const checked = document.querySelectorAll('.grounding-checkbox:checked').length;
+        groundingBadge.textContent = `${checked}/5 Steps Anchored`;
+        if (checked === 5) {
+          groundingBadge.classList.replace('bg-surface-container', 'bg-status-success-bg-light');
+          groundingBadge.classList.replace('text-text-secondary-light', 'text-status-success-text-light');
+        }
+      }
+
+      sensoryCheckboxes.forEach(cb => cb.addEventListener('change', updateGroundingCount));
+
+      // Audio Track Play/Pause state toggler
+      const audioButtons = document.querySelectorAll('.audio-play-trigger');
+      audioButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const icon = btn.querySelector('.material-symbols-outlined');
+          const isPlaying = icon.textContent === 'pause';
+          audioButtons.forEach(b => b.querySelector('.material-symbols-outlined').textContent = 'play_arrow');
+          if (!isPlaying) {
+            icon.textContent = 'pause';
+          }
+        });
+      });
+    });
+  </script>
+<!-- Header & Breadcrumbs Strip -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-space-md mb-space-xl">
+<div class="flex flex-col gap-space-2xs max-w-2xl">
+<div class="flex items-center gap-space-xs text-text-secondary-light font-label-table-header uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px] text-teal-interactive">self_improvement</span>
+<span>Client Portal</span>
+<span class="opacity-40">/</span>
+<span class="text-teal-interactive font-label-md">Sanctuary Resourcing &amp; Grounding</span>
+</div>
+<h1 class="font-headline-stat text-headline-stat text-brand-deepest tracking-tight">Wellbeing Toolkit</h1>
+<p class="font-body-base text-body-base text-text-secondary-light leading-relaxed">
+        Evidence-based somatic exercises, guided calming audio, and self-regulation techniques accessible anytime to nurture vagal safety and nervous system balance.
+      </p>
+</div>
+<!-- Quick Action / 2-Min Reset Action -->
+<div class="flex items-center gap-space-sm self-start md:self-end">
+<a class="inline-flex items-center gap-space-xs px-space-md py-space-sm bg-teal-tint-soft-light hover:bg-surface-container-high text-teal-interactive font-body-sm-bold text-body-sm-bold rounded-xl transition-all shadow-sm" href="#guided-breathing">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span>Start 2-Min Reset</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-space-sm bg-status-danger-bg-light hover:bg-status-danger-text-light hover:text-on-error text-status-danger-text-light font-body-sm-bold text-body-sm-bold rounded-xl transition-all shadow-sm" href="#safety-plan">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span>Crisis Plan Access</span>
+</a>
+</div>
+</section>
+<!-- KPI / Resourcing Overview Strip -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-space-xl">
+<!-- Card 1: Guided Practices -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-teal-tint-soft-light/60 transition-transform group-hover:scale-125"></div>
+<div class="flex items-start justify-between mb-space-sm">
+<span class="font-label-table-header text-label-table-header uppercase text-text-secondary-light tracking-wider">Practice Library</span>
+<span class="w-8 h-8 rounded-lg bg-teal-tint-soft-light flex items-center justify-center text-teal-interactive">
+<span class="material-symbols-outlined text-[18px]">psychology_alt</span>
+</span>
+</div>
+<div>
+<div class="font-headline-stat text-headline-stat text-brand-deepest mb-space-2xs">12 Tools</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">Somatic, breathwork &amp; CBT resources</p>
+</div>
+<div class="mt-space-md flex items-center gap-space-2xs text-teal-interactive font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]">verified</span>
+<span>Clinically Reviewed</span>
+</div>
+</div>
+<!-- Card 2: Mindfulness Streak -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-status-warning-bg-light/60 transition-transform group-hover:scale-125"></div>
+<div class="flex items-start justify-between mb-space-sm">
+<span class="font-label-table-header text-label-table-header uppercase text-text-secondary-light tracking-wider">Mindfulness Streak</span>
+<span class="w-8 h-8 rounded-lg bg-status-warning-bg-light flex items-center justify-center text-metric-gold">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</span>
+</div>
+<div>
+<div class="font-headline-stat text-headline-stat text-brand-deepest mb-space-2xs">5 Days</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">Consistent daily self-regulation</p>
+</div>
+<div class="mt-space-md flex items-center gap-space-2xs text-metric-gold font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]">trending_up</span>
+<span>Personal Best: 8 Days</span>
+</div>
+</div>
+<!-- Card 3: Most Visited Practice -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-secondary-container/40 transition-transform group-hover:scale-125"></div>
+<div class="flex items-start justify-between mb-space-sm">
+<span class="font-label-table-header text-label-table-header uppercase text-text-secondary-light tracking-wider">Primary Anchor</span>
+<span class="w-8 h-8 rounded-lg bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-[18px]">air</span>
+</span>
+</div>
+<div>
+<div class="font-headline-stat text-headline-stat text-brand-deepest mb-space-2xs">4-7-8 Breath</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">Logged 14 times this month</p>
+</div>
+<div class="mt-space-md flex items-center gap-space-2xs text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]">schedule</span>
+<span>Evening Routine Favorite</span>
+</div>
+</div>
+<!-- Card 4: Somatic Calm Score -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-status-success-bg-light/60 transition-transform group-hover:scale-125"></div>
+<div class="flex items-start justify-between mb-space-sm">
+<span class="font-label-table-header text-label-table-header uppercase text-text-secondary-light tracking-wider">Somatic Calm Score</span>
+<span class="w-8 h-8 rounded-lg bg-status-success-bg-light flex items-center justify-center text-status-success-text-light">
+<span class="material-symbols-outlined text-[18px]">vital_signs</span>
+</span>
+</div>
+<div>
+<div class="font-headline-stat text-headline-stat text-brand-deepest mb-space-2xs">+24% Efficacy</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">Avg tension decrease after use</p>
+</div>
+<div class="mt-space-md flex items-center gap-space-2xs text-status-success-text-light font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]">arrow_downward</span>
+<span>-2.8 pts Distress Average</span>
+</div>
+</div>
+</section>
+<!-- Main Content Grid (Left Core Practices, Right Supportive Pillars & Safety) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- LEFT MAIN COLUMN: Core Interactive Practices (7 cols on Desktop) -->
+<main class="lg:col-span-8 flex flex-col gap-space-xl">
+<!-- 1. Interactive Guided Breathing Studio -->
+<section class="bg-surface-container-lowest rounded-2xl p-space-lg md:p-space-xl shadow-sm flex flex-col gap-space-lg relative overflow-hidden" id="guided-breathing">
+<!-- Section Header & Mode Selectors -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-space-xs text-teal-interactive font-label-sm text-label-sm uppercase tracking-wider mb-space-2xs">
+<span class="w-2 h-2 rounded-full bg-teal-interactive"></span>
+<span>Neuro-Somatic Pacing</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-brand-deepest">Guided Breathing &amp; Heart Rate Variability</h2>
+</div>
+<span class="self-start sm:self-auto px-space-sm py-space-2xs rounded-full bg-teal-tint-soft-light text-teal-interactive font-label-pill-counter text-label-pill-counter tracking-wide uppercase">Active Studio</span>
+</div>
+<!-- Breathing Mode Selector Tabs -->
+<div class="flex flex-wrap gap-space-xs bg-surface-container-low p-space-xs rounded-xl">
+<button class="px-space-md py-space-xs bg-surface-container-lowest text-brand-deepest font-body-sm-bold text-body-sm-bold rounded-lg shadow-sm transition-all text-left flex items-center gap-space-xs" type="button">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>4-7-8 Centering Breath (Vagus Nerve)</span>
+</button>
+<button class="px-space-md py-space-xs text-text-secondary-light hover:text-on-surface hover:bg-surface-container-lowest/60 font-body-sm text-body-sm rounded-lg transition-all" type="button">
+<span>Box Breathing (4-4-4-4 Focus)</span>
+</button>
+<button class="px-space-md py-space-xs text-text-secondary-light hover:text-on-surface hover:bg-surface-container-lowest/60 font-body-sm text-body-sm rounded-lg transition-all" type="button">
+<span>Physiological Sigh (Rapid De-escalation)</span>
+</button>
+</div>
+<!-- Animated Breathing Visualization Stage -->
+<div class="relative w-full py-space-2xl bg-gradient-to-b from-teal-tint-soft-light/40 to-surface-container-lowest rounded-2xl flex flex-col items-center justify-center overflow-hidden min-h-[320px]">
+<!-- Ambient Concentric Decorative Rings -->
+<div class="absolute w-72 h-72 rounded-full bg-secondary-container/30 blur-2xl"></div>
+<div class="absolute w-60 h-60 rounded-full border border-teal-interactive/10"></div>
+<div class="absolute w-80 h-80 rounded-full border border-teal-interactive/5"></div>
+<!-- Central Pulsing Vagus Disc -->
+<div class="relative z-10 w-44 h-44 rounded-full bg-gradient-to-tr from-primary-container via-teal-interactive to-inverse-primary shadow-xl flex flex-col items-center justify-center text-center p-space-md text-on-primary transition-transform duration-1000 ease-in-out" id="breathing-orb">
+<span class="material-symbols-outlined text-[32px] mb-space-2xs opacity-90">spa</span>
+<div class="font-headline-sm text-headline-sm font-bold leading-tight drop-shadow-sm" id="breath-phase-text">Breathe In (4s)</div>
+<p class="font-label-sm text-label-sm text-on-primary-container opacity-90 mt-space-2xs" id="breath-subtext">Inhale gently through nose</p>
+</div>
+<!-- Dynamic Cycle Tracker -->
+<div class="relative z-10 mt-space-lg flex flex-col items-center gap-space-2xs text-center">
+<span class="font-body-sm-bold text-body-sm-bold text-brand-deep" id="breath-timer-display">Cycle 2 of 4 · 1:15 remaining</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">Smooth diaphragmatic rhythm</span>
+</div>
+</div>
+<!-- Studio Controls & Sound Atmosphere -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-xs">
+<div class="flex items-center gap-space-sm w-full sm:w-auto">
+<button class="w-full sm:w-auto px-space-lg py-space-sm bg-teal-interactive hover:bg-teal-interactive-hover text-on-primary font-body-base-bold text-body-base-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-space-xs" id="breath-toggle-btn" type="button">
+<span class="material-symbols-outlined text-[20px]" id="breath-btn-icon">play_arrow</span>
+<span id="breath-btn-label">Start Breathing Exercise</span>
+</button>
+<button class="p-space-sm bg-surface-container hover:bg-surface-container-high text-brand-deep rounded-xl transition-all" title="Reset Cycles" type="button">
+<span class="material-symbols-outlined text-[20px]">restart_alt</span>
+</button>
+</div>
+<!-- Ambient Audio Chime Toggle -->
+<div class="flex items-center gap-space-sm px-space-md py-space-xs rounded-xl bg-teal-tint-soft-light w-full sm:w-auto justify-between sm:justify-start">
+<div class="flex items-center gap-space-xs text-brand-deep">
+<span class="material-symbols-outlined text-[18px] text-teal-interactive">volume_up</span>
+<span class="font-body-sm text-body-sm font-medium">Gentle Singing Bowl / Chime</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-interactive"></div>
+</label>
+</div>
+</div>
+<!-- Clinical Rationale Callout -->
+<div class="p-space-md rounded-xl bg-teal-tint-soft-light/60 flex items-start gap-space-sm text-on-secondary-container">
+<span class="material-symbols-outlined text-[20px] text-teal-interactive shrink-0 mt-0.5">medical_information</span>
+<div class="text-xs leading-relaxed">
+<strong class="font-semibold text-brand-deepest">Clinical Mechanism:</strong>
+            The 4-7-8 rhythm stimulates parasympathetic vagal braking, lowering resting heart rate and mitigating acute fight-or-flight symptoms within 90 seconds by elevating exhaled carbon dioxide tolerance.
+          </div>
+</div>
+</section>
+<!-- 2. Somatic Grounding & Sensory De-escalation (5-4-3-2-1) -->
+<section class="bg-surface-container-lowest rounded-2xl p-space-lg md:p-space-xl shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-space-xs text-metric-terracotta font-label-sm text-label-sm uppercase tracking-wider mb-space-2xs">
+<span class="material-symbols-outlined text-[16px]">touch_app</span>
+<span>Sensory Reality Anchor</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-brand-deepest">5-4-3-2-1 Sensory Grounding Matrix</h2>
+</div>
+<span class="self-start sm:self-auto px-space-md py-space-xs rounded-full bg-surface-container text-text-secondary-light font-label-sm text-label-sm" id="grounding-progress-badge">
+            3/5 Steps Anchored
+          </span>
+</div>
+<p class="font-body-base text-body-base text-text-secondary-light">
+          When racing thoughts or sensory overwhelm dislodge presence, work sequentially downward through each perceptual channel to return attention safely into your physical environment.
+        </p>
+<!-- 5-Step Interactive Grounding Stack -->
+<div class="flex flex-col gap-space-sm">
+<!-- Step 5: SEE -->
+<div class="p-space-md rounded-xl bg-surface-container-low transition-all hover:bg-surface-container/70 flex items-start gap-space-md">
+<input checked="" class="grounding-checkbox mt-1 w-5 h-5 rounded text-teal-interactive focus:ring-teal-interactive cursor-pointer" id="g-see" type="checkbox"/>
+<label class="flex-1 cursor-pointer" for="g-see">
+<div class="flex items-center justify-between">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">5 — SEE</span>
+<span class="font-label-pill-counter text-label-pill-counter uppercase text-text-secondary-light bg-surface-container-highest px-space-xs py-space-2xs rounded">Visual</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-space-2xs">Notice 5 distinct items in your current visual field (shadows, textures, daylight angles, ambient objects).</p>
+<div class="mt-space-xs text-xs text-teal-interactive font-medium flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Noted: Desk lamp glow, ceramic mug handle, monstera leaf vein pattern</span>
+</div>
+</label>
+</div>
+<!-- Step 4: TOUCH / FEEL -->
+<div class="p-space-md rounded-xl bg-surface-container-low transition-all hover:bg-surface-container/70 flex items-start gap-space-md">
+<input checked="" class="grounding-checkbox mt-1 w-5 h-5 rounded text-teal-interactive focus:ring-teal-interactive cursor-pointer" id="g-touch" type="checkbox"/>
+<label class="flex-1 cursor-pointer" for="g-touch">
+<div class="flex items-center justify-between">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">4 — TOUCH &amp; FEEL</span>
+<span class="font-label-pill-counter text-label-pill-counter uppercase text-text-secondary-light bg-surface-container-highest px-space-xs py-space-2xs rounded">Tactile</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-space-2xs">Feel 4 physical touchpoints: soles of feet rooted to the floor, clothing against shoulders, palms on desk surface.</p>
+<div class="mt-space-xs text-xs text-teal-interactive font-medium flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Noted: Firm support of chair backrest, cool metal watch band</span>
+</div>
+</label>
+</div>
+<!-- Step 3: HEAR -->
+<div class="p-space-md rounded-xl bg-surface-container-low transition-all hover:bg-surface-container/70 flex items-start gap-space-md">
+<input checked="" class="grounding-checkbox mt-1 w-5 h-5 rounded text-teal-interactive focus:ring-teal-interactive cursor-pointer" id="g-hear" type="checkbox"/>
+<label class="flex-1 cursor-pointer" for="g-hear">
+<div class="flex items-center justify-between">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">3 — HEAR</span>
+<span class="font-label-pill-counter text-label-pill-counter uppercase text-text-secondary-light bg-surface-container-highest px-space-xs py-space-2xs rounded">Acoustic</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-space-2xs">Identify 3 distinct ambient acoustic layers: gentle ventilation flow, distant birdsong, gentle computer fan hum.</p>
+</label>
+</div>
+<!-- Step 2: SMELL -->
+<div class="p-space-md rounded-xl bg-surface-container-low transition-all hover:bg-surface-container/70 flex items-start gap-space-md">
+<input class="grounding-checkbox mt-1 w-5 h-5 rounded text-teal-interactive focus:ring-teal-interactive cursor-pointer" id="g-smell" type="checkbox"/>
+<label class="flex-1 cursor-pointer" for="g-smell">
+<div class="flex items-center justify-between">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">2 — SMELL</span>
+<span class="font-label-pill-counter text-label-pill-counter uppercase text-text-secondary-light bg-surface-container-highest px-space-xs py-space-2xs rounded">Olfactory</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-space-2xs">Acknowledge 2 subtle scent notes in the air: roasted coffee steam, gentle clean linen or cool breeze from a window.</p>
+</label>
+</div>
+<!-- Step 1: TASTE -->
+<div class="p-space-md rounded-xl bg-surface-container-low transition-all hover:bg-surface-container/70 flex items-start gap-space-md">
+<input class="grounding-checkbox mt-1 w-5 h-5 rounded text-teal-interactive focus:ring-teal-interactive cursor-pointer" id="g-taste" type="checkbox"/>
+<label class="flex-1 cursor-pointer" for="g-taste">
+<div class="flex items-center justify-between">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">1 — TASTE</span>
+<span class="font-label-pill-counter text-label-pill-counter uppercase text-text-secondary-light bg-surface-container-highest px-space-xs py-space-2xs rounded">Gustatory</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-space-2xs">Savor 1 taste sensation: lingering coolness of mint, a slow sip of fresh cold water, or swallow gently to release saliva.</p>
+</label>
+</div>
+</div>
+<!-- Somatic Tension Distress Slider (1-10) -->
+<div class="p-space-lg rounded-xl bg-teal-tint-soft-light/40 flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-teal-interactive text-[20px]">tune</span>
+<span class="font-body-sm-bold text-body-sm-bold text-brand-deepest">Somatic Distress Index (SUDS Scale)</span>
+</div>
+<span class="px-space-sm py-space-2xs rounded-lg bg-teal-interactive text-on-primary font-body-sm-bold text-body-sm-bold" id="distress-val">4/10</span>
+</div>
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-teal-interactive" id="distress-slider" max="10" min="1" type="range" value="4"/>
+<div class="flex items-center justify-between text-xs text-text-secondary-light">
+<span>1 (Complete Calm)</span>
+<span class="font-medium text-brand-deep" id="distress-descriptor">Moderate engagement · Manageable physical tension</span>
+<span>10 (Overwhelming Panic)</span>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-xs">
+<button class="px-space-md py-space-xs bg-surface-container-lowest hover:bg-surface-container text-text-secondary-light font-body-sm text-body-sm rounded-lg transition-all" type="button">Clear</button>
+<button class="px-space-md py-space-xs bg-teal-interactive hover:bg-teal-interactive-hover text-on-primary font-body-sm-bold text-body-sm-bold rounded-lg transition-all flex items-center gap-space-xs shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">bookmark_add</span>
+<span>Log Somatic Check-In</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 3. Audio Sanctuary & Soundscapes (Progressive Muscle & Binaural) -->
+<section class="bg-surface-container-lowest rounded-2xl p-space-lg md:p-space-xl shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-space-xs text-metric-slate font-label-sm text-label-sm uppercase tracking-wider mb-space-2xs">
+<span class="material-symbols-outlined text-[16px]">headphones</span>
+<span>Auditory Neuro-Entrainment</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-brand-deepest">Progressive Muscle Relaxation (PMR) &amp; Binaural Audio</h2>
+</div>
+<span class="self-start sm:self-auto px-space-sm py-space-2xs rounded-full bg-secondary-container text-on-secondary-container font-label-pill-counter text-label-pill-counter uppercase">4 Curated Sessions</span>
+</div>
+<p class="font-body-base text-body-base text-text-secondary-light">
+          Calibrated audio sessions to listen with stereo headphones. Each track blends verbal somatic directives with soothing ambient frequencies to release stored physical holding patterns.
+        </p>
+<!-- Track List -->
+<div class="flex flex-col gap-space-sm">
+<!-- Track 1: Progressive Somatic Scan (Clinician Assigned) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-center gap-space-md">
+<button class="audio-play-trigger w-12 h-12 rounded-xl bg-teal-interactive hover:bg-teal-interactive-hover text-on-primary flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+</button>
+<div class="flex flex-col">
+<div class="flex flex-wrap items-center gap-space-xs mb-space-2xs">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">10-Min Progressive Somatic Scan</span>
+<span class="px-space-xs py-space-2xs rounded-full bg-status-success-bg-light text-status-success-text-light font-label-pill-counter text-label-pill-counter uppercase tracking-wider">Clinician Assigned</span>
+</div>
+<div class="flex items-center gap-space-sm text-xs text-text-secondary-light">
+<span>Narrated by Dr. Demo Consultant, Psy.D</span>
+<span>·</span>
+<span>Target: Upper Trapezius &amp; Diaphragm</span>
+</div>
+</div>
+</div>
+<!-- Waveform & Duration Display -->
+<div class="flex items-center gap-space-md self-end sm:self-center">
+<!-- Inline Decorative SVG Waveform -->
+<div class="hidden md:flex items-center gap-0.5 h-6 text-teal-interactive">
+<span class="w-1 h-3 bg-teal-interactive/30 rounded-full"></span>
+<span class="w-1 h-5 bg-teal-interactive/60 rounded-full"></span>
+<span class="w-1 h-2 bg-teal-interactive/40 rounded-full"></span>
+<span class="w-1 h-6 bg-teal-interactive rounded-full"></span>
+<span class="w-1 h-4 bg-teal-interactive/80 rounded-full"></span>
+<span class="w-1 h-5 bg-teal-interactive/60 rounded-full"></span>
+<span class="w-1 h-2 bg-teal-interactive/30 rounded-full"></span>
+<span class="w-1 h-4 bg-teal-interactive/70 rounded-full"></span>
+<span class="w-1 h-1 bg-teal-interactive/20 rounded-full"></span>
+</div>
+<span class="font-label-sm text-label-sm text-brand-deep">10:14</span>
+<button class="text-text-secondary-light hover:text-teal-interactive" title="Favorite Practice" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+</div>
+<!-- Track 2: Delta Wave Sleep Induction -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-center gap-space-md">
+<button class="audio-play-trigger w-12 h-12 rounded-xl bg-surface-container hover:bg-teal-tint-soft-light text-brand-deepest flex items-center justify-center shrink-0 transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+</button>
+<div class="flex flex-col">
+<div class="flex flex-wrap items-center gap-space-xs mb-space-2xs">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">Delta Wave Sleep Induction &amp; Amber Rain</span>
+<span class="px-space-xs py-space-2xs rounded-full bg-surface-container text-text-secondary-light font-label-pill-counter text-label-pill-counter uppercase">Sleep Aid</span>
+</div>
+<div class="flex items-center gap-space-sm text-xs text-text-secondary-light">
+<span>Ambient restorative soundscape with 2.5Hz binaural frequency</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md self-end sm:self-center">
+<span class="font-label-sm text-label-sm text-text-secondary-light">25:00</span>
+<button class="text-text-secondary-light hover:text-teal-interactive" title="Favorite Practice" type="button">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+</div>
+<!-- Track 3: Vagus Nerve Humming -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-center gap-space-md">
+<button class="audio-play-trigger w-12 h-12 rounded-xl bg-surface-container hover:bg-teal-tint-soft-light text-brand-deepest flex items-center justify-center shrink-0 transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+</button>
+<div class="flex flex-col">
+<div class="flex flex-wrap items-center gap-space-xs mb-space-2xs">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">Vagus Nerve Humming &amp; Diaphragmatic Release</span>
+<span class="px-space-xs py-space-2xs rounded-full bg-surface-container text-text-secondary-light font-label-pill-counter text-label-pill-counter uppercase">Vocal Toning</span>
+</div>
+<div class="flex items-center gap-space-sm text-xs text-text-secondary-light">
+<span>Somatic vocal guide to stimulate auricular &amp; laryngeal vagal branches</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md self-end sm:self-center">
+<span class="font-label-sm text-label-sm text-text-secondary-light">07:30</span>
+<button class="text-text-secondary-light hover:text-teal-interactive" title="Favorite Practice" type="button">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+</div>
+<!-- Track 4: Soft Forest Mist & Tibetan Bowls -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-center gap-space-md">
+<button class="audio-play-trigger w-12 h-12 rounded-xl bg-surface-container hover:bg-teal-tint-soft-light text-brand-deepest flex items-center justify-center shrink-0 transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+</button>
+<div class="flex flex-col">
+<div class="flex flex-wrap items-center gap-space-xs mb-space-2xs">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">Soft Forest Mist &amp; Tibetan Singing Bowls</span>
+<span class="px-space-xs py-space-2xs rounded-full bg-surface-container text-text-secondary-light font-label-pill-counter text-label-pill-counter uppercase">Cognitive Declutter</span>
+</div>
+<div class="flex items-center gap-space-sm text-xs text-text-secondary-light">
+<span>432Hz harmonic acoustic resonance for quiet contemplative grounding</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md self-end sm:self-center">
+<span class="font-label-sm text-label-sm text-text-secondary-light">15:45</span>
+<button class="text-text-secondary-light hover:text-teal-interactive" title="Favorite Practice" type="button">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- RIGHT SUPPORTIVE SIDEBAR (4 cols on Desktop) -->
+<aside class="lg:col-span-4 flex flex-col gap-space-xl">
+<!-- 1. Clinician Endorsement & Protocol Note -->
+<section class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-teal-interactive font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px]">stethoscope</span>
+<span>Care Team Recommendation</span>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-status-success-text-light"></span>
+</div>
+<div class="flex items-start gap-space-md pt-space-xs">
+<img class="w-12 h-12 rounded-full object-cover shrink-0 shadow-sm" data-alt="Warm, compassionate portrait of Dr. Demo Consultant, a female licensed clinical psychologist in her late 40s wearing soft earth-toned professional attire in a tranquil, wood-paneled therapy office with natural diffused sunlight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKV4-TEnS25Ol5m4EoYR3sF5waxX58TXA6-hwBfCeL8hSpZlhiNvm7B8mu8f62WS_847iUV358oqW9cTkaZMPPFdS0vEkUXY3T7100EOZjAKg5gB9hnKdovEoIiI7A79wYTiqjM99BNMAYRYqz2o0nPMJOdD_n7-8NRJSgU3AtfaqxGfjY23oT_7botu_y1Hfc_rhimUY0siU3Xf5kLUcJvkE3ri98Y_hpXGSEWR3C"/>
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-brand-deepest">Dr. Demo Consultant, Psy.D</span>
+<span class="text-xs text-text-secondary-light">Primary Psychotherapist · MindCare</span>
+</div>
+</div>
+<blockquote class="p-space-md rounded-xl bg-teal-tint-soft-light/70 text-on-secondary-container font-body-sm text-body-sm italic relative">
+<span class="material-symbols-outlined text-[20px] text-teal-interactive/40 absolute -top-2 -left-2">format_quote</span>
+          "Jamie, remember to practice the 4-7-8 breathing technique before bedtime rather than waiting for insomnia to escalate. Your mood logs show a noticeable drop in somatic tension when used consistently."
+        </blockquote>
+<a class="w-full py-space-sm px-space-md bg-surface-container hover:bg-surface-container-high text-brand-deepest font-body-sm-bold text-body-sm-bold rounded-xl transition-all text-center flex items-center justify-center gap-space-xs" data-path="book-session" href="#">
+<span class="material-symbols-outlined text-[18px]">forum</span>
+<span>Discuss Toolkit in Next Session</span>
+</a>
+</section>
+<!-- 2. Daily Wellbeing Pillars (Supportive Ecology) -->
+<section class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-brand-deepest">Daily Wellbeing Pillars</h3>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light uppercase">Daily Ecology</span>
+</div>
+<!-- Pillar 1: Sleep Ecology -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-2xs transition-all hover:bg-surface-container">
+<div class="flex items-center gap-space-xs text-brand-deep">
+<span class="material-symbols-outlined text-[18px] text-metric-slate">bedtime</span>
+<span class="font-body-sm-bold text-body-sm-bold">Sleep Hygiene Ecology</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">
+            Keep a steady wake time, dim screens 60 minutes before bed, and cool sleeping environment to 66°F to support melatonin release.
+          </p>
+</div>
+<!-- Pillar 2: Somatic Micro-Movement -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-2xs transition-all hover:bg-surface-container">
+<div class="flex items-center gap-space-xs text-brand-deep">
+<span class="material-symbols-outlined text-[18px] text-teal-interactive">directions_walk</span>
+<span class="font-body-sm-bold text-body-sm-bold">Somatic Micro-Movement</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">
+            A 10-minute mindful walk or gentle shoulder rolls can stimulate circulation and alleviate physical cortisol buildup in soft tissue.
+          </p>
+</div>
+<!-- Pillar 3: Authentic Connection -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-2xs transition-all hover:bg-surface-container">
+<div class="flex items-center gap-space-xs text-brand-deep">
+<span class="material-symbols-outlined text-[18px] text-metric-terracotta">diversity_1</span>
+<span class="font-body-sm-bold text-body-sm-bold">Authentic Connection</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">
+            Send a brief check-in message to one trusted person in your support circle today to stimulate social engagement neuro-pathways.
+          </p>
+</div>
+</section>
+<!-- 3. Immediate Safety & Crisis Escalation Banner (Mandatory Safety Shield) -->
+<section class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md relative overflow-hidden bg-gradient-to-br from-status-danger-bg-light/70 via-surface-container-lowest to-surface-container-lowest" id="safety-plan">
+<div class="flex items-center gap-space-xs text-status-danger-text-light font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[18px]">emergency_home</span>
+<span>Emergency Support Protocol</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-brand-deepest leading-snug">In Crisis or Need Immediate Safety Support?</h3>
+<p class="font-body-sm text-body-sm text-text-secondary-light leading-relaxed">
+          The Wellbeing Toolkit is designed for non-acute grounding and emotional regulation. If you are experiencing thoughts of self-harm, severe distress, or emergency, free 24/7 help is right here.
+        </p>
+<!-- Bold Crisis Lifeline CTA -->
+<a class="w-full py-space-sm px-space-md bg-status-danger-text-light hover:opacity-90 text-on-error font-body-base-bold text-body-base-bold rounded-xl transition-all text-center flex items-center justify-center gap-space-xs shadow-sm" href="tel:988">
+<span class="material-symbols-outlined text-[20px]">phone_in_talk</span>
+<span>Call or Text 988 Suicide &amp; Crisis Lifeline</span>
+</a>
+<!-- Secondary Local Resources Link -->
+<a class="inline-flex items-center justify-center gap-space-2xs text-xs font-semibold text-status-danger-text-light hover:underline pt-space-2xs" href="#">
+<span>View Personal Safety Plan &amp; Local Crisis Centers</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</section>
+</aside>
+</div>
+<!-- Editorial Disclaimer Footer -->
+<footer class="mt-space-2xl pt-space-lg mb-space-md flex flex-col sm:flex-row items-center justify-between gap-space-md text-xs text-text-secondary-light">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-teal-interactive"></span>
+<span>MindCare Pro Wellbeing Toolkit · Evidence-based self-regulation practices</span>
+</div>
+<div class="text-center sm:text-right">
+<span>Not a replacement for clinical emergency care · Dial 988 in acute crisis.</span>
+</div>
+</footer>
+</div></main></div></body></html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#a3cfc9","status-danger-bg-dark":"#3b1f1b","on-error-container":"#93000a","metric-gold":"#e9b44c","on-background":"#091f1c","text-secondary-light":"#5f7571","background":"#e6fef9","primary-container":"#0f766e","text-primary-dark":"#e3efec","on-error":"#ffffff","inverse-primary":"#80d5cb","on-surface":"#091f1c","on-secondary-fixed-variant":"#234e49","surface-container-high":"#d5ede8","surface-tint":"#006a63","status-success-text-light":"#1f6b3d","surface-container-low":"#e1f9f3","surface-card-dark":"#14292a","status-warning-bg-dark":"#3a2f17","status-danger-text-light":"#b3392a","on-secondary":"#ffffff","teal-interactive":"#0f766e","text-secondary-dark":"#8fa8a3","surface-container-lowest":"#ffffff","status-success-bg-dark":"#173a27","error":"#ba1a1a","text-primary-light":"#14302c","surface-card-light":"#ffffff","on-primary-fixed":"#00201d","surface-container":"#dbf3ee","status-success-bg-light":"#dff3e6","outline":"#6e7977","secondary-fixed":"#beebe5","inverse-surface":"#1f3431","tertiary-fixed":"#ffdbd2","primary-fixed-dim":"#80d5cb","status-danger-text-dark":"#f4a496","status-warning-text-dark":"#f2c879","on-secondary-container":"#406a65","secondary-container":"#bbe9e2","on-primary":"#ffffff","inverse-on-surface":"#def6f1","status-warning-bg-light":"#fff3df","secondary":"#3b6661","on-primary-container":"#a3faef","metric-slate":"#6c8ebf","status-success-text-dark":"#8fdcae","teal-interactive-hover":"#115e59","border-hairline-light":"#dde7e3","app-bg-dark":"#0d1b1a","surface-bright":"#e6fef9","metric-terracotta":"#e07a5f","tertiary":"#893822","status-warning-text-light":"#8a5a12","on-primary-fixed-variant":"#00504a","brand-deepest":"#081f1e","surface-dim":"#c7dfda","app-bg-light":"#f2f5f3","teal-tint-soft-light":"#e3f1ee","surface":"#e6fef9","surface-variant":"#d0e7e2","teal-interactive-dark":"#2dd4bf","on-tertiary":"#ffffff","on-tertiary-fixed-variant":"#7c2e19","surface-container-highest":"#d0e7e2","border-hairline-dark":"#23403f","on-tertiary-container":"#ffe4de","outline-variant":"#bdc9c6","on-surface-variant":"#3e4947","tertiary-fixed-dim":"#ffb4a1","teal-tint-soft-dark":"#173b3a","on-secondary-fixed":"#00201d","tertiary-container":"#a84f37","primary-fixed":"#9cf2e8","error-container":"#ffdad6","status-danger-bg-light":"#fde8e4","brand-deep":"#0c3b37","on-tertiary-fixed":"#3c0800","primary":"#005c55"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin-mobile":"1rem","space-md":"1rem","gutter-mobile":"0.75rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.25rem","space-xl":"1.75rem","gutter":"1.125rem","space-2xl":"2.5rem","space-2xs":"0.125rem","margin":"1.75rem"},"fontFamily":{"body-base":["Plus Jakarta Sans"],"body-base-bold":["Plus Jakarta Sans"],"title-card":["Playfair Display"],"headline-stat":["Playfair Display"],"display-hero-mobile":["Playfair Display"],"label-sm":["Plus Jakarta Sans"],"label-pill-counter":["Plus Jakarta Sans"],"headline-lg":["Playfair Display"],"headline-md":["Playfair Display"],"body-sm-bold":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"label-table-header":["Plus Jakarta Sans"],"display-hero":["Playfair Display"],"headline-sm":["Playfair Display"],"body-sm":["Plus Jakarta Sans"]},"fontSize":{"body-base":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"body-base-bold":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"700"}],"title-card":["18px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"600"}],"headline-stat":["30px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"display-hero-mobile":["32px",{"lineHeight":"38px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"700"}],"label-pill-counter":["10px",{"lineHeight":"12px","letterSpacing":"0","fontWeight":"700"}],"headline-lg":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"30px","letterSpacing":"0","fontWeight":"700"}],"body-sm-bold":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"600"}],"label-table-header":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"600"}],"display-hero":["42px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}]}}}</script></head><body class="bg-app-bg-light font-body-base text-body-base text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between p-space-md"><div class="flex flex-col gap-space-md"><div class="flex items-center gap-space-sm px-space-xs py-space-xs"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[20px]">spa</span></div><div><div class="font-title-card text-title-card text-brand-deep tracking-tight leading-none">MindCare</div><span class="font-label-sm text-label-sm text-text-secondary-light tracking-wide uppercase">Sanctuary Portal</span></div></div><div class="px-space-xs pt-space-xs"><div class="bg-teal-tint-soft-light rounded-xl p-space-sm flex items-center gap-space-sm"><span class="w-2.5 h-2.5 rounded-full bg-status-success-text-light animate-pulse"></span><span class="font-label-sm text-label-sm text-on-secondary-container">Safe &amp; Confidential Care</span></div></div><nav class="flex flex-col gap-space-2xs" data-active-classes="bg-primary-container text-on-primary font-body-base-bold rounded-xl shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="client-dashboard" href="#"><span class="material-symbols-outlined text-[20px]">home</span><span class="font-body-sm text-body-sm">Dashboard</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-space-xs transition-all bg-primary-container text-on-primary font-body-base-bold rounded-xl shadow-sm" data-path="mood-journal" href="#"><span class="material-symbols-outlined text-[20px]">wb_sunny</span><span class="font-body-sm text-body-sm">Mood Journal</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="book-session" href="#"><span class="material-symbols-outlined text-[20px]">add_circle</span><span class="font-body-sm text-body-sm">Book Session</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="my-sessions" href="#"><span class="material-symbols-outlined text-[20px]">calendar_month</span><span class="font-body-sm text-body-sm">My Sessions</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="my-goals" href="#"><span class="material-symbols-outlined text-[20px]">check_circle</span><span class="font-body-sm text-body-sm">My Goals</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="documents" href="#"><span class="material-symbols-outlined text-[20px]">upload_file</span><span class="font-body-sm text-body-sm">Documents</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="wellbeing-toolkit" href="#"><span class="material-symbols-outlined text-[20px]">local_florist</span><span class="font-body-sm text-body-sm">Wellbeing Toolkit</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="notifications" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="font-body-sm text-body-sm">Notifications</span></div><span class="px-space-xs py-space-2xs rounded-full bg-secondary-container text-on-secondary-container font-label-pill-counter text-label-pill-counter">2</span></a></nav></div><div class="flex flex-col gap-space-xs pt-space-md bg-surface-container-low"><div class="h-px w-full bg-border-hairline-light"></div><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="export-data" href="#"><span class="material-symbols-outlined text-[18px]">download</span><span class="font-body-sm text-body-sm">Export Data</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-status-danger-bg-light hover:text-status-danger-text-light transition-all" data-path="sign-out" href="#"><span class="material-symbols-outlined text-[18px]">logout</span><span class="font-body-sm text-body-sm">Sign Out</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[20px]">wb_twilight</span><span class="font-headline-sm text-headline-sm text-brand-deepest">MindCare Sanctuary</span></div><span class="font-body-sm text-body-sm text-text-secondary-light hidden lg:inline">Welcome, Jamie Lee</span></div><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-xs bg-status-danger-bg-light px-space-sm py-space-xs rounded-full hover:bg-status-danger-text-light hover:text-on-error transition-all group" href="tel:988" title="National Crisis Lifeline 24/7"><span class="material-symbols-outlined text-status-danger-text-light text-[18px] group-hover:text-on-error">phone_in_talk</span><span class="font-label-sm text-label-sm text-status-danger-text-light group-hover:text-on-error whitespace-nowrap">24/7 Crisis Support (988)</span></a><button aria-label="Toggle Calming Theme" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" type="button"><span class="material-symbols-outlined text-[18px]">contrast</span></button><a aria-label="View notifications" class="relative w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="notifications" href="#"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-metric-terracotta"></span></a><div class="h-6 w-px bg-border-hairline-light"></div><div class="flex items-center gap-space-sm pl-space-2xs"><div class="relative"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-body-sm-bold text-body-sm-bold"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-status-success-text-light border-2 border-surface-container-lowest"></span></div><div class="hidden sm:flex flex-col text-left"><span class="font-body-sm-bold text-body-sm-bold text-brand-deepest leading-tight">Jamie Lee</span><span class="font-label-pill-counter text-label-pill-counter text-on-secondary-container uppercase tracking-wider">Client</span></div></div></div></header><main class="relative pt-16 bg-app-bg-light w-full min-h-screen px-space-xl py-space-xl"><div class="flex flex-col w-full">
+<!-- Privacy & Sanctuary Clinical Assurance Pill -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-lg">
+<div class="flex items-center gap-space-sm bg-surface-container px-space-md py-space-xs rounded-full shadow-sm">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-label-sm text-label-sm text-brand-deep tracking-wide">Encrypted &amp; Confidential · Shared exclusively with Dr. Demo Consultant</span>
+</div>
+<div class="flex items-center gap-space-xs text-text-secondary-light">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+<span class="font-label-sm text-label-sm">Autosaved today at 09:42 AM</span>
+</div>
+</div>
+<!-- Header & Narrative Statement -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md mb-space-2xl">
+<div class="max-w-2xl">
+<div class="font-label-table-header text-label-table-header uppercase tracking-wider text-secondary mb-space-2xs">Client Portal · Module CL-MOOD</div>
+<h1 class="font-display-hero text-display-hero text-brand-deepest tracking-tight">Mood Journal &amp; Daily Reflections</h1>
+<p class="font-body-lg text-body-lg text-text-secondary-light mt-space-xs">
+        Track emotional resonance, notice somatic triggers, and co-develop coping trajectories alongside Dr. Demo Consultant.
+      </p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="flex items-center gap-space-xs bg-teal-tint-soft-light text-primary px-space-md py-space-sm rounded-xl font-label-md text-label-md hover:bg-surface-container transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">download_for_offline</span>
+        Export Clinician Summary
+      </button>
+<button class="flex items-center gap-space-xs bg-primary text-on-primary px-space-lg py-space-sm rounded-xl font-label-md text-label-md hover:bg-teal-interactive-hover transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">add_notes</span>
+        Quick Log
+      </button>
+</div>
+</div>
+<!-- Main Split Layout: Daily Check-In & Longitudinal Analytics -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-space-2xl">
+<!-- Left Column: Daily Reflection & Sensory Log (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-gutter">
+<div class="bg-surface-container-lowest rounded-xl p-space-xl shadow-sm relative overflow-hidden">
+<!-- Subtle Organic Ambient Radial Glow -->
+<div class="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-surface-container-high/40 blur-3xl pointer-events-none"></div>
+<div class="flex items-center justify-between mb-space-lg relative z-10">
+<div>
+<div class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Step 1 of 2</div>
+<h2 class="font-title-card text-title-card text-brand-deepest">Today’s Resonant State</h2>
+</div>
+<span class="px-space-sm py-space-2xs bg-status-success-bg-light text-status-success-text-light font-label-sm text-label-sm rounded-full">
+            Session Check-in #42
+          </span>
+</div>
+<!-- 5-State Tactile Mood Selector -->
+<div class="mb-space-xl relative z-10">
+<label class="block font-label-md text-label-md text-text-primary-light mb-space-sm">
+            How is your nervous system feeling right now?
+          </label>
+<div class="grid grid-cols-5 gap-space-xs sm:gap-space-sm" id="mood-selector-container">
+<!-- 1: Very Low -->
+<button class="mood-tile group flex flex-col items-center justify-center p-space-sm sm:p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all text-center" data-score="1" type="button">
+<span class="text-2xl sm:text-3xl mb-space-2xs transition-transform group-hover:scale-110">😞</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">1</span>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light hidden sm:inline">Depleted</span>
+</button>
+<!-- 2: Low -->
+<button class="mood-tile group flex flex-col items-center justify-center p-space-sm sm:p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all text-center" data-score="2" type="button">
+<span class="text-2xl sm:text-3xl mb-space-2xs transition-transform group-hover:scale-110">🙁</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">2</span>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light hidden sm:inline">Guarded</span>
+</button>
+<!-- 3: Neutral -->
+<button class="mood-tile group flex flex-col items-center justify-center p-space-sm sm:p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all text-center" data-score="3" type="button">
+<span class="text-2xl sm:text-3xl mb-space-2xs transition-transform group-hover:scale-110">😐</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">3</span>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light hidden sm:inline">Steady</span>
+</button>
+<!-- 4: Good (Active Selection) -->
+<button class="mood-tile group flex flex-col items-center justify-center p-space-sm sm:p-space-md rounded-xl bg-primary text-on-primary transition-all text-center shadow-md scale-[1.02]" data-score="4" type="button">
+<span class="text-2xl sm:text-3xl mb-space-2xs transition-transform group-hover:scale-110">🙂</span>
+<span class="font-label-sm text-label-sm text-on-primary">4</span>
+<span class="font-label-pill-counter text-label-pill-counter text-on-primary-container font-semibold hidden sm:inline">Grounded</span>
+</button>
+<!-- 5: Thriving -->
+<button class="mood-tile group flex flex-col items-center justify-center p-space-sm sm:p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition-all text-center" data-score="5" type="button">
+<span class="text-2xl sm:text-3xl mb-space-2xs transition-transform group-hover:scale-110">😄</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">5</span>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light hidden sm:inline">Vital</span>
+</button>
+</div>
+</div>
+<!-- Biometric Context Pill Sliders / Indicators -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md mb-space-xl relative z-10">
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">bedtime</span>
+</div>
+<div>
+<div class="font-label-sm text-label-sm text-text-secondary-light">Sleep Duration</div>
+<div class="font-body-sm-bold text-body-sm-bold text-brand-deepest">7.5 hrs · Restful REM</div>
+</div>
+</div>
+<span class="px-space-xs py-space-2xs bg-surface-container-high text-primary font-label-pill-counter text-label-pill-counter rounded-md">Optimal</span>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-metric-gold">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+</div>
+<div>
+<div class="font-label-sm text-label-sm text-text-secondary-light">Somatic Energy</div>
+<div class="font-body-sm-bold text-body-sm-bold text-brand-deepest">Moderate Balanced</div>
+</div>
+</div>
+<span class="px-space-xs py-space-2xs bg-status-warning-bg-light text-status-warning-text-light font-label-pill-counter text-label-pill-counter rounded-md">Tier 3/5</span>
+</div>
+</div>
+<!-- Guided Qualitative Prompt & Textarea -->
+<div class="mb-space-lg relative z-10">
+<div class="flex items-center justify-between mb-space-xs">
+<label class="font-label-md text-label-md text-text-primary-light" for="journal-input">
+              Reflective Narrative &amp; Influences
+            </label>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light">Prompt: Somatic Observation</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light mb-space-sm">
+            What influenced your mood today? Note somatic cues, relational friction, or helpful stabilization practices.
+          </p>
+<div class="relative">
+<textarea class="w-full bg-app-bg-light rounded-xl p-space-md font-body-base text-body-base text-brand-deepest placeholder:text-text-secondary-light focus:outline-none focus:bg-surface-container-lowest transition-all shadow-inner leading-relaxed" id="journal-input" rows="4">Felt noticeable decrease in somatic tension after doing the 4-7-8 breathing exercise before the team standup. Workload still elevated but felt significantly more manageable once I named the anxiety aloud.</textarea>
+<div class="absolute bottom-3 right-3 text-text-secondary-light font-label-sm text-label-sm">
+              184 characters
+            </div>
+</div>
+</div>
+<!-- Therapeutic Metadata Tags -->
+<div class="mb-space-xl relative z-10">
+<div class="font-label-sm text-label-sm uppercase tracking-wider text-text-secondary-light mb-space-xs">Active Treatment Anchors</div>
+<div class="flex flex-wrap gap-space-xs">
+<span class="cursor-pointer px-space-sm py-space-xs rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-space-2xs hover:opacity-90">
+              #SleepHygiene <span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+<span class="cursor-pointer px-space-sm py-space-xs rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-space-2xs hover:opacity-90">
+              #WorkAnxiety <span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+<span class="cursor-pointer px-space-sm py-space-xs rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-space-2xs hover:opacity-90">
+              #Mindfulness <span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+<span class="cursor-pointer px-space-sm py-space-xs rounded-full bg-surface-container text-text-secondary-light font-label-sm text-label-sm flex items-center gap-space-2xs hover:bg-surface-container-high">
+              #EveningWalk <span class="material-symbols-outlined text-[14px]">add</span>
+</span>
+<span class="cursor-pointer px-space-sm py-space-xs rounded-full bg-surface-container text-text-secondary-light font-label-sm text-label-sm flex items-center gap-space-2xs hover:bg-surface-container-high">
+              #CBTThoughtRecord <span class="material-symbols-outlined text-[14px]">add</span>
+</span>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md pt-space-md relative z-10">
+<div class="flex items-center gap-space-xs text-text-secondary-light">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="font-label-sm text-label-sm">HIPAA-compliant client-side encrypt</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-space-sm rounded-xl font-label-md text-label-md text-secondary hover:bg-surface-container transition-all" type="button">
+              Save as Draft
+            </button>
+<button class="px-space-xl py-space-sm rounded-xl bg-primary text-on-primary font-body-sm-bold text-body-sm-bold shadow-md hover:bg-teal-interactive-hover transition-all flex items-center gap-space-xs" id="submit-checkin-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+              Save Today’s Check-in
+            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Longitudinal Analytics & Clinical Insight (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-gutter">
+<!-- Curve Chart Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-xs">
+<div>
+<div class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Continuity Trajectory</div>
+<h3 class="font-title-card text-title-card text-brand-deepest">Trend (Last 14 Check-ins)</h3>
+</div>
+<span class="px-space-xs py-space-2xs rounded-full bg-teal-tint-soft-light text-primary font-label-sm text-label-sm font-semibold">
+              +8.4% Resilience
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light mb-space-md">
+            Bi-weekly progression based on standardized 1–5 emotional valence scoring.
+          </p>
+</div>
+<!-- Inline SVG Trend Visualization -->
+<div class="relative w-full h-44 my-space-xs bg-surface-container-low rounded-xl p-space-sm overflow-hidden flex flex-col justify-between">
+<!-- Scale Background Grids & Labels -->
+<div class="absolute inset-0 flex flex-col justify-between p-space-sm pointer-events-none opacity-20">
+<div class="w-full h-px bg-primary"></div>
+<div class="w-full h-px bg-primary"></div>
+<div class="w-full h-px bg-primary"></div>
+<div class="w-full h-px bg-primary"></div>
+</div>
+<!-- The SVG Line Graph -->
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 380 120">
+<defs>
+<lineargradient id="moodGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0f766e" stop-opacity="0.32"></stop>
+<stop offset="100%" stop-color="#0f766e" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Area Fill -->
+<path d="M 10,80 Q 40,65 70,72 T 130,50 T 190,85 T 250,45 T 310,38 T 370,30 L 370,120 L 10,120 Z" fill="url(#moodGradient)"></path>
+<!-- Continuous Trajectory Curve -->
+<path d="M 10,80 Q 40,65 70,72 T 130,50 T 190,85 T 250,45 T 310,38 T 370,30" fill="none" stroke="#0f766e" stroke-linecap="round" stroke-width="3"></path>
+<!-- Key Data Points -->
+<circle class="hover:scale-150 transition-all" cx="10" cy="80" fill="#0f766e" r="4"></circle>
+<circle cx="70" cy="72" fill="#0f766e" r="4"></circle>
+<circle cx="130" cy="50" fill="#0f766e" r="4"></circle>
+<circle cx="190" cy="85" fill="#e07a5f" r="5"></circle> <!-- Notable dip -->
+<circle cx="250" cy="45" fill="#0f766e" r="4"></circle>
+<circle cx="310" cy="38" fill="#0f766e" r="4"></circle>
+<circle cx="370" cy="30" fill="#005c55" r="6" stroke="#ffffff" stroke-width="2"></circle> <!-- Today: 4.2 -->
+</svg>
+<!-- Timeline X-Axis Footers -->
+<div class="flex justify-between items-center text-text-secondary-light font-label-table-header text-label-table-header pt-space-2xs z-10">
+<span>May 10</span>
+<span>May 13</span>
+<span>May 16</span>
+<span>May 19</span>
+<span>May 22</span>
+<span class="text-primary font-bold">Today</span>
+</div>
+</div>
+<!-- Analytics Micro-Metrics 3-Up Row -->
+<div class="grid grid-cols-3 gap-space-xs pt-space-md mt-space-sm">
+<div class="bg-surface-container-low p-space-sm rounded-xl">
+<div class="font-label-table-header text-label-table-header uppercase text-text-secondary-light">7-Day Avg</div>
+<div class="font-headline-sm text-headline-sm text-brand-deepest mt-space-2xs">3.8<span class="font-body-sm text-body-sm text-text-secondary-light font-normal">/5</span></div>
+<div class="font-label-pill-counter text-label-pill-counter text-status-success-text-light flex items-center gap-space-2xs mt-space-2xs">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> +0.4 w/w
+            </div>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-xl">
+<div class="font-label-table-header text-label-table-header uppercase text-text-secondary-light">Stability</div>
+<div class="font-headline-sm text-headline-sm text-brand-deepest mt-space-2xs">82%</div>
+<div class="font-label-pill-counter text-label-pill-counter text-secondary flex items-center gap-space-2xs mt-space-2xs">
+<span class="material-symbols-outlined text-[12px]">balance</span> High Equanimity
+            </div>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-xl">
+<div class="font-label-table-header text-label-table-header uppercase text-text-secondary-light">Streak</div>
+<div class="font-headline-sm text-headline-sm text-primary mt-space-2xs">5 <span class="font-body-sm text-body-sm text-text-secondary-light font-normal">days</span></div>
+<div class="font-label-pill-counter text-label-pill-counter text-text-secondary-light flex items-center gap-space-2xs mt-space-2xs">
+<span class="material-symbols-outlined text-[12px]">local_fire_department</span> Best: 12 days
+            </div>
+</div>
+</div>
+</div>
+<!-- Consultant Clinical Note Widget -->
+<div class="bg-teal-tint-soft-light rounded-xl p-space-lg shadow-sm relative overflow-hidden">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-[24px]">psychology</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-space-2xs">
+<span class="font-label-sm text-label-sm text-primary font-bold">Dr. Demo Consultant, Psy.D</span>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light">Wed, 4:15 PM</span>
+</div>
+<p class="font-body-sm text-body-sm text-brand-deepest italic leading-relaxed">
+              “Great job maintaining the morning tracking routine, Jamie. The correlation between intentional breathing before team standups and reduced somatic tremors is clinically significant. Let’s review this data next Tuesday.”
+            </p>
+<div class="mt-space-sm flex items-center gap-space-sm">
+<span class="px-space-xs py-space-2xs bg-surface-container-lowest text-secondary font-label-pill-counter text-label-pill-counter rounded-md">
+                Goal: Vagus Nerve Activation
+              </span>
+<a class="font-label-sm text-label-sm text-primary font-semibold hover:underline inline-flex items-center gap-space-2xs" href="#">
+                Reply in Portal <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Mindfulness Anchor Card with Visual Image Accent -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center gap-space-md">
+<img class="w-20 h-20 rounded-xl object-cover shrink-0" data-alt="A tranquil stone lantern beside a peaceful reflective moss garden pool with gentle dappled sunlight through bamboo trees, therapeutic Japanese serene nature scene in soft deep teal and sage tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK79PabWTNDX_yn6941sTjDVgGoODVES-ItW__rXAWdoZjmfMIxwM668oqvoz7YkvLdA_LO5ntRzxoxWJIbHfnyKBIo9pRdsptR3eED-MpUtRciPD23qGQjERr5bWqsJAmFjtmFQwEErX581n7EqDGsj_a9fDS7_VxYKhzxRDAb-Kxv_Vf86LYnTbz3ceyvPKxv8xbA--e7xrYdfHQazm9WlCX51kBF2sfzY3oT5cq"/>
+<div class="flex-1">
+<div class="font-label-table-header text-label-table-header text-secondary uppercase">Recommended Grounding Audio</div>
+<div class="font-body-sm-bold text-body-sm-bold text-brand-deepest">10-Minute Progressive Relaxation</div>
+<p class="font-label-sm text-label-sm text-text-secondary-light line-clamp-1 mt-space-2xs">Focus on releasing diaphragmatic tension</p>
+<div class="mt-space-xs flex items-center gap-space-xs text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">play_circle</span>
+<span>Listen (10:14)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Mood History Log & Past Longitudinal Entries (Full Width) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-xl shadow-sm mb-space-xl">
+<!-- History Toolbar -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pb-space-lg mb-space-lg border-b border-border-hairline-light">
+<div>
+<h2 class="font-title-card text-title-card text-brand-deepest">Reflective Archive &amp; Past Check-ins</h2>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-space-2xs">Complete audit log of logged affective states and therapeutic behavioral tags.</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-xs sm:gap-space-sm">
+<!-- Filter Pills -->
+<button class="px-space-sm py-space-xs rounded-full bg-primary text-on-primary font-label-sm text-label-sm shadow-sm" type="button">
+          All Entries (14)
+        </button>
+<button class="px-space-sm py-space-xs rounded-full bg-surface-container-low text-text-secondary-light font-label-sm text-label-sm hover:bg-surface-container" type="button">
+          With Notes (11)
+        </button>
+<button class="px-space-sm py-space-xs rounded-full bg-surface-container-low text-text-secondary-light font-label-sm text-label-sm hover:bg-surface-container" type="button">
+          Flagged Coping (4)
+        </button>
+<div class="h-5 w-px bg-border-hairline-light mx-space-2xs hidden sm:block"></div>
+<button class="p-space-xs rounded-lg bg-surface-container-low text-text-secondary-light hover:text-brand-deepest hover:bg-surface-container transition-all" title="Filter Settings" type="button">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</div>
+<!-- History Entries Feed -->
+<div class="space-y-space-md">
+<!-- Entry 1: Today -->
+<div class="p-space-lg bg-surface-container-low rounded-xl hover:bg-surface-container transition-all group">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-lowest flex items-center justify-center text-2xl shadow-sm">
+              🙂
+            </div>
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="font-body-sm-bold text-body-sm-bold text-brand-deepest">Today · Morning Log</span>
+<span class="px-space-xs py-space-2xs rounded bg-status-success-bg-light text-status-success-text-light font-label-pill-counter text-label-pill-counter">4.0 / 5.0 Grounded</span>
+</div>
+<div class="font-label-sm text-label-sm text-text-secondary-light mt-space-2xs">09:42 AM · 7.5 hrs sleep · Standup meeting prep</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest text-secondary font-label-sm text-label-sm">#Mindfulness</span>
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest text-secondary font-label-sm text-label-sm">#SleepHygiene</span>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary-light hover:text-primary transition-all opacity-0 group-hover:opacity-100" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+<p class="font-body-base text-body-base text-brand-deep leading-relaxed pl-0 md:pl-16">
+          “Felt noticeable decrease in somatic tension after doing the 4-7-8 breathing exercise before the team standup. Workload still elevated but felt significantly more manageable once I named the anxiety aloud.”
+        </p>
+</div>
+<!-- Entry 2: Yesterday -->
+<div class="p-space-lg bg-surface-container-low rounded-xl hover:bg-surface-container transition-all group">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-lowest flex items-center justify-center text-2xl shadow-sm">
+              😐
+            </div>
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="font-body-sm-bold text-body-sm-bold text-brand-deepest">Yesterday</span>
+<span class="px-space-xs py-space-2xs rounded bg-surface-container text-text-secondary-light font-label-pill-counter text-label-pill-counter">3.0 / 5.0 Steady</span>
+</div>
+<div class="font-label-sm text-label-sm text-text-secondary-light mt-space-2xs">08:15 AM · 5.8 hrs sleep · Sprint closeout</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest text-secondary font-label-sm text-label-sm">#WorkAnxiety</span>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary-light hover:text-primary transition-all opacity-0 group-hover:opacity-100" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+<p class="font-body-base text-body-base text-brand-deep leading-relaxed pl-0 md:pl-16">
+          “Restless sleep due to pending software release deadlines. Applied Dr. Demo's stimulus control protocol (left bed after 20 mins to read fiction under soft amber lamp). Re-entered sleep at 1:15 AM.”
+        </p>
+</div>
+<!-- Entry 3: 2 Days Ago -->
+<div class="p-space-lg bg-surface-container-low rounded-xl hover:bg-surface-container transition-all group">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-lowest flex items-center justify-center text-2xl shadow-sm">
+              🙂
+            </div>
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="font-body-sm-bold text-body-sm-bold text-brand-deepest">2 Days Ago</span>
+<span class="px-space-xs py-space-2xs rounded bg-status-success-bg-light text-status-success-text-light font-label-pill-counter text-label-pill-counter">4.0 / 5.0 Grounded</span>
+</div>
+<div class="font-label-sm text-label-sm text-text-secondary-light mt-space-2xs">07:50 PM · 8.0 hrs sleep · Nature walk</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest text-secondary font-label-sm text-label-sm">#EveningWalk</span>
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest text-secondary font-label-sm text-label-sm">#Gratitude</span>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary-light hover:text-primary transition-all opacity-0 group-hover:opacity-100" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+<p class="font-body-base text-body-base text-brand-deep leading-relaxed pl-0 md:pl-16">
+          “Evening walk around the reservoir helped clear mind. Grateful for supportive check-in with consultant earlier this week. Sensed emotional spaciousness instead of default hyper-vigilance.”
+        </p>
+</div>
+<!-- Entry 4: 3 Days Ago (Low dip with coping mechanism noted) -->
+<div class="p-space-lg bg-surface-container-low rounded-xl hover:bg-surface-container transition-all group">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-lowest flex items-center justify-center text-2xl shadow-sm">
+              🙁
+            </div>
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="font-body-sm-bold text-body-sm-bold text-brand-deepest">3 Days Ago</span>
+<span class="px-space-xs py-space-2xs rounded bg-status-danger-bg-light text-status-danger-text-light font-label-pill-counter text-label-pill-counter">2.0 / 5.0 Guarded</span>
+</div>
+<div class="font-label-sm text-label-sm text-text-secondary-light mt-space-2xs">11:10 AM · 6.1 hrs sleep · Critical stakeholder review</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest text-secondary font-label-sm text-label-sm">#AcuteTension</span>
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest text-secondary font-label-sm text-label-sm">#54321Grounding</span>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary-light hover:text-primary transition-all opacity-0 group-hover:opacity-100" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+<p class="font-body-base text-body-base text-brand-deep leading-relaxed pl-0 md:pl-16">
+          “Experienced acute tension spike during morning client escalation; practiced 5-4-3-2-1 sensory grounding technique in the quiet alcove. Heart rate settled after approximately 12 minutes.”
+        </p>
+</div>
+</div>
+<!-- History Pagination & Footer Action -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-xl mt-space-lg">
+<div class="font-label-sm text-label-sm text-text-secondary-light">
+        Showing 4 of 42 reflections · Retained under MindCare Sanctuary privacy policy
+      </div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-space-xs bg-surface-container-low text-text-secondary-light font-label-sm text-label-sm rounded-lg hover:bg-surface-container" type="button">
+          Previous 14
+        </button>
+<button class="px-space-md py-space-xs bg-surface-container-low text-brand-deepest font-label-sm text-label-sm rounded-lg hover:bg-surface-container" type="button">
+          Next 14
+        </button>
+</div>
+</div>
+</div>
+<!-- Micro Interaction Script for Mood Tiles & Submission Toast -->
+<script>
+    (function initMoodJournal() {
+      const moodTiles = document.querySelectorAll('.mood-tile');
+      const submitBtn = document.getElementById('submit-checkin-btn');
+
+      moodTiles.forEach(tile => {
+        tile.addEventListener('click', () => {
+          moodTiles.forEach(t => {
+            t.classList.remove('bg-primary', 'text-on-primary', 'shadow-md', 'scale-[1.02]');
+            t.classList.add('bg-surface-container-low', 'hover:bg-surface-container');
+            const scoreLabel = t.querySelector('.font-label-sm');
+            if (scoreLabel) {
+              scoreLabel.classList.remove('text-on-primary');
+              scoreLabel.classList.add('text-text-secondary-light');
+            }
+          });
+
+          tile.classList.remove('bg-surface-container-low', 'hover:bg-surface-container');
+          tile.classList.add('bg-primary', 'text-on-primary', 'shadow-md', 'scale-[1.02]');
+          const activeScore = tile.querySelector('.font-label-sm');
+          if (activeScore) {
+            activeScore.classList.remove('text-text-secondary-light');
+            activeScore.classList.add('text-on-primary');
+          }
+        });
+      });
+
+      if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+          const originalText = submitBtn.innerHTML;
+          submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Encrypting &amp; Saving...';
+          submitBtn.disabled = true;
+
+          setTimeout(() => {
+            submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check</span> Saved to Record';
+            submitBtn.classList.remove('bg-primary');
+            submitBtn.classList.add('bg-status-success-text-light');
+            
+            setTimeout(() => {
+              submitBtn.innerHTML = originalText;
+              submitBtn.disabled = false;
+              submitBtn.classList.add('bg-primary');
+              submitBtn.classList.remove('bg-status-success-text-light');
+            }, 2500);
+          }, 700);
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>

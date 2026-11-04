@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-variant":"#d0e7e2","secondary-container":"#bbe9e2","teal-tint-soft-dark":"#173b3a","status-warning-text-light":"#8a5a12","primary-fixed-dim":"#80d5cb","on-tertiary-container":"#ffe4de","inverse-primary":"#80d5cb","app-bg-light":"#f2f5f3","surface-card-light":"#ffffff","inverse-on-surface":"#def6f1","tertiary-fixed-dim":"#ffb4a1","on-background":"#091f1c","inverse-surface":"#1f3431","secondary-fixed-dim":"#a3cfc9","background":"#e6fef9","surface-container":"#dbf3ee","on-secondary-container":"#406a65","text-primary-dark":"#e3efec","metric-terracotta":"#e07a5f","on-surface-variant":"#3e4947","on-primary-fixed":"#00201d","surface-tint":"#006a63","primary":"#005c55","text-secondary-light":"#5f7571","on-primary-fixed-variant":"#00504a","secondary-fixed":"#beebe5","surface-container-low":"#e1f9f3","status-success-bg-light":"#dff3e6","status-danger-bg-dark":"#3b1f1b","status-danger-text-light":"#b3392a","on-secondary-fixed-variant":"#234e49","on-primary":"#ffffff","brand-deepest":"#081f1e","surface-container-highest":"#d0e7e2","primary-container":"#0f766e","on-secondary-fixed":"#00201d","text-primary-light":"#14302c","teal-interactive":"#0f766e","secondary":"#3b6661","status-danger-text-dark":"#f4a496","status-success-text-light":"#1f6b3d","surface-bright":"#e6fef9","app-bg-dark":"#0d1b1a","metric-gold":"#e9b44c","error":"#ba1a1a","text-secondary-dark":"#8fa8a3","on-secondary":"#ffffff","on-error":"#ffffff","status-success-bg-dark":"#173a27","outline":"#6e7977","on-tertiary":"#ffffff","primary-fixed":"#9cf2e8","teal-interactive-dark":"#2dd4bf","border-hairline-light":"#dde7e3","teal-interactive-hover":"#115e59","error-container":"#ffdad6","border-hairline-dark":"#23403f","on-tertiary-fixed":"#3c0800","outline-variant":"#bdc9c6","surface-dim":"#c7dfda","surface":"#e6fef9","tertiary-fixed":"#ffdbd2","tertiary-container":"#a84f37","on-primary-container":"#a3faef","status-danger-bg-light":"#fde8e4","teal-tint-soft-light":"#e3f1ee","status-warning-text-dark":"#f2c879","status-warning-bg-light":"#fff3df","brand-deep":"#0c3b37","status-success-text-dark":"#8fdcae","surface-container-lowest":"#ffffff","on-tertiary-fixed-variant":"#7c2e19","on-surface":"#091f1c","surface-container-high":"#d5ede8","status-warning-bg-dark":"#3a2f17","surface-card-dark":"#14292a","on-error-container":"#93000a","tertiary":"#893822","metric-slate":"#6c8ebf"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-md":"1rem","space-xl":"1.75rem","space-2xs":"0.125rem","gutter":"1.125rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"1.75rem","gutter-mobile":"0.75rem","space-lg":"1.25rem","margin-mobile":"1rem","space-2xl":"2.5rem"},"fontFamily":{"body-sm":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-stat":["Playfair Display"],"headline-md":["Playfair Display"],"body-base":["Plus Jakarta Sans"],"display-hero-mobile":["Playfair Display"],"label-table-header":["Plus Jakarta Sans"],"headline-sm":["Playfair Display"],"headline-lg":["Playfair Display"],"label-pill-counter":["Plus Jakarta Sans"],"title-card":["Playfair Display"],"label-sm":["Plus Jakarta Sans"],"display-hero":["Playfair Display"],"body-lg":["Plus Jakarta Sans"],"body-base-bold":["Plus Jakarta Sans"],"body-sm-bold":["Plus Jakarta Sans"]},"fontSize":{"body-sm":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"600"}],"headline-stat":["30px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"30px","letterSpacing":"0","fontWeight":"700"}],"body-base":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"display-hero-mobile":["32px",{"lineHeight":"38px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-table-header":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"700"}],"headline-lg":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-pill-counter":["10px",{"lineHeight":"12px","letterSpacing":"0","fontWeight":"700"}],"title-card":["18px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"600"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"700"}],"display-hero":["42px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"400"}],"body-base-bold":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"700"}],"body-sm-bold":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"600"}]}}}</script></head><body class="bg-app-bg-light font-body-base text-body-base text-text-primary-light min-h-screen"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-card-light shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-30 flex flex-col justify-between border-r border-border-hairline-light"><div class="flex flex-col"><div class="h-16 px-space-md flex items-center gap-space-sm border-b border-border-hairline-light"><img alt="MindCare Pro Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UbEZBZpg8kxLsVw9rPG4mcQ2xbLbIZEKRuN0LtczYlfSBC7veVXB59e-UsF6V9htEt1Q1XRnV4FlhCMgc1vuM2SNSQDq5l2PZybcTYcOG5RBcn15WTDpf7rYsu9TfiNhVbmrS8miSfcQs8ynwfKZxwjMiXCsSiAEmw-bww8tLB3Gy4j6Khc5bpdyxMx8W7kumzAnJOf7O2PysTApaDOsWi0A1pMy9I2kwNMblZ_o044w"/><span class="font-headline-sm text-headline-sm text-primary tracking-tight">MindCare Pro</span></div><div class="px-space-md pt-space-md pb-space-xs"><span class="font-label-table-header text-label-table-header text-text-secondary-light uppercase tracking-wider">Practice Management</span></div><nav class="flex flex-col gap-space-2xs px-space-sm" data-active-classes="bg-teal-tint-soft-light text-primary font-body-sm-bold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">home</span><span>Overview</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="clients" href="#"><span class="material-symbols-outlined text-[20px]">mood</span><span>Clients</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="schedule" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Schedule</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="session-notes" href="#"><span class="material-symbols-outlined text-[20px]">edit_note</span><span>Session Notes</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="care-plans" href="#"><span class="material-symbols-outlined text-[20px]">fact_check</span><span>Care Plans</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="notifications" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">notifications</span><span>Notifications</span></div><span class="bg-status-warning-bg-light text-status-warning-text-light font-label-pill-counter text-label-pill-counter px-space-xs py-space-2xs rounded-full">4</span></a></nav></div><div class="p-space-md border-t border-border-hairline-light flex flex-col gap-space-xs"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="export-data" href="#"><span class="material-symbols-outlined text-[20px]">download</span><span>Export Data</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-status-danger-text-light hover:bg-status-danger-bg-light hover:text-status-danger-text-light transition-colors font-body-sm text-body-sm" data-path="login" href="#"><span class="material-symbols-outlined text-[20px]">logout</span><span>Sign Out</span></a></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-card-light/95 backdrop-blur-xl border-b border-border-hairline-light shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-10 flex items-center justify-between px-space-xl"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-text-secondary-light font-body-sm text-body-sm"><span class="material-symbols-outlined text-[18px] text-primary">health_and_safety</span><span class="font-label-md text-label-md text-text-primary-light">Clinical Session Guard</span><span class="w-2 h-2 rounded-full bg-teal-interactive inline-block ml-space-xs"></span></div></div><div class="flex items-center gap-space-md"><button aria-label="Toggle Theme" class="w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">contrast</span></button><button aria-label="Notifications" class="relative w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary-light hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-metric-terracotta ring-2 ring-surface-card-light"></span></button><div class="h-6 w-px bg-border-hairline-light"></div><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-hairline-light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBICd3i0gM5quwooX44dheh5vDs-618XVXn3Nccw_-rQ-XFkxSvuw1x_pjH9Aoh1uVLREGCJZTx-F8vwdM9nemcyWX7uf9-t9h2Kbrsy2lu7PlomvBXSEQN8UuPzLxw4QUYduaZgait5Twi0UoSng9l0hRo1wJH_4aMYe28nPpj0XND8Y91PJRaepqPJbw6HXvya0h7ynNI2i5YzsIp66UtRd69Du-SXZmeZTNRgrFH"/><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-text-primary-light leading-none">Dr. Demo Consultant</span><span class="font-label-sm text-label-sm text-text-secondary-light leading-tight">Consultant</span></div></div></div></header><main class="w-full pt-16 bg-app-bg-light flex-1 px-space-xl py-space-xl"><div class="flex flex-col w-full">
+<div class="max-w-[1300px] w-full mx-auto space-y-space-xl">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg">
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs text-text-secondary-light">
+<span class="font-label-table-header text-label-table-header uppercase tracking-wider text-primary">Practice Registry</span>
+<span class="text-text-secondary-light/40">/</span>
+<span class="font-label-table-header text-label-table-header uppercase tracking-wider">Cohort 2025</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-brand-deepest tracking-tight">Client Management</h1>
+<p class="font-body-base text-body-base text-text-secondary-light max-w-2xl">
+          Review intake requests, monitor longitudinal wellbeing, and manage clinical status across your active caseload.
+        </p>
+</div>
+<div class="flex items-center gap-space-sm self-start lg:self-end shrink-0">
+<button class="group flex items-center gap-space-xs bg-surface-card-light text-primary hover:bg-teal-tint-soft-light transition-all duration-150 py-[9px] px-[15px] rounded-[10px] shadow-sm font-body-sm-bold text-body-sm-bold" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary group-hover:scale-105 transition-transform">download</span>
+<span>Export Registry</span>
+</button>
+<button class="flex items-center gap-space-xs bg-teal-interactive hover:bg-teal-interactive-hover text-on-primary transition-all duration-150 py-[9px] px-[15px] rounded-[10px] shadow-sm font-body-sm-bold text-body-sm-bold" type="button">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span>+ Add New Client</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter">
+<div class="bg-surface-card-light rounded-xl p-5 shadow-sm space-y-space-sm relative overflow-hidden">
+<div class="h-1 w-full bg-teal-interactive absolute top-0 left-0"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-text-secondary-light">Total Registered</span>
+<span class="material-symbols-outlined text-primary text-[20px]">groups</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-brand-deepest">24</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">caseload profiles</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-table-header text-label-table-header text-status-success-text-light">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+2 this month</span>
+</div>
+</div>
+<div class="bg-surface-card-light rounded-xl p-5 shadow-sm space-y-space-sm relative overflow-hidden">
+<div class="h-1 w-full bg-metric-slate absolute top-0 left-0"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-text-secondary-light">Active &amp; Accepted</span>
+<span class="material-symbols-outlined text-metric-slate text-[20px]">check_circle</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-brand-deepest">18</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">clients active</span>
+</div>
+<div class="w-full bg-app-bg-light rounded-full h-1.5 overflow-hidden">
+<div class="bg-metric-slate h-full rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<div class="bg-surface-card-light rounded-xl p-5 shadow-sm space-y-space-sm relative overflow-hidden">
+<div class="h-1 w-full bg-metric-gold absolute top-0 left-0"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-text-secondary-light">Pending Triage</span>
+<span class="material-symbols-outlined text-metric-gold text-[20px]">hourglass_top</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-brand-deepest">4</span>
+<span class="font-label-sm text-label-sm text-status-warning-text-light">action required</span>
+</div>
+<div class="flex items-center gap-space-xs text-status-warning-text-light font-label-table-header text-label-table-header">
+<span class="inline-block w-2 h-2 rounded-full bg-metric-gold animate-pulse"></span>
+<span>Median response: 3.2 hrs</span>
+</div>
+</div>
+<div class="bg-surface-card-light rounded-xl p-5 shadow-sm space-y-space-sm relative overflow-hidden">
+<div class="h-1 w-full bg-metric-terracotta absolute top-0 left-0"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-text-secondary-light">Discharged / Referred</span>
+<span class="material-symbols-outlined text-metric-terracotta text-[20px]">archive</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-brand-deepest">2</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">graduated cases</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-table-header text-label-table-header text-text-secondary-light">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span>Care pathways complete</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-card-light rounded-xl p-space-md shadow-sm space-y-space-md">
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md">
+<div class="relative flex-1 max-w-lg">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary-light text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-app-bg-light/60 text-text-primary-light placeholder-text-secondary-light/60 rounded-[10px] font-body-sm text-body-sm focus:outline-none focus:bg-surface-card-light focus:ring-2 focus:ring-teal-interactive transition-all" placeholder="Search name, email, or client ID..." type="text"/>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm justify-between lg:justify-end">
+<div class="flex items-center gap-space-xs bg-app-bg-light p-1 rounded-[10px]">
+<button class="px-3 py-1.5 rounded-lg text-primary bg-surface-card-light font-body-sm-bold text-body-sm-bold shadow-xs" type="button">All (24)</button>
+<button class="px-3 py-1.5 rounded-lg text-text-secondary-light hover:text-text-primary-light font-body-sm text-body-sm transition-colors" type="button">Pending (4)</button>
+<button class="px-3 py-1.5 rounded-lg text-text-secondary-light hover:text-text-primary-light font-body-sm text-body-sm transition-colors" type="button">Active (18)</button>
+<button class="px-3 py-1.5 rounded-lg text-text-secondary-light hover:text-text-primary-light font-body-sm text-body-sm transition-colors" type="button">Discharged (2)</button>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="relative">
+<select class="appearance-none bg-app-bg-light/60 text-text-primary-light pl-3.5 pr-8 py-2 rounded-[10px] font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-teal-interactive cursor-pointer">
+<option>Sort: Recently Active</option>
+<option>Sort: Mood Trajectory</option>
+<option>Sort: Next Appointment</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary-light text-[18px]">expand_more</span>
+</div>
+<div class="flex items-center bg-app-bg-light p-1 rounded-[10px]">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-card-light text-primary shadow-xs" title="Table View" type="button">
+<span class="material-symbols-outlined text-[18px]">table_rows</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary-light hover:text-text-primary-light" title="Grid View" type="button">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto -mx-space-md sm:mx-0">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-app-bg-light/80 text-text-secondary-light">
+<th class="py-3 px-4 font-label-table-header text-label-table-header uppercase tracking-wider rounded-l-lg">Client</th>
+<th class="py-3 px-4 font-label-table-header text-label-table-header uppercase tracking-wider">Contact</th>
+<th class="py-3 px-4 font-label-table-header text-label-table-header uppercase tracking-wider">Status</th>
+<th class="py-3 px-4 font-label-table-header text-label-table-header uppercase tracking-wider">7-Day Mood Trend</th>
+<th class="py-3 px-4 font-label-table-header text-label-table-header uppercase tracking-wider">Sessions &amp; Cadence</th>
+<th class="py-3 px-4 font-label-table-header text-label-table-header uppercase tracking-wider">Care Pathway Focus</th>
+<th class="py-3 px-4 font-label-table-header text-label-table-header uppercase tracking-wider text-right rounded-r-lg">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-hairline-light/50 font-body-sm text-body-sm text-text-primary-light">
+<tr class="hover:bg-app-bg-light/40 transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-full object-cover shrink-0 shadow-xs" data-alt="Editorial close portrait of Jamie Lee, a smiling professional with soft natural room light, soothing sage background, therapeutic tone" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH7kt6VwQ-1vPj72b6getbDxYxK946MnzxehP9XgSQceOxEnkq3dUEOwByjhNTyK2m_9i4-Dxq2LaHqI5VKA-Djx_Pv5G6QeqhA_cE7-GZ9xr9b4jh7eHESjwES5Ttu3_Y8sH5ebVabgkefuuwhGLZc8NYTR7ZtIINOuV3-YV5Uh6kuYPHD1KK13TvkuKToxVXTR9gmDZxnqbOAg3OuXHkzaFPUnWE7Zv2ScmxUxd5"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light truncate">Jamie Lee</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light font-normal">#MC-1042 · Enrolled Jan 2025</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-text-secondary-light">
+<div class="flex flex-col">
+<span>jamie@example.com</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">+1 (555) 234-8891</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 py-0.5 px-2.5 rounded-full font-label-sm text-label-sm bg-status-success-bg-light text-status-success-text-light font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success-text-light"></span>
+                  Accepted
+                </span>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<span class="text-[18px]">😄</span>
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-primary leading-tight">3.6<span class="text-text-secondary-light/60 font-normal text-xs">/5.0</span></span>
+<div class="w-16 bg-surface-container rounded-full h-1 mt-1 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 72%"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">4 sessions</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">videocam</span>
+                    Tomorrow, 10:00 AM
+                  </span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Anxiety &amp; Work Burnout</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">CBT Module 3 · Active</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 bg-teal-tint-soft-light text-primary hover:bg-teal-interactive hover:text-on-primary transition-colors rounded-lg font-label-md text-label-md" type="button">
+                    Chart
+                  </button>
+<button class="p-1.5 text-text-secondary-light hover:text-text-primary-light hover:bg-app-bg-light rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-app-bg-light/40 transition-colors group bg-status-warning-bg-light/20">
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-status-warning-bg-light text-status-warning-text-light flex items-center justify-center font-headline-sm text-headline-sm shrink-0">
+                    DC
+                  </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light truncate">Demo Client</span>
+<span class="font-label-sm text-label-sm text-metric-gold font-bold">#MC-1088 · New Intake Today</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-text-secondary-light">
+<div class="flex flex-col">
+<span>client@mindcare.com</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">Self-referred</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 py-0.5 px-2.5 rounded-full font-label-sm text-label-sm bg-status-warning-bg-light text-status-warning-text-light font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-metric-gold animate-ping"></span>
+                  Pending Triage
+                </span>
+</td>
+<td class="py-4 px-4 text-text-secondary-light italic font-label-sm text-label-sm">
+                — Awaiting Intake
+              </td>
+<td class="py-4 px-4">
+<div class="flex flex-col text-text-secondary-light">
+<span>0 sessions</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">None booked</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Generalized Stress &amp; Insomnia</span>
+<span class="font-label-sm text-label-sm text-status-warning-text-light">Intake packet submitted</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 bg-teal-interactive text-on-primary hover:bg-teal-interactive-hover transition-colors rounded-lg font-label-md text-label-md shadow-xs" type="button">
+                    Accept
+                  </button>
+<button class="px-2.5 py-1.5 bg-status-danger-bg-light text-status-danger-text-light hover:bg-metric-terracotta hover:text-on-primary transition-colors rounded-lg font-label-md text-label-md" type="button">
+                    Decline
+                  </button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-app-bg-light/40 transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-full object-cover shrink-0 shadow-xs" data-alt="Candid studio headshot of Marcus Vance, a middle aged man with thoughtful kind expression, organic green background lighting, gentle therapeutic aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2-x4YQ7QcG4eXhBx1mYvVMjNY-JnJ8YglOEF9-SSacDA3K8ed84xHdl44YrvojRPhD_yx1rdEI01Rs0X4fwJj-x5oSEUGpqKwV9qN_Hzc3rGIGT1ZTzgEdqplw4wRGrRXjb8yrG8QpFj79K9aL_P2FNC_Ua_ebBmr-GGIJXizOSXgk-NaKypKMGpHPbEt1Jvzr1RaA6EiI_WUdWUGdgZE3ZYxv1kcolYLFa1ePnqH"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light truncate">Marcus Vance</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light font-normal">#MC-1019 · Enrolled Oct 2024</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-text-secondary-light">
+<div class="flex flex-col">
+<span>marcus.v@example.com</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">+1 (555) 489-0128</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 py-0.5 px-2.5 rounded-full font-label-sm text-label-sm bg-status-success-bg-light text-status-success-text-light font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success-text-light"></span>
+                  Accepted
+                </span>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<span class="text-[18px]">😐</span>
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-metric-terracotta leading-tight">2.8<span class="text-text-secondary-light/60 font-normal text-xs">/5.0</span></span>
+<div class="w-16 bg-surface-container rounded-full h-1 mt-1 overflow-hidden">
+<div class="bg-metric-terracotta h-full rounded-full" style="width: 56%"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">8 sessions</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">calendar_today</span>
+                    Friday, 2:00 PM
+                  </span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Depressive Episode Follow-up</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">Behavioral Activation Plan</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 bg-teal-tint-soft-light text-primary hover:bg-teal-interactive hover:text-on-primary transition-colors rounded-lg font-label-md text-label-md" type="button">
+                    Chart
+                  </button>
+<button class="p-1.5 text-text-secondary-light hover:text-text-primary-light hover:bg-app-bg-light rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-app-bg-light/40 transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-full object-cover shrink-0 shadow-xs" data-alt="Artful soft-lit portrait of Elena Rostova, a young woman with serene focus, ambient earthy green tones in a bright consulting room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCU6CZ7CmtEM7hMndKwZWjKzroKEVR0zlu8_CWHQM8b35tBK8S5J5QccwZZuFmWlpIuzJKH6XOTo8N0wUArvjSpRgm5IJ5yZFB_U-9nqgE-M1xs3iiE7_coeTeaB5cL0HXL-I9N32pvkLbxrspeT4-Iuqzzw8-cRIz7qnMr-C12YpsB7ZX4G41kmgaRZgfHSVEOC7-4B2sHt_wEhzvDDaAZ7etPmhWKKXqpSMgORujR"/>
+<div class="flex flex-col min-w-0">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light truncate">Elena Rostova</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light font-normal">#MC-0982 · Enrolled Aug 2024</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-text-secondary-light">
+<div class="flex flex-col">
+<span>elena.r@example.com</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">+1 (555) 771-9043</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 py-0.5 px-2.5 rounded-full font-label-sm text-label-sm bg-status-success-bg-light text-status-success-text-light font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success-text-light"></span>
+                  Accepted
+                </span>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<span class="text-[18px]">✨</span>
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-status-success-text-light leading-tight">4.5<span class="text-text-secondary-light/60 font-normal text-xs">/5.0</span></span>
+<div class="w-16 bg-surface-container rounded-full h-1 mt-1 overflow-hidden">
+<div class="bg-status-success-text-light h-full rounded-full" style="width: 90%"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">12 sessions</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">Bi-weekly cadence</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Mindfulness &amp; Boundary Setting</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">Maintenance Protocol</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 bg-teal-tint-soft-light text-primary hover:bg-teal-interactive hover:text-on-primary transition-colors rounded-lg font-label-md text-label-md" type="button">
+                    Chart
+                  </button>
+<button class="p-1.5 text-text-secondary-light hover:text-text-primary-light hover:bg-app-bg-light rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-app-bg-light/40 transition-colors group bg-status-warning-bg-light/20">
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-headline-sm text-headline-sm shrink-0">
+                    SP
+                  </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light truncate">Sophia Patel</span>
+<span class="font-label-sm text-label-sm text-metric-gold font-bold">#MC-1090 · New Intake Yesterday</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-text-secondary-light">
+<div class="flex flex-col">
+<span>spatel@example.com</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">+1 (555) 302-8812</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 py-0.5 px-2.5 rounded-full font-label-sm text-label-sm bg-status-warning-bg-light text-status-warning-text-light font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-metric-gold"></span>
+                  Pending Triage
+                </span>
+</td>
+<td class="py-4 px-4 text-text-secondary-light italic font-label-sm text-label-sm">
+                — Awaiting Intake
+              </td>
+<td class="py-4 px-4">
+<div class="flex flex-col text-text-secondary-light">
+<span>0 sessions</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">Initial consult pending</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light">Postpartum Anxiety Support</span>
+<span class="font-label-sm text-label-sm text-status-warning-text-light">EPDS Screen Attached (14)</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 bg-teal-interactive text-on-primary hover:bg-teal-interactive-hover transition-colors rounded-lg font-label-md text-label-md shadow-xs" type="button">
+                    Accept
+                  </button>
+<button class="px-2.5 py-1.5 bg-status-danger-bg-light text-status-danger-text-light hover:bg-metric-terracotta hover:text-on-primary transition-colors rounded-lg font-label-md text-label-md" type="button">
+                    Decline
+                  </button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-app-bg-light/40 transition-colors group opacity-85">
+<td class="py-4 px-4">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-headline-sm text-headline-sm shrink-0">
+                    TH
+                  </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-base-bold text-body-base-bold text-text-primary-light truncate">Thomas Hayes</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light font-normal">#MC-1031 · Discharged Dec 2024</span>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-text-secondary-light">
+<div class="flex flex-col">
+<span>t.hayes@example.com</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">+1 (555) 612-4099</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 py-0.5 px-2.5 rounded-full font-label-sm text-label-sm bg-status-danger-bg-light text-status-danger-text-light font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-metric-terracotta"></span>
+                  Referred Out
+                </span>
+</td>
+<td class="py-4 px-4 text-text-secondary-light font-label-sm text-label-sm">
+                Case Archived
+              </td>
+<td class="py-4 px-4">
+<div class="flex flex-col text-text-secondary-light">
+<span>2 sessions</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light/70">Discharged</span>
+</div>
+</td>
+<td class="py-4 px-4">
+<div class="flex flex-col">
+<span class="font-body-base-bold text-body-base-bold text-text-secondary-light line-through">Substance Specialization</span>
+<span class="font-label-sm text-label-sm text-metric-terracotta">External clinic warm transfer</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 bg-surface-container text-text-secondary-light hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" type="button">
+                    Records
+                  </button>
+<button class="p-1.5 text-text-secondary-light hover:text-text-primary-light hover:bg-app-bg-light rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-sm border-t border-border-hairline-light/50">
+<span class="font-body-sm text-body-sm text-text-secondary-light">
+          Showing <span class="font-body-base-bold text-body-base-bold text-text-primary-light">1–6</span> of <span class="font-body-base-bold text-body-base-bold text-text-primary-light">24</span> clients
+        </span>
+<div class="flex items-center gap-space-2xs">
+<button class="p-2 rounded-lg text-text-secondary-light hover:bg-app-bg-light transition-colors disabled:opacity-40" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-teal-interactive text-on-primary font-body-sm-bold text-body-sm-bold flex items-center justify-center shadow-xs" type="button">1</button>
+<button class="w-8 h-8 rounded-lg text-text-secondary-light hover:bg-app-bg-light font-body-sm text-body-sm flex items-center justify-center transition-colors" type="button">2</button>
+<button class="w-8 h-8 rounded-lg text-text-secondary-light hover:bg-app-bg-light font-body-sm text-body-sm flex items-center justify-center transition-colors" type="button">3</button>
+<button class="w-8 h-8 rounded-lg text-text-secondary-light hover:bg-app-bg-light font-body-sm text-body-sm flex items-center justify-center transition-colors" type="button">4</button>
+<button class="p-2 rounded-lg text-text-secondary-light hover:bg-app-bg-light transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<div class="p-space-md bg-teal-tint-soft-light rounded-xl flex flex-col md:flex-row items-center justify-between gap-space-md shadow-xs">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px]">verified_user</span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:gap-space-sm text-text-secondary-light font-body-sm text-body-sm">
+<span class="font-body-base-bold text-body-base-bold text-primary">MindCare Pro Clinical Shield</span>
+<span class="hidden sm:inline text-text-secondary-light/40">·</span>
+<span>Records stored under HIPAA &amp; state behavioral health governance</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-metric-terracotta font-body-sm-bold text-body-sm-bold">
+<span class="material-symbols-outlined text-[18px]">emergency</span>
+<span>Crisis Intervention Hotline: 988</span>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

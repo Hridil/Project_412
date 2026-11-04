@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#a3cfc9","status-danger-bg-dark":"#3b1f1b","on-error-container":"#93000a","metric-gold":"#e9b44c","on-background":"#091f1c","text-secondary-light":"#5f7571","background":"#e6fef9","primary-container":"#0f766e","text-primary-dark":"#e3efec","on-error":"#ffffff","inverse-primary":"#80d5cb","on-surface":"#091f1c","on-secondary-fixed-variant":"#234e49","surface-container-high":"#d5ede8","surface-tint":"#006a63","status-success-text-light":"#1f6b3d","surface-container-low":"#e1f9f3","surface-card-dark":"#14292a","status-warning-bg-dark":"#3a2f17","status-danger-text-light":"#b3392a","on-secondary":"#ffffff","teal-interactive":"#0f766e","text-secondary-dark":"#8fa8a3","surface-container-lowest":"#ffffff","status-success-bg-dark":"#173a27","error":"#ba1a1a","text-primary-light":"#14302c","surface-card-light":"#ffffff","on-primary-fixed":"#00201d","surface-container":"#dbf3ee","status-success-bg-light":"#dff3e6","outline":"#6e7977","secondary-fixed":"#beebe5","inverse-surface":"#1f3431","tertiary-fixed":"#ffdbd2","primary-fixed-dim":"#80d5cb","status-danger-text-dark":"#f4a496","status-warning-text-dark":"#f2c879","on-secondary-container":"#406a65","secondary-container":"#bbe9e2","on-primary":"#ffffff","inverse-on-surface":"#def6f1","status-warning-bg-light":"#fff3df","secondary":"#3b6661","on-primary-container":"#a3faef","metric-slate":"#6c8ebf","status-success-text-dark":"#8fdcae","teal-interactive-hover":"#115e59","border-hairline-light":"#dde7e3","app-bg-dark":"#0d1b1a","surface-bright":"#e6fef9","metric-terracotta":"#e07a5f","tertiary":"#893822","status-warning-text-light":"#8a5a12","on-primary-fixed-variant":"#00504a","brand-deepest":"#081f1e","surface-dim":"#c7dfda","app-bg-light":"#f2f5f3","teal-tint-soft-light":"#e3f1ee","surface":"#e6fef9","surface-variant":"#d0e7e2","teal-interactive-dark":"#2dd4bf","on-tertiary":"#ffffff","on-tertiary-fixed-variant":"#7c2e19","surface-container-highest":"#d0e7e2","border-hairline-dark":"#23403f","on-tertiary-container":"#ffe4de","outline-variant":"#bdc9c6","on-surface-variant":"#3e4947","tertiary-fixed-dim":"#ffb4a1","teal-tint-soft-dark":"#173b3a","on-secondary-fixed":"#00201d","tertiary-container":"#a84f37","primary-fixed":"#9cf2e8","error-container":"#ffdad6","status-danger-bg-light":"#fde8e4","brand-deep":"#0c3b37","on-tertiary-fixed":"#3c0800","primary":"#005c55"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin-mobile":"1rem","space-md":"1rem","gutter-mobile":"0.75rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.25rem","space-xl":"1.75rem","gutter":"1.125rem","space-2xl":"2.5rem","space-2xs":"0.125rem","margin":"1.75rem"},"fontFamily":{"body-base":["Plus Jakarta Sans"],"body-base-bold":["Plus Jakarta Sans"],"title-card":["Playfair Display"],"headline-stat":["Playfair Display"],"display-hero-mobile":["Playfair Display"],"label-sm":["Plus Jakarta Sans"],"label-pill-counter":["Plus Jakarta Sans"],"headline-lg":["Playfair Display"],"headline-md":["Playfair Display"],"body-sm-bold":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"label-table-header":["Plus Jakarta Sans"],"display-hero":["Playfair Display"],"headline-sm":["Playfair Display"],"body-sm":["Plus Jakarta Sans"]},"fontSize":{"body-base":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"body-base-bold":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"700"}],"title-card":["18px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"600"}],"headline-stat":["30px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"700"}],"display-hero-mobile":["32px",{"lineHeight":"38px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"700"}],"label-pill-counter":["10px",{"lineHeight":"12px","letterSpacing":"0","fontWeight":"700"}],"headline-lg":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"30px","letterSpacing":"0","fontWeight":"700"}],"body-sm-bold":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"600"}],"label-table-header":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"600"}],"display-hero":["42px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"26px","letterSpacing":"0","fontWeight":"700"}],"body-sm":["14px",{"lineHeight":"20px","letterSpacing":"0","fontWeight":"400"}]}}}</script></head><body class="bg-app-bg-light font-body-base text-body-base text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between p-space-md"><div class="flex flex-col gap-space-md"><div class="flex items-center gap-space-sm px-space-xs py-space-xs"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[20px]">spa</span></div><div><div class="font-title-card text-title-card text-brand-deep tracking-tight leading-none">MindCare</div><span class="font-label-sm text-label-sm text-text-secondary-light tracking-wide uppercase">Sanctuary Portal</span></div></div><div class="px-space-xs pt-space-xs"><div class="bg-teal-tint-soft-light rounded-xl p-space-sm flex items-center gap-space-sm"><span class="w-2.5 h-2.5 rounded-full bg-status-success-text-light animate-pulse"></span><span class="font-label-sm text-label-sm text-on-secondary-container">Safe &amp; Confidential Care</span></div></div><nav class="flex flex-col gap-space-2xs" data-active-classes="bg-primary-container text-on-primary font-body-base-bold rounded-xl shadow-sm"><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="client-dashboard" href="#"><span>Dashboard</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="mood-journal" href="#"><span>Mood Journal</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="book-session" href="#"><span>Book Session</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="my-sessions" href="#"><span>My Sessions</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="my-goals" href="#"><span>My Goals</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="documents" href="#"><span>Documents</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="wellbeing-toolkit" href="#"><span>Wellbeing Toolkit</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="notifications" href="#"><span>Notifications</span><span class="px-space-xs py-space-2xs rounded-full bg-secondary-container text-on-secondary-container font-label-pill-counter text-label-pill-counter">2</span></a></nav></div><div class="flex flex-col gap-space-xs pt-space-md bg-surface-container-low"><div class="h-px w-full bg-border-hairline-light"></div><a class="flex items-center px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="export-data" href="#"><span>Export Data</span></a><a class="flex items-center px-space-sm py-space-xs rounded-xl text-on-surface-variant hover:bg-status-danger-bg-light hover:text-status-danger-text-light transition-all font-body-sm text-body-sm" data-path="sign-out" href="#"><span>Sign Out</span></a></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-xl flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[20px]">wb_twilight</span><span class="font-headline-sm text-headline-sm text-brand-deepest">MindCare Sanctuary</span></div><span class="font-body-sm text-body-sm text-text-secondary-light hidden lg:inline">Welcome, Jamie Lee</span></div><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-xs bg-status-danger-bg-light px-space-sm py-space-xs rounded-full hover:bg-status-danger-text-light hover:text-on-error transition-all group" href="tel:988" title="National Crisis Lifeline 24/7"><span class="material-symbols-outlined text-status-danger-text-light text-[18px] group-hover:text-on-error">phone_in_talk</span><span class="font-label-sm text-label-sm text-status-danger-text-light group-hover:text-on-error whitespace-nowrap">24/7 Crisis Support (988)</span></a><button aria-label="Toggle Calming Theme" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" type="button"><span class="material-symbols-outlined text-[18px]">contrast</span></button><a aria-label="View notifications" class="relative w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="notifications" href="#"><span class="material-symbols-outlined text-[18px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-metric-terracotta"></span></a><div class="h-6 w-px bg-border-hairline-light"></div><div class="flex items-center gap-space-sm pl-space-2xs"><div class="relative"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-body-sm-bold text-body-sm-bold"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-status-success-text-light border-2 border-surface-container-lowest"></span></div><div class="hidden sm:flex flex-col text-left"><span class="font-body-sm-bold text-body-sm-bold text-brand-deepest leading-tight">Jamie Lee</span><span class="font-label-pill-counter text-label-pill-counter text-on-secondary-container uppercase tracking-wider">Client</span></div></div></div></header><main class="relative pt-16 bg-app-bg-light w-full min-h-screen px-space-xl py-space-xl"><div class="flex flex-col w-full">
+<!-- Subtle decorative ambient backdrop glow -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-24 -right-24 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-96 -left-32 w-80 h-80 bg-secondary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Editorial Header & Assurance Strip -->
+<header class="flex flex-col gap-space-md mb-space-xl">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs text-text-secondary-light font-label-table-header text-label-table-header uppercase tracking-wider">
+<span class="hover:text-primary transition-colors cursor-pointer">Client Portal</span>
+<span>/</span>
+<span class="text-brand-deepest font-body-sm-bold text-body-sm-bold tracking-normal">Care Plan &amp; Recovery Roadmap</span>
+</div>
+<div class="inline-flex items-center gap-space-xs self-start sm:self-auto bg-surface-container-low px-space-sm py-space-2xs rounded-full">
+<span class="w-2 h-2 rounded-full bg-status-success-text-light animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-brand-deep">Protected Clinical Care Plan • Confidential</span>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg">
+<div class="max-w-3xl space-y-space-xs">
+<h1 class="font-headline-lg text-headline-lg text-brand-deepest tracking-tight">My Goals &amp; Action Steps</h1>
+<p class="font-body-base text-body-base text-text-secondary-light leading-relaxed">
+            Collaborative, evidence-based micro-steps and habit progressions established with <span class="font-body-sm-bold text-body-sm-bold text-brand-deep">Dr. Demo Consultant, Psy.D</span>. Move forward at a comfortable, compassionate pace.
+          </p>
+</div>
+<!-- Header CTAs -->
+<div class="flex flex-wrap items-center gap-space-sm shrink-0">
+<button class="flex items-center gap-space-xs bg-primary-container hover:bg-teal-interactive-hover text-on-primary font-body-sm-bold text-body-sm-bold px-space-md py-2.5 rounded-xl shadow-sm transition-all" id="btn-propose-goal" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Propose Goal to Clinician</span>
+</button>
+<button class="flex items-center gap-space-xs bg-surface-card-light hover:bg-surface-container text-on-surface-variant font-body-sm-bold text-body-sm-bold px-space-md py-2.5 rounded-xl shadow-sm transition-all" id="btn-export-pdf" type="button">
+<span class="material-symbols-outlined text-[18px]">download_for_offline</span>
+<span>Summary (PDF)</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Goal Metrics / Momentum KPI Strip (4 cards) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-space-xl">
+<!-- Card 1: Overall Care Plan Progress -->
+<div class="bg-surface-card-light rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-primary-container"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-text-secondary-light uppercase tracking-wider">Plan Progress</span>
+<span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+</div>
+<div class="mt-space-sm mb-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-brand-deepest">75%</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">this cycle</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-space-xs overflow-hidden">
+<div class="bg-primary-container h-1.5 rounded-full transition-all duration-700" style="width: 75%"></div>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-text-secondary-light">3 of 4 action steps completed</p>
+</div>
+<!-- Card 2: Active Streak & Consistency -->
+<div class="bg-surface-card-light rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-metric-gold"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-text-secondary-light uppercase tracking-wider">Active Streak</span>
+<span class="material-symbols-outlined text-metric-gold text-[20px]">local_fire_department</span>
+</div>
+<div class="mt-space-sm mb-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-brand-deepest">14 Days</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Continuous habit engagement</p>
+</div>
+<div class="flex items-center gap-space-2xs text-status-success-text-light font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">done_all</span>
+<span>0 skipped reflections</span>
+</div>
+</div>
+<!-- Card 3: Next Target Deadline -->
+<div class="bg-surface-card-light rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-metric-terracotta"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-text-secondary-light uppercase tracking-wider">Next Target</span>
+<span class="material-symbols-outlined text-metric-terracotta text-[20px]">alarm</span>
+</div>
+<div class="mt-space-sm mb-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-brand-deepest">Tomorrow</span>
+</div>
+<p class="font-body-sm-bold text-body-sm-bold text-brand-deep">Oct 25, 09:00 AM</p>
+</div>
+<p class="font-label-sm text-label-sm text-text-secondary-light truncate">Sleep Restriction Log submission</p>
+</div>
+<!-- Card 4: Clinical Cadence -->
+<div class="bg-surface-card-light rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 right-0 h-1 bg-metric-slate"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-text-secondary-light uppercase tracking-wider">Clinical Cadence</span>
+<span class="material-symbols-outlined text-metric-slate text-[20px]">calendar_month</span>
+</div>
+<div class="mt-space-sm mb-space-xs">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-stat text-headline-stat text-brand-deepest">Bi-Weekly</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Review Session Nov 05, 2025</p>
+</div>
+<p class="font-label-sm text-label-sm text-text-secondary-light truncate">with Dr. Demo Consultant</p>
+</div>
+</section>
+<!-- Primary Layout: 2-Column Responsive Architecture (~65% / ~35%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left Column: Main Feed & Interactive Goals List (lg:col-span-8) -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- Filter Tabs & Meta Strip -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="inline-flex p-1 bg-surface-container-high rounded-xl gap-1">
+<button class="goal-tab-btn active px-space-sm py-1.5 rounded-lg bg-surface-card-light text-brand-deepest font-label-md text-label-md shadow-sm transition-all" data-tab="all" type="button">
+              All Action Steps (4)
+            </button>
+<button class="goal-tab-btn px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-tab="in-progress" type="button">
+              In Progress (1)
+            </button>
+<button class="goal-tab-btn px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-tab="completed" type="button">
+              Completed (3)
+            </button>
+<button class="goal-tab-btn px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-tab="review" type="button">
+              Clinician Review (1)
+            </button>
+</div>
+<span class="font-label-sm text-label-sm text-text-secondary-light hidden sm:inline">Sorted by urgency &amp; priority</span>
+</div>
+<!-- Section: Active Focus Goal (Elevated Highlight Treatment) -->
+<div class="goal-card in-progress review relative bg-surface-card-light rounded-xl p-space-lg shadow-md overflow-hidden">
+<!-- Top subtle tint highlight -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-container via-teal-interactive to-metric-gold"></div>
+<div class="flex flex-col gap-space-md">
+<!-- Header & Badges -->
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="space-y-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="bg-status-warning-bg-light text-status-warning-text-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-warning-text-light animate-ping"></span>
+                    In Progress
+                  </span>
+<span class="bg-teal-tint-soft-light text-primary font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">
+                    CBT-I Protocol • Sleep Hygiene
+                  </span>
+<span class="bg-surface-container text-text-secondary-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">event</span>
+                    Due: Tomorrow, Oct 25, 2025
+                  </span>
+</div>
+<h2 class="font-title-card text-title-card text-brand-deepest font-bold pt-space-2xs">
+                  Complete 7-Day Sleep Restriction Log
+                </h2>
+</div>
+<div class="shrink-0 flex items-center gap-space-2xs text-text-secondary-light">
+<span class="font-label-pill-counter text-label-pill-counter uppercase tracking-wider bg-surface-container px-2 py-1 rounded">Priority #1</span>
+</div>
+</div>
+<!-- Goal Description -->
+<p class="font-body-base text-body-base text-on-surface-variant leading-relaxed">
+              Record morning wake times, sleep onset latency, nocturnal awakenings, and subjective sleep quality every morning before <span class="font-body-sm-bold text-body-sm-bold text-brand-deepest">09:00 AM</span>. This informs baseline sleep efficiency.
+            </p>
+<!-- Interactive Checklist / Micro-step tracking -->
+<div class="bg-app-bg-light/70 rounded-xl p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-brand-deepest flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">checklist</span>
+<span>7-Day Data Consistency Checklist</span>
+</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light font-medium">6 of 7 entries logged (86%)</span>
+</div>
+<!-- Day grid checklist -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-xs pt-space-2xs">
+<div class="flex items-center gap-space-xs bg-surface-card-light p-space-xs rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-status-success-text-light text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface line-through text-text-secondary-light">Days 1 - 3: Baseline Wake Time</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-card-light p-space-xs rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-status-success-text-light text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface line-through text-text-secondary-light">Days 4 - 5: Latency &amp; Night Wakes</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-card-light p-space-xs rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-status-success-text-light text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface line-through text-text-secondary-light">Day 6: Morning Rest Index</span>
+<span class="font-label-pill-counter text-label-pill-counter text-text-secondary-light">Logged yesterday at 9:15 AM</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-card-light p-space-xs rounded-lg shadow-sm ring-2 ring-primary/20">
+<input class="w-4 h-4 rounded text-primary-container focus:ring-primary accent-primary cursor-pointer" id="check-day-7" type="checkbox"/>
+<label class="font-body-sm-bold text-body-sm-bold text-brand-deep cursor-pointer flex flex-col" for="check-day-7">
+<span>Day 7: Final Log Entry</span>
+<span class="font-label-pill-counter text-label-pill-counter text-status-warning-text-light font-normal">Pending tomorrow morning</span>
+</label>
+</div>
+</div>
+</div>
+<!-- Embedded Clinician Note -->
+<div class="bg-teal-tint-soft-light/80 rounded-xl p-space-md flex gap-space-sm items-start">
+<div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-on-primary shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">psychology</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm-bold text-body-sm-bold text-brand-deepest">Dr. Demo Consultant, Psy.D</span>
+<span class="font-label-pill-counter text-label-pill-counter text-on-secondary-container bg-secondary-container px-1.5 py-0.5 rounded">Attending Note</span>
+</div>
+<p class="font-body-sm text-body-sm text-brand-deep italic leading-relaxed">
+                  “Jamie, this data will establish our baseline sleep efficiency before we adjust time-in-bed parameters next Tuesday. You are building invaluable self-awareness—keep going!”
+                </p>
+</div>
+</div>
+<!-- Interactive Action Toolbar -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<button class="flex items-center gap-space-xs bg-primary-container hover:bg-teal-interactive-hover text-on-primary font-body-sm-bold text-body-sm-bold px-space-md py-2 rounded-xl transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+<span>Open Sleep Log in Documents</span>
+</button>
+<button class="flex items-center gap-space-xs bg-surface-container hover:bg-surface-container-high text-brand-deepest font-body-sm-bold text-body-sm-bold px-space-md py-2 rounded-xl transition-all" id="btn-complete-focus" type="button">
+<span class="material-symbols-outlined text-[18px]">done</span>
+<span>Mark Complete</span>
+</button>
+</div>
+<button class="flex items-center gap-space-xs text-primary hover:text-teal-interactive-hover font-label-md text-label-md transition-colors py-1" type="button">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span>Message Clinician about this Goal</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Section: Completed Goals & Habit Anchors -->
+<div class="flex items-center justify-between pt-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-status-success-text-light text-[22px]">verified</span>
+<h3 class="font-headline-sm text-headline-sm text-brand-deepest">Completed Action Steps</h3>
+</div>
+<span class="font-label-sm text-label-sm text-text-secondary-light">Maintained in recovery archive</span>
+</div>
+<!-- Completed Goal 1 -->
+<div class="goal-card completed bg-surface-card-light rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md hover:shadow transition-shadow">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="space-y-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="bg-status-success-bg-light text-status-success-text-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-[14px]">check</span>
+                  Completed on Oct 22
+                </span>
+<span class="bg-surface-container text-text-secondary-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">
+                  Nervous System Regulation
+                </span>
+</div>
+<h4 class="font-title-card text-title-card text-brand-deepest">
+                Practice 4-7-8 Centering Breath Before Bed
+              </h4>
+</div>
+<button class="self-start text-text-secondary-light hover:text-primary font-label-md text-label-md flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+<span>Reopen / Keep as Daily Anchor</span>
+</button>
+</div>
+<p class="font-body-base text-body-base text-text-secondary-light">
+            Perform 4 cycles of parasympathetic vagus breathwork prior to sleep to soothe evening hyper-arousal and down-regulate physiological vigilance.
+          </p>
+<!-- Reflection Callout -->
+<div class="bg-surface-container-low rounded-xl p-space-sm flex items-start gap-space-xs text-on-surface">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">psychology_alt</span>
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-brand-deep">Jamie’s Reflection Log:</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+                “Noticed somatic tension reduction from 7/10 to 3/10 after the third cycle. Chest felt noticeably looser before lights out.”
+              </p>
+</div>
+</div>
+</div>
+<!-- Completed Goal 2 -->
+<div class="goal-card completed review bg-surface-card-light rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md hover:shadow transition-shadow">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="space-y-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="bg-status-success-bg-light text-status-success-text-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-[14px]">check</span>
+                  Completed on Oct 19
+                </span>
+<span class="bg-teal-tint-soft-light text-primary font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">
+                  Cognitive Restructuring
+                </span>
+</div>
+<h4 class="font-title-card text-title-card text-brand-deepest">
+                Identify 3 Automatic Negative Thoughts (ANTs)
+              </h4>
+</div>
+<button class="self-start text-text-secondary-light hover:text-primary font-label-md text-label-md flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+<span>Reopen</span>
+</button>
+</div>
+<p class="font-body-base text-body-base text-text-secondary-light">
+            Notice catastrophizing or all-or-nothing cognitive filters during mid-week work triggers; log the activating event, automatic reaction, and rational compassionate alternative.
+          </p>
+<div class="flex items-center gap-space-xs bg-surface-container-high/60 rounded-xl px-space-sm py-2 text-brand-deep">
+<span class="material-symbols-outlined text-[18px]">rate_review</span>
+<span class="font-body-sm text-body-sm">
+<span class="font-body-sm-bold text-body-sm-bold">Clinician Review:</span> Reviewed and processed during Session 4 with Dr. Consultant.
+            </span>
+</div>
+</div>
+<!-- Completed Goal 3 -->
+<div class="goal-card completed bg-surface-card-light rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md hover:shadow transition-shadow">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+<div class="space-y-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="bg-status-success-bg-light text-status-success-text-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-[14px]">check</span>
+                  Completed on Oct 16
+                </span>
+<span class="bg-surface-container text-text-secondary-light font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">
+                  Behavioral Activation
+                </span>
+</div>
+<h4 class="font-title-card text-title-card text-brand-deepest">
+                Somatic Micro-Movement: 10-Min Nature Walk
+              </h4>
+</div>
+<button class="self-start text-text-secondary-light hover:text-primary font-label-md text-label-md flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+<span>Reopen</span>
+</button>
+</div>
+<p class="font-body-base text-body-base text-text-secondary-light">
+            Engage gentle bilaterally-stimulating movement outdoors without headphones or digital inputs to reduce cognitive sensory fatigue.
+          </p>
+</div>
+</div>
+<!-- Right Column: Supportive Clinical Guidance Rail (lg:col-span-4) -->
+<aside class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- Attending Clinician & Plan Architecture -->
+<div class="bg-surface-card-light rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<div class="flex items-center gap-space-sm">
+<div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary flex items-center justify-center font-title-card text-title-card shadow-sm">
+              DC
+            </div>
+<div class="flex flex-col">
+<span class="font-body-sm-bold text-body-sm-bold text-brand-deepest">Dr. Demo Consultant, Psy.D</span>
+<span class="font-label-sm text-label-sm text-text-secondary-light">Licensed Clinical Psychologist</span>
+<span class="font-label-pill-counter text-label-pill-counter text-primary font-bold mt-0.5">MindCare Practice Lead</span>
+</div>
+</div>
+<div class="h-px w-full bg-border-hairline-light"></div>
+<div class="space-y-space-xs">
+<span class="font-label-sm text-label-sm text-text-secondary-light uppercase tracking-wider">Clinical Framework</span>
+<p class="font-body-sm-bold text-body-sm-bold text-brand-deep">
+              Cognitive Behavioral Therapy (CBT-I) &amp; Somatic Self-Regulation
+            </p>
+</div>
+<!-- Why Micro-steps Work Callout -->
+<div class="bg-surface-container-low rounded-xl p-space-md space-y-space-xs">
+<div class="flex items-center gap-space-xs text-brand-deepest">
+<span class="material-symbols-outlined text-primary text-[18px]">neurology</span>
+<span class="font-title-card text-[15px] font-bold">Why Micro-Steps Work</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Neuroplasticity thrives on low-friction habit stacking. By keeping threshold demands gentle, the nervous system bypasses sympathetic overwhelm and stabilizes sustainable executive routine.
+            </p>
+</div>
+</div>
+<!-- Goal Difficulty & Self-Compassion Gauge -->
+<div class="bg-surface-card-light rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-title-card text-title-card text-brand-deepest">Pacing &amp; Self-Compassion</h3>
+<span class="material-symbols-outlined text-metric-gold text-[20px]">speed</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary-light">
+            How does this week’s care plan pace feel to your nervous system?
+          </p>
+<!-- Interactive Pace Buttons -->
+<div class="grid grid-cols-3 gap-space-xs" id="pacing-selector">
+<button class="pace-btn flex flex-col items-center justify-center p-space-sm rounded-xl bg-surface-container hover:bg-surface-container-high transition-all text-center" data-pace="slow" type="button">
+<span class="material-symbols-outlined text-metric-terracotta text-[20px]">bedtime</span>
+<span class="font-label-sm text-label-sm text-brand-deepest mt-1">Too Fast</span>
+</button>
+<button class="pace-btn active flex flex-col items-center justify-center p-space-sm rounded-xl bg-primary-container text-on-primary shadow-sm transition-all text-center ring-2 ring-primary" data-pace="balanced" type="button">
+<span class="material-symbols-outlined text-[20px]">balance</span>
+<span class="font-label-sm text-label-sm text-on-primary mt-1">Just Right</span>
+</button>
+<button class="pace-btn flex flex-col items-center justify-center p-space-sm rounded-xl bg-surface-container hover:bg-surface-container-high transition-all text-center" data-pace="fast" type="button">
+<span class="material-symbols-outlined text-status-success-text-light text-[20px]">trending_up</span>
+<span class="font-label-sm text-label-sm text-brand-deepest mt-1">Could Add</span>
+</button>
+</div>
+<div class="flex items-center gap-space-xs text-text-secondary-light font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span>Your rating directly guides Dr. Consultant’s adjustments.</span>
+</div>
+</div>
+<!-- Grounding Resource Quick Link -->
+<div class="bg-gradient-to-br from-surface-card-light via-teal-tint-soft-light to-surface-card-light rounded-xl p-space-lg shadow-sm flex flex-col gap-space-sm relative overflow-hidden">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[22px]">self_improvement</span>
+</div>
+<div>
+<h4 class="font-title-card text-[16px] text-brand-deepest font-bold">Feeling stuck or overwhelmed?</h4>
+<p class="font-body-sm text-body-sm text-text-secondary-light mt-0.5">
+                Take a pause. Goals can wait—your regulated nervous system comes first.
+              </p>
+</div>
+</div>
+<a class="mt-space-xs inline-flex items-center justify-center gap-space-xs bg-surface-card-light hover:bg-surface-container text-primary font-body-sm-bold text-body-sm-bold py-2.5 px-space-md rounded-xl shadow-sm transition-all" data-path="wellbeing-toolkit" href="#">
+<span class="material-symbols-outlined text-[18px]">air</span>
+<span>Access Guided Breathing &amp; 5-4-3-2-1</span>
+</a>
+</div>
+<!-- 24/7 Crisis Support Reminder Strip -->
+<div class="bg-status-danger-bg-light rounded-xl p-space-md flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-status-danger-text-light text-[22px] shrink-0">phone_in_talk</span>
+<div class="flex flex-col">
+<span class="font-body-sm-bold text-body-sm-bold text-status-danger-text-light">24/7 Crisis Support Available</span>
+<span class="font-label-sm text-label-sm text-status-danger-text-light/90">Dial or text <strong>988</strong> anytime for free, confidential care.</span>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<!-- Client-side Interactive Behavior for Filter Tabs, Pacing, and Checklist -->
+<script>
+    (function initGoalsInteractions() {
+      // 1. Goal Filter Tabs
+      const tabButtons = document.querySelectorAll('.goal-tab-btn');
+      const goalCards = document.querySelectorAll('.goal-card');
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabButtons.forEach(b => {
+            b.classList.remove('bg-surface-card-light', 'text-brand-deepest', 'shadow-sm', 'active');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('bg-surface-card-light', 'text-brand-deepest', 'shadow-sm', 'active');
+          btn.classList.remove('text-on-surface-variant');
+
+          const tabType = btn.getAttribute('data-tab');
+
+          goalCards.forEach(card => {
+            if (tabType === 'all') {
+              card.style.display = 'flex';
+            } else if (card.classList.contains(tabType)) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // 2. Pace Selector buttons
+      const paceButtons = document.querySelectorAll('.pace-btn');
+      paceButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          paceButtons.forEach(b => {
+            b.classList.remove('bg-primary-container', 'text-on-primary', 'shadow-sm', 'ring-2', 'ring-primary', 'active');
+            b.classList.add('bg-surface-container', 'text-brand-deepest');
+            const icon = b.querySelector('.material-symbols-outlined');
+            if (icon) icon.classList.remove('text-on-primary');
+          });
+          btn.classList.add('bg-primary-container', 'text-on-primary', 'shadow-sm', 'ring-2', 'ring-primary', 'active');
+          btn.classList.remove('bg-surface-container', 'text-brand-deepest');
+        });
+      });
+
+      // 3. Mark Complete Micro-interaction
+      const completeBtn = document.getElementById('btn-complete-focus');
+      const day7Check = document.getElementById('check-day-7');
+      if (completeBtn && day7Check) {
+        completeBtn.addEventListener('click', () => {
+          day7Check.checked = true;
+          completeBtn.classList.remove('bg-surface-container');
+          completeBtn.classList.add('bg-status-success-bg-light', 'text-status-success-text-light');
+          completeBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check_circle</span><span>Entry Logged!</span>';
+        });
+      }
+
+      // 4. Propose Goal feedback toast
+      const proposeBtn = document.getElementById('btn-propose-goal');
+      if (proposeBtn) {
+        proposeBtn.addEventListener('click', () => {
+          alert('Opening Proposal Draft: You can outline a habit micro-step to discuss with Dr. Consultant in your next session.');
+        });
+      }
+
+      // 5. Download PDF feedback
+      const pdfBtn = document.getElementById('btn-export-pdf');
+      if (pdfBtn) {
+        pdfBtn.addEventListener('click', () => {
+          alert('Preparing Care Plan Summary PDF with clinical notes and progress milestones...');
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>
