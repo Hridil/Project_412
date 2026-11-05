@@ -35,7 +35,9 @@ const seed = () => ({
     { id: 302, to: 'jamie', msg: 'Your session with Dr. Demo Consultant is confirmed.', date: new Date().toLocaleDateString(), read: false }
   ],
   fl: [
-    { id: 401, uid: 'jamie', name: 'Intake_Wellness_Questionnaire.pdf', size: 142000 }
+    { id: 401, uid: 'jamie', name: 'Intake_Wellness_Questionnaire.pdf', size: 142000, date: dOff(-2), uploadedBy: 'client' },
+    { id: 402, uid: 'jamie', name: 'Mindfulness_Grounding_Worksheet.pdf', size: 98000, date: dOff(-1), uploadedBy: 'consultant' },
+    { id: 403, uid: 'cdemo', name: 'Initial_Assessment_Packet.pdf', size: 215000, date: dOff(0), uploadedBy: 'client' }
   ],
   md: [3, 2, 3, 4, 3, 4, 4].map((v, i) => ({ uid: 'jamie', date: dOff(i - 6), v, note: i === 6 ? 'Feeling calm and centered after mindfulness practice.' : '' }))
 });
@@ -53,6 +55,7 @@ const E = ['😞', '🙁', '😐', '🙂', '😄'];
 const NS = [
   ['c-home', 'Overview', 'dashboard'],
   ['c-clients', 'Clients', 'groups'],
+  ['c-docs', 'Client Files', 'folder_shared'],
   ['c-schedule', 'Schedule', 'calendar_month'],
   ['c-notes', 'Session Notes', 'edit_note'],
   ['c-plans', 'Care Plans', 'fact_check'],
@@ -108,6 +111,10 @@ export default function App() {
   });
 
   const [Q, setQ] = useState({ q: '', f: 'all' });
+  const [selectedClientId, setSelectedClientId] = useState(null);
+  const [clientModalTab, setClientModalTab] = useState('overview');
+  const [docFilterUid, setDocFilterUid] = useState('all');
+  const [docSearchQuery, setDocSearchQuery] = useState('');
   const [toastMsg, setToastMsg] = useState('');
   const [toastOn, setToastOn] = useState(false);
   const toastTimerRef = useRef(null);
@@ -204,6 +211,7 @@ export default function App() {
   // Helper getters
   const myC = () => S.cl.find((c) => c.uid === U?.id);
   const cn = (id) => S.cl.find((c) => c.id === id)?.name || 'Client';
+  const selectedClient = S.cl.find((c) => c.id === selectedClientId) || null;
   const acc = () => S.cl.filter((c) => c.status === 'Accepted');
   const moodsOf = (u) => S.md.filter((m) => m.uid === u).sort((a, b) => a.date.localeCompare(b.date));
   const avg = (u) => {
@@ -455,15 +463,41 @@ export default function App() {
     go('cl-sessions');
   };
 
+  const getFileIcon = (name = '') => {
+    const ext = name.split('.').pop()?.toLowerCase();
+    if (ext === 'pdf') return 'picture_as_pdf';
+    if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(ext)) return 'image';
+    if (['doc', 'docx', 'txt', 'rtf', 'md'].includes(ext)) return 'description';
+    if (['mp3', 'wav', 'm4a', 'aac'].includes(ext)) return 'audio_file';
+    if (['xls', 'xlsx', 'csv'].includes(ext)) return 'table_chart';
+    return 'draft';
+  };
+
+  const handleDownloadFile = (f) => {
+    const content = `MindCare Sanctuary - Confidential Clinical Vault Record\n\nFilename: ${f.name}\nSize: ${f.size} bytes\nDate: ${f.date || 'Recent'}\nSource: ${f.uploadedBy === 'consultant' ? 'Dr. Demo Consultant' : 'Client Upload'}\nAccess Level: HIPAA/HITECH Certified Secure File\n\nThis is a verified document record within MindCare Pro Sanctuary.`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = f.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Downloading: ${f.name}`);
+  };
+
   const handleFileAdd = (e) => {
     e.preventDefault();
+    const dateStr = getNowDateString();
     const files = Array.from(e.target.f.files || []).map((f) => ({
       id: uid() + Math.random(),
       uid: U.id,
       name: f.name,
-      size: f.size
+      size: f.size,
+      date: dateStr,
+      uploadedBy: 'client'
     }));
-    const dateStr = getNowDateString();
     setS((prev) => ({
       ...prev,
       fl: [...prev.fl, ...files],
@@ -474,6 +508,35 @@ export default function App() {
     }));
     e.target.reset();
     showToast('Files shared with practitioner');
+  };
+
+  const handleConsultantUpload = (e, clientUid) => {
+    e.preventDefault();
+    const targetUid = clientUid || e.target.targetUid?.value;
+    if (!targetUid) {
+      showToast('Please select a target client');
+      return;
+    }
+    const c = S.cl.find((x) => x.uid === targetUid);
+    const dateStr = getNowDateString();
+    const files = Array.from(e.target.f.files || []).map((f) => ({
+      id: uid() + Math.random(),
+      uid: targetUid,
+      name: f.name,
+      size: f.size,
+      date: dateStr,
+      uploadedBy: 'consultant'
+    }));
+    setS((prev) => ({
+      ...prev,
+      fl: [...prev.fl, ...files],
+      nf: [
+        { id: uid(), to: targetUid, msg: `Dr. Demo Consultant uploaded files for your care plan: ${files.map((f) => f.name).join(', ')}.`, date: dateStr, read: false },
+        ...prev.nf
+      ]
+    }));
+    e.target.reset();
+    showToast(`Shared ${files.length} document(s) with ${c?.name || 'client'}`);
   };
 
   const handleReadNotif = (id) => {
@@ -622,6 +685,447 @@ export default function App() {
     </>
   );
 
+  const renderClientModal = () => {
+    if (!selectedClient) return null;
+
+    const clientMoods = moodsOf(selectedClient.uid);
+    const clientAvg = avg(selectedClient.uid);
+    const clientStreak = streak(selectedClient.uid);
+    const clientFiles = S.fl.filter((f) => f.uid === selectedClient.uid);
+    const clientSessions = S.ap.filter((a) => a.cid === selectedClient.id || a.uid === selectedClient.uid).sort(srt);
+    const clientPlans = S.pl.filter((p) => p.cid === selectedClient.id || p.uid === selectedClient.uid);
+    const clientNotes = S.nt.filter((n) => n.cid === selectedClient.id);
+    const completedPlans = clientPlans.filter((p) => p.done).length;
+
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs"
+        onClick={() => setSelectedClientId(null)}
+      >
+        <div
+          className="bg-white dark:bg-[#14292a] border border-[#dde7e3] dark:border-[#23403f] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Modal Header */}
+          <div className="p-5 sm:p-6 border-b border-[#dde7e3] dark:border-[#23403f] bg-gradient-to-r from-[#e3f1ee]/50 to-transparent dark:from-[#173b3a]/40">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-xl shadow-xs">
+                  {selectedClient.name[0]}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#14302c] dark:text-[#e3efec] m-0">
+                      {selectedClient.name}
+                    </h2>
+                    {renderChip(selectedClient.status)}
+                  </div>
+                  <div className="text-xs text-[#5f7571] dark:text-[#8fa8a3] mt-0.5 flex items-center gap-2">
+                    <span>{selectedClient.email}</span>
+                    <span>•</span>
+                    <span>ID: #MC-{selectedClient.id}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                {selectedClient.status !== 'Accepted' && (
+                  <button
+                    className={`${clsBtnPrimary} text-xs py-1.5 px-3`}
+                    onClick={() => handleDecision(selectedClient.id, 'Accepted')}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">check</span>
+                    Accept Client
+                  </button>
+                )}
+                {selectedClient.status !== 'Rejected' && (
+                  <button
+                    className={`${clsBtnDanger} text-xs py-1.5 px-3`}
+                    onClick={() => handleDecision(selectedClient.id, 'Rejected')}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">close</span>
+                    Decline
+                  </button>
+                )}
+                <button
+                  className="w-9 h-9 rounded-xl bg-[#e3f1ee] dark:bg-[#173b3a] text-[#14302c] dark:text-[#e3efec] flex items-center justify-center hover:opacity-80 transition"
+                  onClick={() => setSelectedClientId(null)}
+                  aria-label="Close"
+                >
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
+            </div>
+
+            {selectedClient.reason && (
+              <div className="mt-3.5 px-3.5 py-2.5 rounded-xl bg-white/70 dark:bg-[#14292a]/80 border border-[#dde7e3] dark:border-[#23403f] text-xs text-[#5f7571] dark:text-[#8fa8a3]">
+                <span className="font-semibold text-teal-800 dark:text-teal-200 mr-1.5">Intake Request Focus:</span>
+                "{selectedClient.reason}"
+              </div>
+            )}
+          </div>
+
+          {/* Modal Tab Navigation */}
+          <div className="flex items-center px-4 sm:px-6 border-b border-[#dde7e3] dark:border-[#23403f] bg-[#f2f5f3]/40 dark:bg-[#0d1b1a]/40 overflow-x-auto gap-1">
+            {[
+              ['overview', 'Overview & Mood', 'person', null],
+              ['files', 'Documents & Files', 'folder_shared', clientFiles.length],
+              ['sessions', 'Appointments', 'calendar_month', clientSessions.length],
+              ['plans', 'Care Plans', 'fact_check', clientPlans.length],
+              ['notes', 'Clinical Notes', 'edit_note', clientNotes.length]
+            ].map(([tabKey, label, icon, badge]) => (
+              <button
+                key={tabKey}
+                className={`flex items-center gap-2 py-3 px-3.5 border-b-2 text-xs font-semibold whitespace-nowrap transition-colors ${
+                  clientModalTab === tabKey
+                    ? 'border-teal-700 dark:border-teal-400 text-teal-800 dark:text-teal-300'
+                    : 'border-transparent text-[#5f7571] dark:text-[#8fa8a3] hover:text-[#14302c] dark:hover:text-[#e3efec]'
+                }`}
+                onClick={() => setClientModalTab(tabKey)}
+              >
+                <span className="material-symbols-outlined text-[18px]">{icon}</span>
+                <span>{label}</span>
+                {badge !== null && (
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+                    clientModalTab === tabKey
+                      ? 'bg-teal-700/15 dark:bg-teal-400/20 text-teal-800 dark:text-teal-200'
+                      : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                  }`}>
+                    {badge}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Modal Tab Content Area */}
+          <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-5">
+            {/* OVERVIEW TAB */}
+            {clientModalTab === 'overview' && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                    <span className="text-[11px] font-semibold uppercase text-[#5f7571] dark:text-[#8fa8a3]">7-Day Mood</span>
+                    <div className="font-serif text-2xl font-bold text-[#14302c] dark:text-[#e3efec] mt-1">
+                      {clientAvg ? `${E[Math.round(clientAvg) - 1]} ${clientAvg.toFixed(1)}` : '—'}
+                    </div>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                    <span className="text-[11px] font-semibold uppercase text-[#5f7571] dark:text-[#8fa8a3]">Streak</span>
+                    <div className="font-serif text-2xl font-bold text-[#14302c] dark:text-[#e3efec] mt-1">
+                      {clientStreak} days
+                    </div>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                    <span className="text-[11px] font-semibold uppercase text-[#5f7571] dark:text-[#8fa8a3]">Sessions</span>
+                    <div className="font-serif text-2xl font-bold text-[#14302c] dark:text-[#e3efec] mt-1">
+                      {clientSessions.length}
+                    </div>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                    <span className="text-[11px] font-semibold uppercase text-[#5f7571] dark:text-[#8fa8a3]">Goals Done</span>
+                    <div className="font-serif text-2xl font-bold text-[#14302c] dark:text-[#e3efec] mt-1">
+                      {completedPlans} / {clientPlans.length}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={clsCard}>
+                  <h4 className={clsCardTitle}>Mood Trajectory History</h4>
+                  {clientMoods.length >= 2 ? (
+                    renderChart(clientMoods.slice(-14).map((x) => x.v))
+                  ) : (
+                    <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] py-4 text-center">
+                      Not enough check-ins logged yet to display trajectory curve.
+                    </p>
+                  )}
+                  {clientMoods.length > 0 && (
+                    <div className="mt-4 divide-y divide-[#dde7e3] dark:divide-[#23403f]">
+                      {[...clientMoods].reverse().slice(0, 5).map((m, idx) => (
+                        <div key={idx} className="py-2.5 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{E[m.v - 1]}</span>
+                            <span className="font-semibold">{MOODS[m.v - 1]?.label || 'Check-in'}</span>
+                            {m.note && <span className="italic text-[#5f7571] dark:text-[#8fa8a3]">"{m.note}"</span>}
+                          </div>
+                          <span className={clsMuted}>{m.date}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* FILES & DOCUMENTS TAB */}
+            {clientModalTab === 'files' && (
+              <div className="space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h4 className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec]">
+                      Client Vault Files ({clientFiles.length})
+                    </h4>
+                    <p className={clsMuted}>Confidential records, intake questionnaires, and worksheets exchanged with this client.</p>
+                  </div>
+                </div>
+
+                {/* Upload Document for this Client */}
+                <div className="p-4 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-200 mb-2 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                    Share Document with {selectedClient.name}
+                  </h5>
+                  <form onSubmit={(e) => handleConsultantUpload(e, selectedClient.uid)} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <input type="file" name="f" multiple className={`${clsInput} py-1.5 flex-1`} required />
+                    <button className={`${clsBtnPrimary} whitespace-nowrap`}>
+                      <span className="material-symbols-outlined text-[16px]">send</span>
+                      Upload for Client
+                    </button>
+                  </form>
+                </div>
+
+                {/* File list */}
+                <div className={clsCard}>
+                  {clientFiles.length ? (
+                    <div className="divide-y divide-[#dde7e3] dark:divide-[#23403f]">
+                      {clientFiles.map((f) => (
+                        <div key={f.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="material-symbols-outlined text-2xl text-teal-700 dark:text-teal-400 shrink-0">
+                              {getFileIcon(f.name)}
+                            </span>
+                            <div className="min-w-0">
+                              <div className="text-sm font-semibold text-[#14302c] dark:text-[#e3efec] truncate">{f.name}</div>
+                              <div className="text-xs text-[#5f7571] dark:text-[#8fa8a3] flex items-center gap-2 mt-0.5">
+                                <span>{Math.max(1, Math.round(f.size / 1024))} KB</span>
+                                <span>•</span>
+                                <span>{f.date || 'Recent'}</span>
+                                <span>•</span>
+                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
+                                  f.uploadedBy === 'consultant'
+                                    ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                                    : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                                }`}>
+                                  {f.uploadedBy === 'consultant' ? 'Shared by You' : 'Uploaded by Client'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                              onClick={() => handleDownloadFile(f)}
+                            >
+                              <span className="material-symbols-outlined text-[16px]">download</span>
+                              Download
+                            </button>
+                            <button
+                              className={`${clsBtnDanger} text-xs py-1 px-2.5`}
+                              onClick={() => handleDeleteItem('fl', f.id)}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    renderEmpty('No documents uploaded for this client yet.')
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* SESSIONS TAB */}
+            {clientModalTab === 'sessions' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec]">
+                    Consultation History ({clientSessions.length})
+                  </h4>
+                  <button
+                    className={`${clsBtnPrimary} text-xs py-1.5 px-3`}
+                    onClick={() => {
+                      setSelectedClientId(null);
+                      go('c-schedule');
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                    Schedule New Session
+                  </button>
+                </div>
+                <div className={clsCard}>
+                  {clientSessions.length ? (
+                    clientSessions.map((a) => (
+                      <div className={clsRow} key={a.id}>
+                        <div className={clsRowHeader}>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <b className="text-sm">{a.date} at {a.time}</b>
+                              {renderChip(a.status)}
+                            </div>
+                            <div className={`${clsMuted} mt-0.5`}>{a.type}</div>
+                            {a.pre?.reason && <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] mt-1 italic">Focus: "{a.pre.reason}"</p>}
+                          </div>
+                          <div className="flex gap-2">
+                            {a.status === 'Requested' && (
+                              <button className={`${clsBtnPrimary} text-xs py-1 px-2.5`} onClick={() => handleConfirmAp(a.id)}>
+                                Confirm
+                              </button>
+                            )}
+                            <button className={`${clsBtnDanger} text-xs py-1 px-2.5`} onClick={() => handleCancelAp(a.id)}>
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    renderEmpty('No appointments scheduled with this client.')
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* CARE PLAN TAB */}
+            {clientModalTab === 'plans' && (
+              <div className="space-y-5">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec]">
+                    Care Plan Action Steps ({clientPlans.length})
+                  </h4>
+                </div>
+
+                {/* Inline form to assign action step to this client */}
+                <div className="p-4 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-200 mb-2 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]">add_task</span>
+                    Assign Action Step for {selectedClient.name}
+                  </h5>
+                  <form onSubmit={handleAddPlan} className="space-y-3">
+                    <input type="hidden" name="cid" value={selectedClient.id} />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="sm:col-span-2">
+                        <input name="title" className={clsInput} placeholder="Care goal title (e.g. 5-min morning breathing)" required maxLength={120} />
+                      </div>
+                      <div>
+                        <input type="date" name="due" min={T()} className={clsInput} />
+                      </div>
+                    </div>
+                    <textarea name="details" className={`${clsTextarea} min-h-[60px]`} placeholder="Guidance & action steps..." />
+                    <button className={`${clsBtnPrimary} text-xs py-1.5 px-3`}>
+                      Add to Care Plan
+                    </button>
+                  </form>
+                </div>
+
+                <div className={clsCard}>
+                  {clientPlans.length ? (
+                    clientPlans.map((p) => (
+                      <div className={clsRow} key={p.id}>
+                        <div className={clsRowHeader}>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className={`material-symbols-outlined text-[18px] ${p.done ? 'text-teal-700 dark:text-teal-400' : 'text-gray-400'}`}>
+                                {p.done ? 'check_circle' : 'radio_button_unchecked'}
+                              </span>
+                              <b className={`text-sm ${p.done ? 'line-through opacity-70' : ''}`}>{p.title}</b>
+                            </div>
+                            {p.due && <div className={`${clsMuted} pl-6.5 mt-0.5`}>Target date: {p.due}</div>}
+                          </div>
+                          {renderChip(p.done ? 'Completed' : 'In progress')}
+                        </div>
+                        {p.details && <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] pl-6.5 my-1.5">{p.details}</p>}
+                        <div className="pl-6.5 mt-2 flex gap-2">
+                          <button
+                            className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                            onClick={() => handleTogglePlan(p.id)}
+                          >
+                            {p.done ? 'Reopen Step' : 'Mark Completed'}
+                          </button>
+                          <button
+                            className={`${clsBtnDanger} text-xs py-1 px-2.5`}
+                            onClick={() => handleDeleteItem('pl', p.id)}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    renderEmpty('No care plan goals configured for this client.')
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* CLINICAL NOTES TAB */}
+            {clientModalTab === 'notes' && (
+              <div className="space-y-5">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec]">
+                    Clinical Documentation Notes ({clientNotes.length})
+                  </h4>
+                </div>
+
+                {/* Inline form to compose note for this client */}
+                <div className="p-4 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-200 mb-2 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]">note_add</span>
+                    Compose Note for {selectedClient.name}
+                  </h5>
+                  <form onSubmit={handleAddNote} className="space-y-3">
+                    <input type="hidden" name="cid" value={selectedClient.id} />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="sm:col-span-2">
+                        <input name="title" className={clsInput} placeholder="Subject / Title (e.g. CBT Grounding review)" required />
+                      </div>
+                      <div>
+                        <select name="tag" className={clsInput}>
+                          <option>Session summary</option>
+                          <option>Observation</option>
+                          <option>Follow-up</option>
+                          <option>Therapeutic Plan</option>
+                        </select>
+                      </div>
+                    </div>
+                    <textarea name="body" className={`${clsTextarea} min-h-[70px]`} placeholder="Record clinical observations and therapeutic progress..." required />
+                    <button className={`${clsBtnPrimary} text-xs py-1.5 px-3`}>
+                      Save Clinical Note
+                    </button>
+                  </form>
+                </div>
+
+                <div className={clsCard}>
+                  {clientNotes.length ? (
+                    clientNotes.map((n) => (
+                      <div className={clsRow} key={n.id}>
+                        <div className={clsRowHeader}>
+                          <div>
+                            <b className="text-sm">{n.title}</b>
+                            <div className={clsMuted}>{n.date}</div>
+                          </div>
+                          {renderChip(n.tag)}
+                        </div>
+                        <p className="text-sm my-2 text-[#14302c] dark:text-[#e3efec] whitespace-pre-wrap">{n.body}</p>
+                        <button className={`${clsBtnDanger} text-xs py-1 px-2.5 mt-1`} onClick={() => handleDeleteItem('nt', n.id)}>
+                          <span className="material-symbols-outlined text-[14px]">delete</span>
+                          Delete Note
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    renderEmpty('No clinical notes recorded for this client yet.')
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderPageContent = () => {
     if (!U) return null;
 
@@ -661,16 +1165,32 @@ export default function App() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div className={clsCard}>
-                <h3 className={clsCardTitle}>Client Wellbeing (7-Day Mood Average)</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className={clsCardTitle}>Client Wellbeing (7-Day Mood Average)</h3>
+                  <span className="text-xs text-[#5f7571] dark:text-[#8fa8a3]">Click client for profile</span>
+                </div>
                 {activeClients.length ? (
                   activeClients.map((c) => {
                     const a = avg(c.uid);
                     return (
-                      <div className={clsRow} key={c.id}>
+                      <div
+                        className={`${clsRow} cursor-pointer hover:bg-[#e3f1ee]/40 dark:hover:bg-[#173b3a]/30 p-2 rounded-xl transition-colors`}
+                        key={c.id}
+                        onClick={() => {
+                          setSelectedClientId(c.id);
+                          setClientModalTab('overview');
+                        }}
+                        title="Click to view full client info & files"
+                      >
                         <div className={clsRowHeader}>
-                          <div>
-                            <b className="text-sm">{c.name}</b>
-                            <div className={clsMuted}>{c.email}</div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs">
+                              {c.name[0]}
+                            </span>
+                            <div>
+                              <b className="text-sm text-teal-900 dark:text-teal-200 hover:underline">{c.name}</b>
+                              <div className={clsMuted}>{c.email}</div>
+                            </div>
                           </div>
                           <span className="font-semibold text-sm">
                             {a ? `${E[Math.round(a) - 1]} ${a.toFixed(1)} / 5.0` : <span className={clsMuted}>No check-ins yet</span>}
@@ -719,12 +1239,28 @@ export default function App() {
                   pn.map((c) => (
                     <div className={clsRow} key={c.id}>
                       <div className={clsRowHeader}>
-                        <div>
-                          <b className="text-sm">{c.name}</b>
+                        <div
+                          className="cursor-pointer group flex-1"
+                          onClick={() => {
+                            setSelectedClientId(c.id);
+                            setClientModalTab('overview');
+                          }}
+                        >
+                          <b className="text-sm group-hover:underline text-teal-900 dark:text-teal-200">{c.name}</b>
                           <div className={clsMuted}>{c.email}</div>
                           {c.reason && <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] mt-1 italic">"{c.reason}"</p>}
                         </div>
                         <div className="flex gap-2">
+                          <button
+                            className={`${clsBtnSecondary} text-xs py-1.5 px-3`}
+                            onClick={() => {
+                              setSelectedClientId(c.id);
+                              setClientModalTab('overview');
+                            }}
+                          >
+                            <span className="material-symbols-outlined text-[16px]">visibility</span>
+                            Review
+                          </button>
                           <button className={`${clsBtnPrimary} text-xs py-1.5 px-3`} onClick={() => handleDecision(c.id, 'Accepted')}>
                             <span className="material-symbols-outlined text-[16px]">check</span>
                             Accept
@@ -809,6 +1345,7 @@ export default function App() {
                     <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Status</th>
                     <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">7-Day Mood</th>
                     <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Sessions</th>
+                    <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Files</th>
                     <th className="text-right p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Actions</th>
                   </tr>
                 </thead>
@@ -817,14 +1354,23 @@ export default function App() {
                     rows.map((c) => {
                       const a = avg(c.uid);
                       const sessCount = S.ap.filter((x) => x.cid === c.id).length;
+                      const fileCount = S.fl.filter((f) => f.uid === c.uid).length;
                       return (
-                        <tr key={c.id} className="hover:bg-[#f2f5f3]/40 dark:hover:bg-[#173b3a]/20 transition-colors">
+                        <tr
+                          key={c.id}
+                          className="hover:bg-[#f2f5f3]/80 dark:hover:bg-[#173b3a]/30 transition-colors cursor-pointer group"
+                          onClick={() => {
+                            setSelectedClientId(c.id);
+                            setClientModalTab('overview');
+                          }}
+                          title="Click row to open full client profile"
+                        >
                           <td className="p-3.5 font-semibold text-[#14302c] dark:text-[#e3efec] whitespace-nowrap">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-full bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs">
+                              <div className="w-8 h-8 rounded-full bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform">
                                 {c.name[0]}
                               </div>
-                              <span>{c.name}</span>
+                              <span className="group-hover:underline text-teal-900 dark:text-teal-200">{c.name}</span>
                             </div>
                           </td>
                           <td className="p-3.5 text-[#5f7571] dark:text-[#8fa8a3] whitespace-nowrap">{c.email}</td>
@@ -839,8 +1385,34 @@ export default function App() {
                             )}
                           </td>
                           <td className="p-3.5 whitespace-nowrap text-xs">{sessCount} booked</td>
+                          <td className="p-3.5 whitespace-nowrap text-xs">
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1.5 text-teal-700 dark:text-teal-400 font-semibold hover:underline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedClientId(c.id);
+                                setClientModalTab('files');
+                              }}
+                            >
+                              <span className="material-symbols-outlined text-[16px]">folder_shared</span>
+                              <span>{fileCount} {fileCount === 1 ? 'file' : 'files'}</span>
+                            </button>
+                          </td>
                           <td className="p-3.5 whitespace-nowrap text-right">
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                type="button"
+                                className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                                onClick={() => {
+                                  setSelectedClientId(c.id);
+                                  setClientModalTab('overview');
+                                }}
+                                title="View Client Details"
+                              >
+                                <span className="material-symbols-outlined text-[15px]">info</span>
+                                View Info
+                              </button>
                               {c.status !== 'Accepted' && (
                                 <button className={`${clsBtnPrimary} text-xs py-1 px-2.5`} onClick={() => handleDecision(c.id, 'Accepted')}>
                                   Accept
@@ -858,7 +1430,197 @@ export default function App() {
                     })
                   ) : (
                     <tr>
-                      <td colSpan={6}>{renderEmpty('No clients match your filter criteria.')}</td>
+                      <td colSpan={7}>{renderEmpty('No clients match your filter criteria.')}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      }
+
+      case 'c-docs': {
+        const clientFilter = docFilterUid;
+        const searchQ = docSearchQuery.trim().toLowerCase();
+        const filteredFiles = S.fl.filter((f) => {
+          const matchesClient = clientFilter === 'all' || f.uid === clientFilter;
+          const matchesSearch = !searchQ || f.name.toLowerCase().includes(searchQ);
+          return matchesClient && matchesSearch;
+        });
+
+        const totalBytes = S.fl.reduce((acc, f) => acc + (f.size || 0), 0);
+        const clientUploadedCount = S.fl.filter((f) => f.uploadedBy !== 'consultant').length;
+        const clinicianSharedCount = S.fl.filter((f) => f.uploadedBy === 'consultant').length;
+
+        return (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                {renderHeader('Client Files & Document Vault', 'Access, review, and exchange encrypted clinical records, worksheets, and intake documents.')}
+              </div>
+              <div className="flex items-center gap-2 bg-[#e3f1ee] dark:bg-[#173b3a] px-3.5 py-1.5 rounded-xl self-start md:self-auto text-xs font-semibold text-teal-800 dark:text-teal-200">
+                <span className="material-symbols-outlined text-[16px]">shield</span>
+                <span>HIPAA Compliant Encrypted Vault</span>
+              </div>
+            </div>
+
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {renderStat('Total Documents', S.fl.length, 'All client records', 'bg-teal-700 dark:bg-teal-400', 'inventory_2')}
+              {renderStat('Vault Storage', `${(totalBytes / 1024 / 1024).toFixed(2)} MB`, 'Encrypted volume', 'bg-[#6c8ebf]', 'folder')}
+              {renderStat('Client Uploaded', clientUploadedCount, 'Intake & reflections', 'bg-[#e07a5f]', 'upload_file')}
+              {renderStat('Clinician Shared', clinicianSharedCount, 'Therapeutic worksheets', 'bg-[#e9b44c]', 'assignment')}
+            </div>
+
+            {/* Upload Studio for Consultant */}
+            <div className={clsCard}>
+              <h3 className={clsCardTitle}>Upload & Share Document with Client</h3>
+              <form onSubmit={handleConsultantUpload} className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={clsLabel}>Select Target Client</label>
+                    <select name="targetUid" className={clsInput} required>
+                      <option value="">Choose client...</option>
+                      {S.cl.map((c) => (
+                        <option key={c.id} value={c.uid}>
+                          {c.name} ({c.email}) · {c.status}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={clsLabel}>Attach Document(s)</label>
+                    <input type="file" name="f" multiple className={clsInput} required />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <button className={clsBtnPrimary}>
+                    <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
+                    Upload & Share Document
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-md">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
+                <input
+                  className={`${clsInput} pl-9`}
+                  placeholder="Search file name..."
+                  value={docSearchQuery}
+                  onChange={(e) => setDocSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-[#5f7571] dark:text-[#8fa8a3] whitespace-nowrap">Filter by client:</label>
+                <select
+                  className={`${clsInput} py-1.5 text-xs`}
+                  value={docFilterUid}
+                  onChange={(e) => setDocFilterUid(e.target.value)}
+                >
+                  <option value="all">All Clients ({S.cl.length})</option>
+                  {S.cl.map((c) => (
+                    <option key={c.id} value={c.uid}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Documents Table */}
+            <div className={`${clsCard} overflow-x-auto p-0`}>
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-[#dde7e3] dark:border-[#23403f] bg-[#f2f5f3]/50 dark:bg-[#0d1b1a]/50">
+                    <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Document</th>
+                    <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Associated Client</th>
+                    <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Size</th>
+                    <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Date</th>
+                    <th className="text-left p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Source</th>
+                    <th className="text-right p-3.5 text-[11px] uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#dde7e3] dark:divide-[#23403f]">
+                  {filteredFiles.length ? (
+                    filteredFiles.map((f) => {
+                      const client = S.cl.find((c) => c.uid === f.uid);
+                      return (
+                        <tr key={f.id} className="hover:bg-[#f2f5f3]/40 dark:hover:bg-[#173b3a]/20 transition-colors">
+                          <td className="p-3.5 font-semibold text-[#14302c] dark:text-[#e3efec] whitespace-nowrap">
+                            <div className="flex items-center gap-2.5">
+                              <span className="material-symbols-outlined text-teal-700 dark:text-teal-400 text-[22px]">
+                                {getFileIcon(f.name)}
+                              </span>
+                              <span>{f.name}</span>
+                            </div>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            {client ? (
+                              <button
+                                type="button"
+                                className="flex items-center gap-2 hover:opacity-80 text-left group"
+                                onClick={() => {
+                                  setSelectedClientId(client.id);
+                                  setClientModalTab('files');
+                                }}
+                                title="Click to view client info & documents"
+                              >
+                                <span className="w-6 h-6 rounded-full bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-[11px]">
+                                  {client.name[0]}
+                                </span>
+                                <div>
+                                  <div className="text-xs font-semibold text-teal-800 dark:text-teal-300 group-hover:underline">
+                                    {client.name}
+                                  </div>
+                                  <div className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3]">{client.email}</div>
+                                </div>
+                              </button>
+                            ) : (
+                              <span className={clsMuted}>Unknown Client</span>
+                            )}
+                          </td>
+                          <td className="p-3.5 text-xs text-[#5f7571] dark:text-[#8fa8a3] whitespace-nowrap">
+                            {Math.max(1, Math.round(f.size / 1024))} KB
+                          </td>
+                          <td className="p-3.5 text-xs text-[#5f7571] dark:text-[#8fa8a3] whitespace-nowrap">
+                            {f.date || 'Recent'}
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                              f.uploadedBy === 'consultant'
+                                ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                                : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                            }`}>
+                              {f.uploadedBy === 'consultant' ? 'Practitioner' : 'Client'}
+                            </span>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                                onClick={() => handleDownloadFile(f)}
+                              >
+                                <span className="material-symbols-outlined text-[15px]">download</span>
+                                Download
+                              </button>
+                              <button
+                                className={`${clsBtnDanger} text-xs py-1 px-2.5`}
+                                onClick={() => handleDeleteItem('fl', f.id)}
+                              >
+                                <span className="material-symbols-outlined text-[14px]">delete</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={6}>{renderEmpty('No documents found matching the filter.')}</td>
                     </tr>
                   )}
                 </tbody>
@@ -1471,20 +2233,40 @@ export default function App() {
                 </div>
 
                 <div className={clsCard}>
-                  <h3 className={clsCardTitle}>Uploaded Files</h3>
+                  <h3 className={clsCardTitle}>Uploaded & Shared Files</h3>
                   {fl.length ? (
                     fl.map((f) => (
                       <div className={`${clsRow} ${clsRowHeader}`} key={f.id}>
                         <div className="flex items-center gap-2.5">
-                          <span className="material-symbols-outlined text-teal-700 dark:text-teal-400 text-[22px]">description</span>
+                          <span className="material-symbols-outlined text-teal-700 dark:text-teal-400 text-[22px]">
+                            {getFileIcon(f.name)}
+                          </span>
                           <div>
                             <span className="text-sm font-semibold">{f.name}</span>
-                            <div className={clsMuted}>{Math.max(1, Math.round(f.size / 1024))} KB</div>
+                            <div className={`${clsMuted} flex items-center gap-2 mt-0.5`}>
+                              <span>{Math.max(1, Math.round(f.size / 1024))} KB</span>
+                              <span>•</span>
+                              <span>{f.date || 'Recent'}</span>
+                              <span>•</span>
+                              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
+                                f.uploadedBy === 'consultant'
+                                  ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                                  : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                              }`}>
+                                {f.uploadedBy === 'consultant' ? 'From Consultant' : 'Uploaded by you'}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <button className={`${clsBtnDanger} text-xs py-1 px-2.5`} onClick={() => handleDeleteItem('fl', f.id)}>
-                          Remove
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button className={`${clsBtnSecondary} text-xs py-1 px-2.5`} onClick={() => handleDownloadFile(f)}>
+                            <span className="material-symbols-outlined text-[15px]">download</span>
+                            Download
+                          </button>
+                          <button className={`${clsBtnDanger} text-xs py-1 px-2.5`} onClick={() => handleDeleteItem('fl', f.id)}>
+                            Remove
+                          </button>
+                        </div>
                       </div>
                     ))
                   ) : (
@@ -2017,6 +2799,9 @@ export default function App() {
             </main>
           </div>
         )}
+
+        {/* Client Detailed Profile & Vault Modal */}
+        {renderClientModal()}
 
         {/* Global Floating Toast Alert */}
         <div

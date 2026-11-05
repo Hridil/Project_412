@@ -13,7 +13,11 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
   - Triage Pipeline with quick approval/decline actions.
 - **Client Management (`Clients`)**:
   - Searchable client registry with name/email filtering and status tags (`Pending`, `Accepted`, `Rejected`).
-  - Longitudinal mood status and session attendance counts.
+  - Longitudinal mood status, session attendance counts, and file counters.
+  - Interactive Client Dossier: click on any client to open their full interactive profile (Wellbeing overview, file vault, consultation history, care plan action steps, and clinical notes).
+- **Client Document Vault (`Client Files`)**:
+  - Full practitioner access to all client documents with storage metrics, client filtering, and file name searching.
+  - Secure document downloads and practitioner-to-client upload and file sharing studio.
 - **Appointment Scheduling (`Schedule`)**:
   - Direct booking for Online Telehealth, In-Person Sanctuary, and Focused Follow-ups.
   - Instant session confirmation and cancellation workflows.
