@@ -115,6 +115,7 @@ export default function App() {
   const [clientModalTab, setClientModalTab] = useState('overview');
   const [docFilterUid, setDocFilterUid] = useState('all');
   const [docSearchQuery, setDocSearchQuery] = useState('');
+  const [previewFile, setPreviewFile] = useState(null);
   const [toastMsg, setToastMsg] = useState('');
   const [toastOn, setToastOn] = useState(false);
   const toastTimerRef = useRef(null);
@@ -473,44 +474,94 @@ export default function App() {
     return 'draft';
   };
 
+  const readFileAsDataUrl = (file) => {
+    return new Promise((resolve) => {
+      // Avoid localStorage crashes if user uploads a huge file (> 3MB)
+      if (file.size > 3 * 1024 * 1024) {
+        resolve(null);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleDownloadFile = (f) => {
-    const content = `MindCare Sanctuary - Confidential Clinical Vault Record\n\nFilename: ${f.name}\nSize: ${f.size} bytes\nDate: ${f.date || 'Recent'}\nSource: ${f.uploadedBy === 'consultant' ? 'Dr. Demo Consultant' : 'Client Upload'}\nAccess Level: HIPAA/HITECH Certified Secure File\n\nThis is a verified document record within MindCare Pro Sanctuary.`;
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    // If original uploaded data exists, download the real intact binary file!
+    if (f.dataUrl) {
+      const a = document.createElement('a');
+      a.href = f.dataUrl;
+      a.download = f.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast(`Downloaded original file: ${f.name}`);
+      return;
+    }
+
+    // Fallback for seed mock files: generate a valid PDF or text file
+    let blob;
+    let downloadName = f.name;
+    if (f.name.toLowerCase().endsWith('.pdf')) {
+      const cleanTitle = f.name.replace(/[^a-zA-Z0-9._-]/g, ' ');
+      const pdf = `%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<</Font<</F1<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>>>>>/Contents 4 0 R>>endobj\n4 0 obj<</Length 120>>stream\nBT\n/F1 16 Tf\n50 720 Td\n(MindCare Sanctuary - Clinical Document) Tj\n/F1 12 Tf\n50 690 Td\n(${cleanTitle}) Tj\nET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000056 00000 n \n0000000111 00000 n \n0000000257 00000 n \ntrailer<</Size 5/Root 1 0 R>>\nstartxref\n427\n%%EOF`;
+      blob = new Blob([pdf], { type: 'application/pdf' });
+    } else {
+      const content = `MindCare Sanctuary - Confidential Clinical Vault Record\n\nFilename: ${f.name}\nSize: ${f.size} bytes\nDate: ${f.date || 'Recent'}\nSource: ${f.uploadedBy === 'consultant' ? 'Dr. Demo Consultant' : 'Client Upload'}\nAccess Level: HIPAA/HITECH Certified Secure File\n\nThis is a verified document record within MindCare Pro Sanctuary.`;
+      blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      if (!downloadName.toLowerCase().endsWith('.txt')) {
+        downloadName = `${downloadName}.txt`;
+      }
+    }
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = f.name;
+    a.download = downloadName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast(`Downloading: ${f.name}`);
+    showToast(`Downloaded: ${downloadName}`);
   };
 
-  const handleFileAdd = (e) => {
+  const handleFileAdd = async (e) => {
     e.preventDefault();
+    const rawFiles = Array.from(e.target.f.files || []);
+    if (!rawFiles.length) return;
     const dateStr = getNowDateString();
-    const files = Array.from(e.target.f.files || []).map((f) => ({
-      id: uid() + Math.random(),
-      uid: U.id,
-      name: f.name,
-      size: f.size,
-      date: dateStr,
-      uploadedBy: 'client'
-    }));
+
+    const files = await Promise.all(
+      rawFiles.map(async (f) => {
+        const dataUrl = await readFileAsDataUrl(f);
+        return {
+          id: uid() + Math.random(),
+          uid: U.id,
+          name: f.name,
+          size: f.size,
+          type: f.type || 'application/octet-stream',
+          dataUrl,
+          date: dateStr,
+          uploadedBy: 'client'
+        };
+      })
+    );
+
     setS((prev) => ({
       ...prev,
       fl: [...prev.fl, ...files],
       nf: [
-        { id: uid(), to: 'cons', msg: `${U.name} shared documents.`, date: dateStr, read: false },
+        { id: uid(), to: 'cons', msg: `${U.name} shared documents (${rawFiles.map((f) => f.name).join(', ')}).`, date: dateStr, read: false },
         ...prev.nf
       ]
     }));
     e.target.reset();
-    showToast('Files shared with practitioner');
+    showToast(`Uploaded ${files.length} document(s)`);
   };
 
-  const handleConsultantUpload = (e, clientUid) => {
+  const handleConsultantUpload = async (e, clientUid) => {
     e.preventDefault();
     const targetUid = clientUid || e.target.targetUid?.value;
     if (!targetUid) {
@@ -518,15 +569,26 @@ export default function App() {
       return;
     }
     const c = S.cl.find((x) => x.uid === targetUid);
+    const rawFiles = Array.from(e.target.f.files || []);
+    if (!rawFiles.length) return;
     const dateStr = getNowDateString();
-    const files = Array.from(e.target.f.files || []).map((f) => ({
-      id: uid() + Math.random(),
-      uid: targetUid,
-      name: f.name,
-      size: f.size,
-      date: dateStr,
-      uploadedBy: 'consultant'
-    }));
+
+    const files = await Promise.all(
+      rawFiles.map(async (f) => {
+        const dataUrl = await readFileAsDataUrl(f);
+        return {
+          id: uid() + Math.random(),
+          uid: targetUid,
+          name: f.name,
+          size: f.size,
+          type: f.type || 'application/octet-stream',
+          dataUrl,
+          date: dateStr,
+          uploadedBy: 'consultant'
+        };
+      })
+    );
+
     setS((prev) => ({
       ...prev,
       fl: [...prev.fl, ...files],
@@ -914,6 +976,14 @@ export default function App() {
                           <div className="flex items-center gap-2 shrink-0">
                             <button
                               className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                              onClick={() => setPreviewFile(f)}
+                              title="Preview document"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">visibility</span>
+                              Preview
+                            </button>
+                            <button
+                              className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
                               onClick={() => handleDownloadFile(f)}
                             >
                               <span className="material-symbols-outlined text-[16px]">download</span>
@@ -1118,6 +1188,98 @@ export default function App() {
                     renderEmpty('No clinical notes recorded for this client yet.')
                   )}
                 </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderFilePreviewModal = () => {
+    if (!previewFile) return null;
+    const isImage = previewFile.type?.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg)$/i.test(previewFile.name);
+    const isPdf = previewFile.type === 'application/pdf' || previewFile.name.toLowerCase().endsWith('.pdf');
+
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-xs"
+        onClick={() => setPreviewFile(null)}
+      >
+        <div
+          className="bg-white dark:bg-[#14292a] border border-[#dde7e3] dark:border-[#23403f] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="p-4 sm:p-5 border-b border-[#dde7e3] dark:border-[#23403f] flex items-center justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="material-symbols-outlined text-2xl text-teal-700 dark:text-teal-400">
+                {getFileIcon(previewFile.name)}
+              </span>
+              <div className="min-w-0">
+                <h3 className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec] truncate">
+                  {previewFile.name}
+                </h3>
+                <div className="text-xs text-[#5f7571] dark:text-[#8fa8a3]">
+                  {Math.max(1, Math.round(previewFile.size / 1024))} KB · {previewFile.date || 'Recent'}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                className={`${clsBtnPrimary} text-xs py-1.5 px-3`}
+                onClick={() => handleDownloadFile(previewFile)}
+              >
+                <span className="material-symbols-outlined text-[16px]">download</span>
+                Download
+              </button>
+              <button
+                className="w-8 h-8 rounded-lg bg-[#e3f1ee] dark:bg-[#173b3a] text-[#14302c] dark:text-[#e3efec] flex items-center justify-center hover:opacity-80 transition"
+                onClick={() => setPreviewFile(null)}
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="p-4 sm:p-6 overflow-y-auto flex-1 flex items-center justify-center bg-[#f2f5f3]/40 dark:bg-[#0d1b1a]/40">
+            {previewFile.dataUrl ? (
+              isImage ? (
+                <img
+                  src={previewFile.dataUrl}
+                  alt={previewFile.name}
+                  className="max-h-[65vh] max-w-full rounded-xl object-contain shadow-sm"
+                />
+              ) : isPdf ? (
+                <iframe
+                  src={previewFile.dataUrl}
+                  title={previewFile.name}
+                  className="w-full h-[65vh] rounded-xl border border-[#dde7e3] dark:border-[#23403f]"
+                />
+              ) : (
+                <div className="w-full p-4 rounded-xl bg-white dark:bg-[#14292a] border border-[#dde7e3] dark:border-[#23403f] text-xs font-mono whitespace-pre-wrap max-h-[65vh] overflow-auto">
+                  {atob(previewFile.dataUrl.split(',')[1] || '')}
+                </div>
+              )
+            ) : (
+              <div className="text-center p-8 max-w-md">
+                <span className="material-symbols-outlined text-4xl text-teal-700 dark:text-teal-400 mb-2">
+                  verified_user
+                </span>
+                <h4 className="font-serif font-bold text-base text-[#14302c] dark:text-[#e3efec] mb-1">
+                  Clinical Vault Document
+                </h4>
+                <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] mb-4">
+                  This demo clinical document is stored in the practice vault. Click "Download" to generate and retrieve the validated document.
+                </p>
+                <button
+                  className={`${clsBtnSecondary} text-xs`}
+                  onClick={() => handleDownloadFile(previewFile)}
+                >
+                  Download Valid Document
+                </button>
               </div>
             )}
           </div>
@@ -1600,6 +1762,14 @@ export default function App() {
                           </td>
                           <td className="p-3.5 whitespace-nowrap text-right">
                             <div className="flex items-center justify-end gap-2">
+                              <button
+                                className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                                onClick={() => setPreviewFile(f)}
+                                title="Preview document"
+                              >
+                                <span className="material-symbols-outlined text-[15px]">visibility</span>
+                                Preview
+                              </button>
                               <button
                                 className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
                                 onClick={() => handleDownloadFile(f)}
@@ -2259,6 +2429,10 @@ export default function App() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
+                          <button className={`${clsBtnSecondary} text-xs py-1 px-2.5`} onClick={() => setPreviewFile(f)}>
+                            <span className="material-symbols-outlined text-[15px]">visibility</span>
+                            Preview
+                          </button>
                           <button className={`${clsBtnSecondary} text-xs py-1 px-2.5`} onClick={() => handleDownloadFile(f)}>
                             <span className="material-symbols-outlined text-[15px]">download</span>
                             Download
@@ -2802,6 +2976,9 @@ export default function App() {
 
         {/* Client Detailed Profile & Vault Modal */}
         {renderClientModal()}
+
+        {/* File In-App Preview Modal */}
+        {renderFilePreviewModal()}
 
         {/* Global Floating Toast Alert */}
         <div
