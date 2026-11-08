@@ -65,6 +65,30 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
 
 ---
 
+## 🏗️ Project Architecture & Directory Structure
+
+To maintain maximum code cleanliness, readability, and performance, the codebase is architected into modular directories (see [`ARCHITECTURE.md`](file:///c:/Users/USER/Desktop/Shahriar/Project_412/ARCHITECTURE.md) for full specs):
+
+```text
+src/
+├── assets/                  # Static visual assets
+├── components/              # Shared UI components
+│   ├── common/              # Micro UI primitives (Chip, StatCard, Toast, MoodChart)
+│   ├── layout/              # Shell (Header, Sidebar, ProfileMenu popover)
+│   └── modals/              # Overlays (ClientDossierModal, FilePreviewModal)
+├── views/                   # Screen views by domain
+│   ├── auth/                # Sign-in & intake registration (AuthScreen)
+│   ├── consultant/          # Practitioner workspace (Home, Clients, Docs, Schedule, Notes, Plans, Notif)
+│   └── client/              # Client Sanctuary workspace (Home, Mood, Book, Sessions, Goals, Docs, Toolkit, Notif)
+├── data/                    # Seed database (seedData.js) and constants (constants.js)
+├── utils/                   # Pure utilities (formatters.js, mediaUtils.js)
+├── App.jsx                  # Root orchestrator & routing (~120 lines)
+├── index.css                # Design system styling & animations
+└── main.jsx                 # Application entry point
+```
+
+---
+
 ## 🚀 Getting Started
 
 ### 1. Development Server
