@@ -99,7 +99,12 @@ export default function ClientManagement({
                       <td className="p-3.5 whitespace-nowrap"><Chip status={c.status} /></td>
                       <td className="p-3.5 whitespace-nowrap">
                         {mAvg ? (
-                          <span className="font-semibold">{E[Math.round(mAvg) - 1]} {mAvg.toFixed(1)}</span>
+                          <span className="font-semibold inline-flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[18px] text-teal-700 dark:text-teal-400">
+                              {E[Math.round(mAvg) - 1]}
+                            </span>
+                            {mAvg.toFixed(1)}
+                          </span>
                         ) : (
                           <span className="text-[#5f7571] dark:text-[#8fa8a3] italic">None</span>
                         )}

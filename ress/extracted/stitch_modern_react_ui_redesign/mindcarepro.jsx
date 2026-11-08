@@ -29,7 +29,7 @@ const seed = () => ({
   md: [3, 2, 3, 4, 3, 4, 4].map((v, i) => ({ uid: 'jamie', date: dOff(i - 6), v, note: '' }))
 });
 
-const E = ['😞', '🙁', '😐', '🙂', '😄'];
+const E = ['sentiment_very_dissatisfied', 'sentiment_dissatisfied', 'sentiment_neutral', 'sentiment_satisfied', 'sentiment_very_satisfied'];
 
 const NS = [
   ['c-home', 'Overview', '⌂'],

@@ -36,11 +36,11 @@ Mood ratings (1–5) are visually codified for instant emotional recognition:
 
 | Level | Value | Label | Visual Color & Tailwind Class |
 | :--- | :--- | :--- | :--- |
-| 1 | 😢 Very Low | Struggling | `bg-rose-500` / Rose |
-| 2 | 🙁 Low | Overwhelmed | `bg-amber-500` / Amber |
-| 3 | 😐 Neutral | Steady | `bg-blue-400` / Sky Blue |
-| 4 | 🙂 Good | Positive | `bg-emerald-400` / Soft Mint |
-| 5 | 😄 Thriving | Energized | `bg-teal-500` / Vibrant Teal |
+| 1 | Very Low | Depleted | `bg-rose-500` / Rose |
+| 2 | Low | Guarded | `bg-amber-500` / Amber |
+| 3 | Neutral | Steady | `bg-blue-400` / Sky Blue |
+| 4 | Good | Grounded | `bg-emerald-400` / Soft Mint |
+| 5 | Thriving | Vital | `bg-teal-500` / Vibrant Teal |
 
 ---
 

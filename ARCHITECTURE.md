@@ -4,7 +4,7 @@ This document outlines the proposed modular architectural breakdown of MindCare 
 
 ---
 
-## 📁 Proposed Clean Directory Structure
+## Proposed Clean Directory Structure
 
 ```text
 src/
@@ -68,7 +68,7 @@ src/
 
 ---
 
-## 🧩 Architectural Responsibilities
+## Architectural Responsibilities
 
 | Layer | Path | Responsibility |
 |---|---|---|
@@ -83,7 +83,7 @@ src/
 
 ---
 
-## 🛡️ Migration Guarantees
+## Migration Guarantees
 - **Zero Feature Loss**: All features (image uploads, full-screen previews, interactive breathing timer, client dossier, profile popover, notifications, localStorage sync) are preserved intact.
 - **Strict Lint & Build Verification**: Every isolated module will pass `oxlint src` and `vite build` without errors or warnings.
 - **Safe Version Control**: Changes will remain local and will **not** be pushed to GitHub without your explicit request.

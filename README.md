@@ -4,9 +4,9 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
 
 ---
 
-## 🌿 Key Features
+## Key Features
 
-### 👨‍⚕️ Clinical Practitioner Workspace
+### Clinical Practitioner Workspace
 - **Practice Overview (`Overview`)**:
   - **Clinical Sanctuary Practice Showcase & Image Uploader**: Upload clinic facility photos, consultation room views, or practitioner badges; live visual overview with customizable title & description, full-screen inspection modal, and multi-image gallery switching.
   - **Client Media & Vault Overview**: Direct dashboard overview of files, questionnaires, and grounding photos submitted by clients with thumbnail previews.
@@ -30,7 +30,7 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
 - **Practice Notifications (`Notifications`)**:
   - Real-time updates on client intake requests and completed milestones.
 
-### 🧘 Client Wellbeing Sanctuary
+### Client Wellbeing Sanctuary
 - **Sanctuary Dashboard (`Dashboard`)**:
   - **Sanctuary Visual Anchor & Calming Space**: Upload personal grounding photos (nature, artwork, peaceful space, pets); live visual overview with customizable grounding intention/notes, full-screen inspection modal, and multi-anchor gallery switcher.
   - Calming reflection quotes, clinician connect card, and check-in streak tracking.
@@ -53,7 +53,7 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
 
 ---
 
-## 🎨 Design System & Accessibility
+## Design System & Accessibility
 - **Typography**: Editorial elegance with `Playfair Display` serif headlines and humanistic `Plus Jakarta Sans` body typography.
 - **Icons**: Google Material Symbols Outlined.
 - **Theme Modes**: One-click toggling between soothing **Sanctuary Light** and **Sanctuary Dark** palettes.
@@ -65,7 +65,7 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
 
 ---
 
-## 🏗️ Project Architecture & Directory Structure
+## Project Architecture & Directory Structure
 
 To maintain maximum code cleanliness, readability, and performance, the codebase is architected into modular directories (see [`ARCHITECTURE.md`](file:///c:/Users/USER/Desktop/Shahriar/Project_412/ARCHITECTURE.md) for full specs):
 
@@ -89,7 +89,7 @@ src/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Development Server
 ```bash
@@ -108,7 +108,7 @@ npm run lint
 
 ---
 
-## 🔑 Demo Credentials
+## Demo Credentials
 
 | Role | Email | Password |
 |---|---|---|

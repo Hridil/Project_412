@@ -41,7 +41,7 @@ export default function MoodJournal({
                   <label key={item.val} className="m-0 cursor-pointer">
                     <input type="radio" name="v" value={item.val} defaultChecked={item.val === 4} className="peer hidden" />
                     <div className="flex flex-col items-center justify-center p-2.5 rounded-xl border-2 border-[#dde7e3] dark:border-[#23403f] peer-checked:border-teal-700 dark:peer-checked:border-teal-400 peer-checked:bg-[#e3f1ee] dark:peer-checked:bg-[#173b3a] transition-all text-center">
-                      <span className="text-2xl mb-1">{item.emoji}</span>
+                      <span className="material-symbols-outlined text-2xl mb-1 text-teal-800 dark:text-teal-200">{item.icon}</span>
                       <span className="text-[11px] font-semibold">{item.label}</span>
                     </div>
                   </label>

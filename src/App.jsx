@@ -5,7 +5,7 @@ import { T, uid, srt, dOff, getNowDateString } from './utils/formatters.js';
 import { compressImage, readFileAsDataUrl } from './utils/mediaUtils.js';
 
 // Constants & Data Seed
-import { NS, NC } from './data/constants.js';
+import { NS, NC, E } from './data/constants.js';
 import { seed } from './data/seedData.js';
 
 // Layout & Common Components
@@ -716,7 +716,7 @@ export default function App() {
             setClientModalTab={setClientModalTab}
             handleDecision={handleDecision}
             avg={avg}
-            E={['😞', '🙁', '😐', '🙂', '😄']}
+            E={E}
           />
         );
 

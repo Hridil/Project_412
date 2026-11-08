@@ -287,7 +287,7 @@ export default function ClientHome({
           <h3 className={clsCardTitle}>How are you feeling today?</h3>
           {td ? (
             <div className="mb-4 p-3 rounded-xl bg-[#e3f1ee] dark:bg-[#173b3a] flex items-center gap-3">
-              <span className="text-3xl">{E[td.v - 1]}</span>
+              <span className="material-symbols-outlined text-3xl text-teal-700 dark:text-teal-400">{E[td.v - 1]}</span>
               <div>
                 <div className="text-xs font-semibold text-teal-800 dark:text-teal-200">Today's Check-in Logged</div>
                 <div className="text-xs text-[#5f7571] dark:text-[#8fa8a3]">{MOODS[td.v - 1].label}: {MOODS[td.v - 1].desc}</div>
@@ -308,7 +308,7 @@ export default function ClientHome({
                 }`}
                 onClick={() => handleQuickMood(m.val)}
               >
-                <span className="text-2xl mb-1 group-hover:scale-110 transition-transform">{m.emoji}</span>
+                <span className="material-symbols-outlined text-2xl mb-1 group-hover:scale-110 transition-transform text-teal-800 dark:text-teal-200">{m.icon}</span>
                 <span className="text-[11px] font-semibold">{m.label}</span>
               </button>
             ))}

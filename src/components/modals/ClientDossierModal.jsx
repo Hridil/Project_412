@@ -166,7 +166,14 @@ export default function ClientDossierModal({
                 <div className="p-3.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
                   <span className="text-[11px] font-semibold uppercase text-[#5f7571] dark:text-[#8fa8a3]">7-Day Mood</span>
                   <div className="font-serif text-2xl font-bold text-[#14302c] dark:text-[#e3efec] mt-1">
-                    {clientAvg ? `${E[Math.round(clientAvg) - 1]} ${clientAvg.toFixed(1)}` : '—'}
+                    {clientAvg ? (
+                      <span className="flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-2xl text-teal-700 dark:text-teal-400">
+                          {E[Math.round(clientAvg) - 1]}
+                        </span>
+                        {clientAvg.toFixed(1)}
+                      </span>
+                    ) : '—'}
                   </div>
                 </div>
                 <div className="p-3.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
@@ -203,7 +210,7 @@ export default function ClientDossierModal({
                     {[...clientMoods].reverse().slice(0, 5).map((m, idx) => (
                       <div key={idx} className="py-2.5 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
-                          <span className="text-xl">{E[m.v - 1]}</span>
+                          <span className="material-symbols-outlined text-xl text-teal-700 dark:text-teal-400">{E[m.v - 1]}</span>
                           <span className="font-semibold">{MOODS[m.v - 1]?.label || 'Check-in'}</span>
                           {m.note && <span className="italic text-[#5f7571] dark:text-[#8fa8a3]">"{m.note}"</span>}
                         </div>

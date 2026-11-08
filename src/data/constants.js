@@ -1,12 +1,12 @@
 export const MOODS = [
-  { val: 1, emoji: '😞', label: 'Depleted', desc: 'Low energy & overwhelmed' },
-  { val: 2, emoji: '🙁', label: 'Guarded', desc: 'Tense or feeling vulnerable' },
-  { val: 3, emoji: '😐', label: 'Steady', desc: 'Neutral, present, functional' },
-  { val: 4, emoji: '🙂', label: 'Grounded', desc: 'Calm, focused, connected' },
-  { val: 5, emoji: '😄', label: 'Vital', desc: 'Energized, joyful, uplifted' }
+  { val: 1, icon: 'sentiment_very_dissatisfied', label: 'Depleted', desc: 'Low energy & overwhelmed' },
+  { val: 2, icon: 'sentiment_dissatisfied', label: 'Guarded', desc: 'Tense or feeling vulnerable' },
+  { val: 3, icon: 'sentiment_neutral', label: 'Steady', desc: 'Neutral, present, functional' },
+  { val: 4, icon: 'sentiment_satisfied', label: 'Grounded', desc: 'Calm, focused, connected' },
+  { val: 5, icon: 'sentiment_very_satisfied', label: 'Vital', desc: 'Energized, joyful, uplifted' }
 ];
 
-export const E = ['😞', '🙁', '😐', '🙂', '😄'];
+export const E = ['sentiment_very_dissatisfied', 'sentiment_dissatisfied', 'sentiment_neutral', 'sentiment_satisfied', 'sentiment_very_satisfied'];
 
 export const NS = [
   ['c-home', 'Overview', 'dashboard'],
