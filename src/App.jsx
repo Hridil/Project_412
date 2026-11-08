@@ -55,14 +55,40 @@ export default function App() {
     return seed();
   });
 
-  const [U, setU] = useState(null);
+  const [U, setU] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('mcuser');
+      if (savedUser) return JSON.parse(savedUser);
+    } catch {
+      // ignore
+    }
+    return null;
+  });
+
   const [role, setRoleState] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('mcuser');
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        if (parsed?.role) return parsed.role;
+      }
+    } catch {
+      // ignore
+    }
     return document.body.dataset.role || 'consultant';
   });
+
   const [isSignup, setIsSignup] = useState(false);
+
   const [page, setPage] = useState(() => {
     const hash = window.location.hash.replace(/^#\/?/, '');
     if (hash) return hash;
+    try {
+      const savedPage = localStorage.getItem('mcpage');
+      if (savedPage) return savedPage;
+    } catch {
+      // ignore
+    }
     const dp = document.body.dataset.page;
     if (dp === 'feedback') {
       return document.body.dataset.role === 'client' ? 'cl-feedback' : 'c-feedback';
@@ -111,6 +137,56 @@ export default function App() {
       // ignore
     }
   }, [S]);
+
+  // Persist logged-in user session across page refreshes
+  useEffect(() => {
+    try {
+      if (U) {
+        localStorage.setItem('mcuser', JSON.stringify(U));
+      } else {
+        localStorage.removeItem('mcuser');
+      }
+    } catch {
+      // ignore
+    }
+  }, [U]);
+
+  // Persist active page across page refreshes
+  useEffect(() => {
+    try {
+      if (page) {
+        localStorage.setItem('mcpage', page);
+      }
+    } catch {
+      // ignore
+    }
+  }, [page]);
+
+  // Synchronize session profile if modified in state
+  useEffect(() => {
+    if (U && S?.acc) {
+      const freshUser = S.acc.find((a) => a.id === U.id);
+      if (
+        freshUser &&
+        (freshUser.name !== U.name || freshUser.avatar !== U.avatar || freshUser.email !== U.email)
+      ) {
+        setU(freshUser);
+      }
+    }
+  }, [S]);
+
+  // Validate that active page matches user role
+  useEffect(() => {
+    if (U) {
+      if (U.role === 'client' && page.startsWith('c-')) {
+        setPage('cl-home');
+        window.location.hash = 'cl-home';
+      } else if (U.role === 'consultant' && page.startsWith('cl-')) {
+        setPage('c-home');
+        window.location.hash = 'c-home';
+      }
+    }
+  }, [U]);
 
   // Sync dark class on root document
   useEffect(() => {
@@ -223,6 +299,12 @@ export default function App() {
 
   const logout = () => {
     setU(null);
+    try {
+      localStorage.removeItem('mcuser');
+      localStorage.removeItem('mcpage');
+    } catch {
+      // ignore
+    }
     setRole('consultant');
     setIsBreathing(false);
     setProfileMenuOpen(false);
