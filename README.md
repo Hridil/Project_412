@@ -8,6 +8,8 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
 
 ### 👨‍⚕️ Clinical Practitioner Workspace
 - **Practice Overview (`Overview`)**:
+  - **Clinical Sanctuary Practice Showcase & Image Uploader**: Upload clinic facility photos, consultation room views, or practitioner badges; live visual overview with customizable title & description, full-screen inspection modal, and multi-image gallery switching.
+  - **Client Media & Vault Overview**: Direct dashboard overview of files, questionnaires, and grounding photos submitted by clients with thumbnail previews.
   - Live KPI metric tiles: Total Intake, Active Clients, Pending Triage, and Upcoming Consultations.
   - 7-Day Client Wellbeing Mood tracker with real-time average scoring.
   - Triage Pipeline with quick approval/decline actions.
@@ -30,6 +32,7 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
 
 ### 🧘 Client Wellbeing Sanctuary
 - **Sanctuary Dashboard (`Dashboard`)**:
+  - **Sanctuary Visual Anchor & Calming Space**: Upload personal grounding photos (nature, artwork, peaceful space, pets); live visual overview with customizable grounding intention/notes, full-screen inspection modal, and multi-anchor gallery switcher.
   - Calming reflection quotes, clinician connect card, and check-in streak tracking.
   - Care journey milestone indicators.
 - **Mood Journal (`Mood Journal`)**:
@@ -55,6 +58,10 @@ MindCare Pro is a trauma-informed, modern React practice management and client w
 - **Icons**: Google Material Symbols Outlined.
 - **Theme Modes**: One-click toggling between soothing **Sanctuary Light** and **Sanctuary Dark** palettes.
 - **Data Persistence**: Automatic syncing to browser `localStorage` with full JSON backup export.
+- **Interactive Header Profile & Avatar Studio**:
+  - Live photo avatar in the top header and sidebar for both Consultants and Clients.
+  - One-click profile overview popover with role-specific KPI cards (Practitioner stats vs. Client care journey stats).
+  - Instant picture upload, canvas compression, change photo, and reset controls right from the header pill.
 
 ---
 

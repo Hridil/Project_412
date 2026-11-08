@@ -39,7 +39,35 @@ const seed = () => ({
     { id: 402, uid: 'jamie', name: 'Mindfulness_Grounding_Worksheet.pdf', size: 98000, date: dOff(-1), uploadedBy: 'consultant' },
     { id: 403, uid: 'cdemo', name: 'Initial_Assessment_Packet.pdf', size: 215000, date: dOff(0), uploadedBy: 'client' }
   ],
-  md: [3, 2, 3, 4, 3, 4, 4].map((v, i) => ({ uid: 'jamie', date: dOff(i - 6), v, note: i === 6 ? 'Feeling calm and centered after mindfulness practice.' : '' }))
+  md: [3, 2, 3, 4, 3, 4, 4].map((v, i) => ({ uid: 'jamie', date: dOff(i - 6), v, note: i === 6 ? 'Feeling calm and centered after mindfulness practice.' : '' })),
+  dashImages: {
+    cons: [
+      {
+        id: 'img-seed-cons',
+        name: 'Sanctuary_Practice_Atrium.jpg',
+        title: 'MindCare Clinical Sanctuary Center',
+        caption: 'Trauma-informed physical suites and digital telehealth consultation rooms.',
+        dataUrl: '',
+        dimensions: '1920 × 1080',
+        date: getNowDateString(),
+        size: '185 KB',
+        uploadedBy: 'consultant'
+      }
+    ],
+    jamie: [
+      {
+        id: 'img-seed-jamie',
+        name: 'Coastal_Serenity_Anchor.jpg',
+        title: 'Coastal Morning Serenity',
+        caption: 'Visual anchor for 5-4-3-2-1 nervous system grounding and box breathing.',
+        dataUrl: '',
+        dimensions: '1600 × 900',
+        date: getNowDateString(),
+        size: '142 KB',
+        uploadedBy: 'client'
+      }
+    ]
+  }
 });
 
 const MOODS = [
@@ -119,6 +147,14 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState('');
   const [toastOn, setToastOn] = useState(false);
   const toastTimerRef = useRef(null);
+
+  // Dashboard Overview Image custom edit state
+  const [editingImageMeta, setEditingImageMeta] = useState(false);
+  const [imageMetaForm, setImageMetaForm] = useState({ title: '', caption: '' });
+
+  // Profile Menu / Overview Popover state
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const avatarInputRef = useRef(null);
 
   // Wellbeing interactive tools state
   const [isBreathing, setIsBreathing] = useState(false);
@@ -200,6 +236,7 @@ export default function App() {
   const go = (p) => {
     setPage(p);
     setSideOpen(false);
+    setProfileMenuOpen(false);
     window.scrollTo(0, 0);
   };
 
@@ -207,6 +244,7 @@ export default function App() {
     setU(null);
     setRole('consultant');
     setIsBreathing(false);
+    setProfileMenuOpen(false);
   };
 
   // Helper getters
@@ -472,6 +510,194 @@ export default function App() {
     if (['mp3', 'wav', 'm4a', 'aac'].includes(ext)) return 'audio_file';
     if (['xls', 'xlsx', 'csv'].includes(ext)) return 'table_chart';
     return 'draft';
+  };
+
+  const compressImage = (file, maxWidth = 1280, maxHeight = 800, quality = 0.85) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve({ dataUrl, width, height });
+        };
+        img.onerror = () => resolve({ dataUrl: e.target.result, width: 0, height: 0 });
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleDashboardImageUpload = async (e, defaultTitle, defaultCaption) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file (PNG, JPG, WEBP, etc.)');
+      return;
+    }
+    const compressed = await compressImage(file);
+    if (!compressed || !compressed.dataUrl) {
+      showToast('Could not process image');
+      return;
+    }
+
+    const dateStr = getNowDateString();
+    const newImg = {
+      id: uid(),
+      uid: U.id,
+      name: file.name,
+      title: defaultTitle?.trim() || file.name.replace(/\.[^/.]+$/, ''),
+      caption: defaultCaption?.trim() || (U.role === 'client' ? 'Personal grounding reflection & serene anchor' : 'Practice sanctuary space & clinical suite'),
+      dataUrl: compressed.dataUrl,
+      dimensions: `${compressed.width} × ${compressed.height}`,
+      date: dateStr,
+      size: `${Math.max(1, Math.round(file.size / 1024))} KB`,
+      uploadedBy: U.role
+    };
+
+    setS((prev) => {
+      const currentList = prev.dashImages?.[U.id] || [];
+      const updatedList = [newImg, ...currentList];
+      const nextNf = U.role === 'client'
+        ? [
+            {
+              id: uid() + 2,
+              to: 'cons',
+              msg: `${U.name} uploaded a new sanctuary visual anchor: ${newImg.title}.`,
+              date: dateStr,
+              read: false
+            },
+            ...prev.nf
+          ]
+        : prev.nf;
+
+      return {
+        ...prev,
+        dashImages: {
+          ...(prev.dashImages || {}),
+          [U.id]: updatedList
+        },
+        fl: [
+          {
+            id: uid() + 1,
+            uid: U.id,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            dataUrl: compressed.dataUrl,
+            date: dateStr,
+            uploadedBy: U.role
+          },
+          ...prev.fl
+        ],
+        nf: nextNf
+      };
+    });
+
+    showToast(`Image uploaded to ${U.role === 'client' ? 'Sanctuary' : 'Practice'} Overview!`);
+    e.target.value = '';
+  };
+
+  const handleDeleteDashboardImage = (imgId) => {
+    if (!window.confirm('Remove this overview image?')) return;
+    setS((prev) => {
+      const currentList = prev.dashImages?.[U.id] || [];
+      return {
+        ...prev,
+        dashImages: {
+          ...(prev.dashImages || {}),
+          [U.id]: currentList.filter((x) => x.id !== imgId)
+        }
+      };
+    });
+    showToast('Overview image removed');
+  };
+
+  const handleSetPrimaryDashboardImage = (imgId) => {
+    setS((prev) => {
+      const currentList = prev.dashImages?.[U.id] || [];
+      const target = currentList.find((x) => x.id === imgId);
+      if (!target) return prev;
+      return {
+        ...prev,
+        dashImages: {
+          ...(prev.dashImages || {}),
+          [U.id]: [target, ...currentList.filter((x) => x.id !== imgId)]
+        }
+      };
+    });
+    showToast('Active overview image updated');
+  };
+
+  const handleSaveImageMeta = (imgId) => {
+    if (!imageMetaForm.title.trim()) return;
+    setS((prev) => {
+      const currentList = prev.dashImages?.[U.id] || [];
+      return {
+        ...prev,
+        dashImages: {
+          ...(prev.dashImages || {}),
+          [U.id]: currentList.map((x) => (x.id === imgId ? { ...x, title: imageMetaForm.title.trim(), caption: imageMetaForm.caption.trim() } : x))
+        }
+      };
+    });
+    setEditingImageMeta(false);
+    showToast('Overview details updated');
+  };
+
+  const userAvatar = U?.avatar || S.avatars?.[U?.id] || null;
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file (PNG, JPG, WEBP, etc.)');
+      return;
+    }
+    const compressed = await compressImage(file, 400, 400, 0.88);
+    if (!compressed || !compressed.dataUrl) {
+      showToast('Could not process avatar image');
+      return;
+    }
+    const dataUrl = compressed.dataUrl;
+
+    setS((prev) => ({
+      ...prev,
+      avatars: {
+        ...(prev.avatars || {}),
+        [U.id]: dataUrl
+      },
+      acc: prev.acc.map((a) => (a.id === U.id ? { ...a, avatar: dataUrl } : a))
+    }));
+
+    setU((prev) => (prev ? { ...prev, avatar: dataUrl } : prev));
+    showToast('Profile picture updated successfully!');
+    e.target.value = '';
+  };
+
+  const handleRemoveAvatar = () => {
+    setS((prev) => ({
+      ...prev,
+      avatars: {
+        ...(prev.avatars || {}),
+        [U.id]: null
+      },
+      acc: prev.acc.map((a) => (a.id === U.id ? { ...a, avatar: null } : a))
+    }));
+    setU((prev) => (prev ? { ...prev, avatar: null } : prev));
+    showToast('Profile picture removed');
   };
 
   const readFileAsDataUrl = (file) => {
@@ -772,8 +998,12 @@ export default function App() {
           <div className="p-5 sm:p-6 border-b border-[#dde7e3] dark:border-[#23403f] bg-gradient-to-r from-[#e3f1ee]/50 to-transparent dark:from-[#173b3a]/40">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-xl shadow-xs">
-                  {selectedClient.name[0]}
+                <div className="w-12 h-12 rounded-2xl bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-xl shadow-xs overflow-hidden">
+                  {S.avatars?.[selectedClient.uid] ? (
+                    <img src={S.avatars[selectedClient.uid]} alt={selectedClient.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{selectedClient.name[0]}</span>
+                  )}
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -1297,6 +1527,9 @@ export default function App() {
         const up = S.ap.filter((a) => a.date >= T()).sort(srt);
         const pn = S.cl.filter((c) => c.status === 'Pending');
         const activeClients = acc();
+        const consImages = S.dashImages?.['cons'] || (S.dashImages?.[U.id] || []);
+        const activeConsImg = consImages[0] || null;
+        const clientVaultUploads = S.fl.filter((f) => f.uploadedBy === 'client');
 
         return (
           <div className="space-y-6">
@@ -1325,6 +1558,225 @@ export default function App() {
               {renderStat('Upcoming sessions', up.length, 'Confirmed bookings', 'bg-[#6c8ebf]', 'event_available')}
             </div>
 
+            {/* Practice Visual Overview & Image Showcase */}
+            <div className={`${clsCard} overflow-hidden p-0 border border-[#dde7e3] dark:border-[#23403f]`}>
+              <div className="grid grid-cols-1 lg:grid-cols-12">
+                {/* Left image showcase container */}
+                <div className="lg:col-span-7 relative min-h-[260px] sm:min-h-[320px] bg-gradient-to-br from-[#0c3b37] to-teal-800 flex items-center justify-center overflow-hidden group">
+                  {activeConsImg?.dataUrl ? (
+                    <img
+                      src={activeConsImg.dataUrl}
+                      alt={activeConsImg.title || 'Practice Sanctuary Overview'}
+                      className="w-full h-full object-cover max-h-[380px] group-hover:scale-102 transition duration-500 cursor-pointer"
+                      onClick={() =>
+                        setPreviewFile({
+                          name: activeConsImg.name || 'Practice_Sanctuary.jpg',
+                          dataUrl: activeConsImg.dataUrl,
+                          size: 250000,
+                          date: activeConsImg.date,
+                          type: 'image/jpeg'
+                        })
+                      }
+                      title="Click to view full screen"
+                    />
+                  ) : (
+                    <svg viewBox="0 0 600 360" className="w-full h-full object-cover" role="img" aria-label="Practice Sanctuary Facility">
+                      <defs>
+                        <linearGradient id="clinicGrad" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor="#081f1e" />
+                          <stop offset="50%" stopColor="#0f766e" />
+                          <stop offset="100%" stopColor="#2dd4bf" />
+                        </linearGradient>
+                        <linearGradient id="windowGlow" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.35" />
+                          <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+                        </linearGradient>
+                      </defs>
+                      <rect width="600" height="360" fill="url(#clinicGrad)" />
+                      <rect x="60" y="40" width="140" height="240" rx="8" fill="url(#windowGlow)" stroke="#a3faef" strokeWidth="1.5" strokeOpacity="0.4" />
+                      <line x1="130" y1="40" x2="130" y2="280" stroke="#a3faef" strokeWidth="1" strokeOpacity="0.3" />
+                      <line x1="60" y1="140" x2="200" y2="140" stroke="#a3faef" strokeWidth="1" strokeOpacity="0.3" />
+                      <rect x="230" y="40" width="140" height="240" rx="8" fill="url(#windowGlow)" stroke="#a3faef" strokeWidth="1.5" strokeOpacity="0.4" />
+                      <line x1="300" y1="40" x2="300" y2="280" stroke="#a3faef" strokeWidth="1" strokeOpacity="0.3" />
+                      <line x1="230" y1="140" x2="370" y2="140" stroke="#a3faef" strokeWidth="1" strokeOpacity="0.3" />
+                      <rect x="400" y="40" width="140" height="240" rx="8" fill="url(#windowGlow)" stroke="#a3faef" strokeWidth="1.5" strokeOpacity="0.4" />
+                      <line x1="470" y1="40" x2="470" y2="280" stroke="#a3faef" strokeWidth="1" strokeOpacity="0.3" />
+                      <line x1="400" y1="140" x2="540" y2="140" stroke="#a3faef" strokeWidth="1" strokeOpacity="0.3" />
+                      <ellipse cx="140" cy="300" rx="40" ry="22" fill="#0c3b37" />
+                      <path d="M140 280 Q 110 210 80 230 Q 120 250 140 280 Z" fill="#2dd4bf" opacity="0.75" />
+                      <path d="M140 280 Q 140 180 170 200 Q 150 250 140 280 Z" fill="#80d5cb" opacity="0.8" />
+                      <path d="M140 280 Q 180 220 200 240 Q 160 260 140 280 Z" fill="#0f766e" opacity="0.9" />
+                      <rect x="280" y="270" width="220" height="40" rx="10" fill="#def6f1" opacity="0.9" />
+                      <rect x="300" y="240" width="180" height="35" rx="8" fill="#bbe9e2" opacity="0.8" />
+                    </svg>
+                  )}
+                  {/* Floating overlay chip */}
+                  <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                      <span className="material-symbols-outlined text-[15px] text-teal-300">verified</span>
+                      Practice Sanctuary Overview
+                    </span>
+                    {activeConsImg?.dimensions && (
+                      <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px]">
+                        {activeConsImg.dimensions}
+                      </span>
+                    )}
+                  </div>
+                  {activeConsImg && (
+                    <button
+                      onClick={() =>
+                        setPreviewFile({
+                          name: activeConsImg.name || 'Practice_Sanctuary.jpg',
+                          dataUrl: activeConsImg.dataUrl,
+                          size: 250000,
+                          date: activeConsImg.date,
+                          type: 'image/jpeg'
+                        })
+                      }
+                      className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">fullscreen</span>
+                      Full View
+                    </button>
+                  )}
+                </div>
+
+                {/* Right controls and practice info column */}
+                <div className="lg:col-span-5 p-5 sm:p-6 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">Sanctuary Showcase</span>
+                      {activeConsImg?.date && <span className={clsMuted}>{activeConsImg.date}</span>}
+                    </div>
+
+                    {!editingImageMeta ? (
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-serif text-xl font-bold text-[#14302c] dark:text-[#e3efec] mb-1.5 leading-snug">
+                            {activeConsImg?.title || 'MindCare Clinical Sanctuary Center'}
+                          </h3>
+                          <button
+                            type="button"
+                            className="p-1 rounded-lg text-[#5f7571] hover:text-teal-700 dark:hover:text-teal-400 transition"
+                            title="Edit Title & Description"
+                            onClick={() => {
+                              setImageMetaForm({
+                                title: activeConsImg?.title || 'MindCare Clinical Sanctuary Center',
+                                caption: activeConsImg?.caption || 'Trauma-informed consultation rooms and digital telehealth suites.'
+                              });
+                              setEditingImageMeta(true);
+                            }}
+                          >
+                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                          </button>
+                        </div>
+                        <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] leading-relaxed mb-4">
+                          {activeConsImg?.caption || 'Trauma-informed consultation rooms and digital telehealth suites.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mb-4 space-y-2 p-3 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                        <input
+                          type="text"
+                          value={imageMetaForm.title}
+                          onChange={(e) => setImageMetaForm((prev) => ({ ...prev, title: e.target.value }))}
+                          className={`${clsInput} py-1.5 text-xs font-semibold`}
+                          placeholder="Sanctuary title"
+                        />
+                        <textarea
+                          value={imageMetaForm.caption}
+                          onChange={(e) => setImageMetaForm((prev) => ({ ...prev, caption: e.target.value }))}
+                          className={`${clsTextarea} min-h-[60px] text-xs`}
+                          placeholder="Sanctuary description"
+                        />
+                        <div className="flex justify-end gap-2 pt-1">
+                          <button
+                            type="button"
+                            className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                            onClick={() => setEditingImageMeta(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            className={`${clsBtnPrimary} text-xs py-1 px-2.5`}
+                            onClick={() => handleSaveImageMeta(activeConsImg?.id)}
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Quick Upload Form / Dropzone */}
+                    <div className="p-3.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-dashed border-teal-700/30 dark:border-teal-400/30 mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-8 h-8 rounded-lg bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
+                          <span className="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs font-semibold text-[#14302c] dark:text-[#e3efec]">Upload Practice Overview Image</div>
+                          <div className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3]">Clinic facility photo, consultation room, or team badge</div>
+                        </div>
+                      </div>
+                      <label className={`mt-2.5 ${clsBtnPrimary} text-xs py-1.5 px-3 w-full cursor-pointer flex items-center justify-center gap-1.5`}>
+                        <span className="material-symbols-outlined text-[16px]">upload</span>
+                        Choose Image to Upload
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleDashboardImageUpload(e, 'MindCare Practice Facility', 'Updated clinical sanctuary environment')}
+                        />
+                      </label>
+                    </div>
+
+                    {/* Gallery of Uploaded Images (if multiple) */}
+                    {consImages.length > 1 && (
+                      <div className="mb-2">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3] mb-1.5">Practice Image Gallery</div>
+                        <div className="flex gap-2 overflow-x-auto pb-1">
+                          {consImages.map((img) => (
+                            <div
+                              key={img.id}
+                              onClick={() => handleSetPrimaryDashboardImage(img.id)}
+                              className={`w-14 h-12 rounded-lg border-2 cursor-pointer overflow-hidden shrink-0 transition relative group ${
+                                img.id === activeConsImg?.id ? 'border-teal-700 dark:border-teal-400 shadow-xs' : 'border-transparent opacity-70 hover:opacity-100'
+                              }`}
+                              title={img.title}
+                            >
+                              {img.dataUrl ? (
+                                <img src={img.dataUrl} alt={img.title} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full bg-teal-900 flex items-center justify-center text-teal-200">
+                                  <span className="material-symbols-outlined text-[16px]">image</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-[#dde7e3] dark:border-[#23403f] text-xs">
+                    <span className="text-[#5f7571] dark:text-[#8fa8a3]">
+                      {consImages.length} visual asset{consImages.length === 1 ? '' : 's'} active
+                    </span>
+                    {activeConsImg && activeConsImg.id !== 'img-seed-cons' && (
+                      <button
+                        onClick={() => handleDeleteDashboardImage(activeConsImg.id)}
+                        className="text-[#b3392a] dark:text-[#f4a496] hover:underline flex items-center gap-1 font-medium"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">delete</span>
+                        Remove Image
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div className={clsCard}>
                 <div className="flex items-center justify-between mb-3">
@@ -1346,8 +1798,12 @@ export default function App() {
                       >
                         <div className={clsRowHeader}>
                           <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs">
-                              {c.name[0]}
+                            <span className="w-6 h-6 rounded-full overflow-hidden bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs">
+                              {S.avatars?.[c.uid] ? (
+                                <img src={S.avatars[c.uid]} alt={c.name} className="w-full h-full object-cover" />
+                              ) : (
+                                c.name[0]
+                              )}
                             </span>
                             <div>
                               <b className="text-sm text-teal-900 dark:text-teal-200 hover:underline">{c.name}</b>
@@ -1459,6 +1915,81 @@ export default function App() {
                 )}
               </div>
             </div>
+
+            {/* Client Shared Media & Vault Documents Overview */}
+            <div className={clsCard}>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className={clsCardTitle}>Client Vault Documents & Media Overview</h3>
+                  <p className={clsMuted}>Overview of confidential files, questionnaires, and photos uploaded by clients.</p>
+                </div>
+                <button className={`${clsBtnSecondary} text-xs`} onClick={() => go('c-docs')}>
+                  <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                  Open Full Vault
+                </button>
+              </div>
+
+              {clientVaultUploads.length ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {clientVaultUploads.slice(0, 6).map((f) => {
+                    const isImg = f.type?.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg)$/i.test(f.name);
+                    const clientOwner = S.cl.find((c) => c.uid === f.uid);
+                    return (
+                      <div
+                        key={f.id}
+                        className="p-3 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f] flex flex-col justify-between hover:shadow-xs transition"
+                      >
+                        <div className="flex items-start gap-2.5 mb-2">
+                          {isImg && f.dataUrl ? (
+                            <img
+                              src={f.dataUrl}
+                              alt={f.name}
+                              className="w-12 h-12 rounded-lg object-cover cursor-pointer shrink-0 border border-[#dde7e3] dark:border-[#23403f]"
+                              onClick={() => setPreviewFile(f)}
+                              title="Click to preview"
+                            />
+                          ) : (
+                            <span className="w-12 h-12 rounded-lg bg-[#e3f1ee] dark:bg-[#173b3a] text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
+                              <span className="material-symbols-outlined text-2xl">{getFileIcon(f.name)}</span>
+                            </span>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold text-[#14302c] dark:text-[#e3efec] truncate" title={f.name}>
+                              {f.name}
+                            </div>
+                            <div className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3]">
+                              Client: <span className="font-semibold text-teal-800 dark:text-teal-200">{clientOwner?.name || f.uid}</span>
+                            </div>
+                            <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] mt-0.5">
+                              {f.date} · {Math.max(1, Math.round(f.size / 1024))} KB
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-[#dde7e3] dark:border-[#23403f]">
+                          <button
+                            className={`${clsBtnSecondary} text-[11px] py-1 px-2`}
+                            onClick={() => setPreviewFile(f)}
+                            title="Preview file"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">visibility</span>
+                            View
+                          </button>
+                          <button
+                            className={`${clsBtnSecondary} text-[11px] py-1 px-2`}
+                            onClick={() => handleDownloadFile(f)}
+                            title="Download file"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">download</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                renderEmpty('No client-uploaded documents or media submitted yet.')
+              )}
+            </div>
           </div>
         );
       }
@@ -1529,8 +2060,12 @@ export default function App() {
                         >
                           <td className="p-3.5 font-semibold text-[#14302c] dark:text-[#e3efec] whitespace-nowrap">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-full bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform">
-                                {c.name[0]}
+                              <div className="w-8 h-8 rounded-full overflow-hidden bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform">
+                                {S.avatars?.[c.uid] ? (
+                                  <img src={S.avatars[c.uid]} alt={c.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  c.name[0]
+                                )}
                               </div>
                               <span className="group-hover:underline text-teal-900 dark:text-teal-200">{c.name}</span>
                             </div>
@@ -2028,6 +2563,8 @@ export default function App() {
         const pl = S.pl.filter((p) => p.uid === U.id);
         const dn = pl.filter((p) => p.done).length;
         const td = S.md.find((m) => m.uid === U.id && m.date === T());
+        const clientImages = S.dashImages?.[U.id] || (U.id === 'jamie' ? S.dashImages?.['jamie'] || [] : []);
+        const activeClientImg = clientImages[0] || null;
 
         return (
           <div className="space-y-6">
@@ -2058,6 +2595,217 @@ export default function App() {
               {renderStat('Next Session', as[0] ? as[0].date.slice(5) : 'None booked', as[0] ? `${as[0].time} (${as[0].type.slice(0, 15)}...)` : 'Request anytime', 'bg-[#e07a5f]', 'calendar_month')}
               {renderStat('Check-in Streak', `${streak(U.id)} Days`, 'Consistent mindful practice', 'bg-[#e9b44c]', 'local_fire_department')}
               {renderStat('Care Goals', pl.length ? `${Math.round((dn / pl.length) * 100)}%` : '0%', `${dn} of ${pl.length} steps completed`, 'bg-[#6c8ebf]', 'task_alt')}
+            </div>
+
+            {/* Client Sanctuary Visual Anchor & Grounding Overview */}
+            <div className={`${clsCard} overflow-hidden p-0 border border-[#dde7e3] dark:border-[#23403f]`}>
+              <div className="grid grid-cols-1 lg:grid-cols-12">
+                {/* Left visual grounding area */}
+                <div className="lg:col-span-7 relative min-h-[260px] sm:min-h-[320px] bg-gradient-to-br from-teal-900 to-[#0c3b37] flex items-center justify-center overflow-hidden group">
+                  {activeClientImg?.dataUrl ? (
+                    <img
+                      src={activeClientImg.dataUrl}
+                      alt={activeClientImg.title || 'Sanctuary Anchor'}
+                      className="w-full h-full object-cover max-h-[360px] group-hover:scale-102 transition duration-500 cursor-pointer"
+                      onClick={() =>
+                        setPreviewFile({
+                          name: activeClientImg.name || 'Sanctuary_Anchor.jpg',
+                          dataUrl: activeClientImg.dataUrl,
+                          size: 200000,
+                          date: activeClientImg.date,
+                          type: 'image/jpeg'
+                        })
+                      }
+                      title="Click to view full screen"
+                    />
+                  ) : (
+                    <svg viewBox="0 0 600 360" className="w-full h-full object-cover" role="img" aria-label="Sanctuary Landscape illustration">
+                      <defs>
+                        <linearGradient id="clientSkyGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#fde0c2" />
+                          <stop offset="45%" stopColor="#a3faef" />
+                          <stop offset="100%" stopColor="#0f766e" />
+                        </linearGradient>
+                      </defs>
+                      <rect width="600" height="360" fill="url(#clientSkyGrad)" />
+                      <circle cx="460" cy="110" r="55" fill="#fffaf0" opacity="0.85" />
+                      <circle cx="460" cy="110" r="85" fill="#fffaf0" opacity="0.25" />
+                      <path d="M0 230 Q 160 170 320 220 T 600 200 L 600 360 L 0 360 Z" fill="#2dd4bf" opacity="0.55" />
+                      <path d="M0 265 Q 190 210 380 255 T 600 240 L 600 360 L 0 360 Z" fill="#0f766e" opacity="0.85" />
+                      <path d="M0 305 Q 230 260 450 295 T 600 285 L 600 360 L 0 360 Z" fill="#0c3b37" />
+                    </svg>
+                  )}
+                  {/* Visual badges */}
+                  <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                      <span className="material-symbols-outlined text-[15px] text-teal-300">spa</span>
+                      Sanctuary Grounding Anchor
+                    </span>
+                    {activeClientImg?.dimensions && (
+                      <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px]">
+                        {activeClientImg.dimensions}
+                      </span>
+                    )}
+                  </div>
+                  {activeClientImg && (
+                    <button
+                      onClick={() =>
+                        setPreviewFile({
+                          name: activeClientImg.name || 'Sanctuary_Anchor.jpg',
+                          dataUrl: activeClientImg.dataUrl,
+                          size: 200000,
+                          date: activeClientImg.date,
+                          type: 'image/jpeg'
+                        })
+                      }
+                      className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">fullscreen</span>
+                      Full View
+                    </button>
+                  )}
+                </div>
+
+                {/* Right controls and reflection note area */}
+                <div className="lg:col-span-5 p-5 sm:p-6 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">Grounding Space</span>
+                      {activeClientImg?.date && <span className={clsMuted}>{activeClientImg.date}</span>}
+                    </div>
+
+                    {!editingImageMeta ? (
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-serif text-xl font-bold text-[#14302c] dark:text-[#e3efec] mb-1.5 leading-snug">
+                            {activeClientImg?.title || 'Coastal Morning Serenity'}
+                          </h3>
+                          <button
+                            type="button"
+                            className="p-1 rounded-lg text-[#5f7571] hover:text-teal-700 dark:hover:text-teal-400 transition"
+                            title="Edit Grounding Note"
+                            onClick={() => {
+                              setImageMetaForm({
+                                title: activeClientImg?.title || 'Coastal Morning Serenity',
+                                caption: activeClientImg?.caption || 'Focusing on the horizon helps settle nervous system tension and invites calm breaths.'
+                              });
+                              setEditingImageMeta(true);
+                            }}
+                          >
+                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                          </button>
+                        </div>
+                        <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] leading-relaxed mb-4">
+                          {activeClientImg?.caption || 'Focusing on the horizon helps settle nervous system tension and invites calm breaths.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mb-4 space-y-2 p-3 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                        <input
+                          type="text"
+                          value={imageMetaForm.title}
+                          onChange={(e) => setImageMetaForm((prev) => ({ ...prev, title: e.target.value }))}
+                          className={`${clsInput} py-1.5 text-xs font-semibold`}
+                          placeholder="Anchor title (e.g. My Morning Garden)"
+                        />
+                        <textarea
+                          value={imageMetaForm.caption}
+                          onChange={(e) => setImageMetaForm((prev) => ({ ...prev, caption: e.target.value }))}
+                          className={`${clsTextarea} min-h-[60px] text-xs`}
+                          placeholder="Why this brings you calm / grounding intention"
+                        />
+                        <div className="flex justify-end gap-2 pt-1">
+                          <button
+                            type="button"
+                            className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                            onClick={() => setEditingImageMeta(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            className={`${clsBtnPrimary} text-xs py-1 px-2.5`}
+                            onClick={() => handleSaveImageMeta(activeClientImg?.id)}
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Upload personal sanctuary image */}
+                    <div className="p-3.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-dashed border-teal-700/30 dark:border-teal-400/30 mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-8 h-8 rounded-lg bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
+                          <span className="material-symbols-outlined text-[18px]">nature_people</span>
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs font-semibold text-[#14302c] dark:text-[#e3efec]">Upload Calming Image</div>
+                          <div className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3]">Upload nature, art, a peaceful room, or personal pet photo</div>
+                        </div>
+                      </div>
+                      <label className={`mt-2.5 ${clsBtnPrimary} text-xs py-1.5 px-3 w-full cursor-pointer flex items-center justify-center gap-1.5`}>
+                        <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                        Upload Sanctuary Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) =>
+                            handleDashboardImageUpload(
+                              e,
+                              'My Calming Sanctuary Space',
+                              'Uploaded personal visual anchor for daily mindfulness and nervous system regulation'
+                            )
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    {/* Gallery of Uploaded Images (if multiple) */}
+                    {clientImages.length > 1 && (
+                      <div className="mb-2">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3] mb-1.5">Saved Visual Anchors</div>
+                        <div className="flex gap-2 overflow-x-auto pb-1">
+                          {clientImages.map((img) => (
+                            <div
+                              key={img.id}
+                              onClick={() => handleSetPrimaryDashboardImage(img.id)}
+                              className={`w-14 h-12 rounded-lg border-2 cursor-pointer overflow-hidden shrink-0 transition relative group ${
+                                img.id === activeClientImg?.id ? 'border-teal-700 dark:border-teal-400 shadow-xs' : 'border-transparent opacity-70 hover:opacity-100'
+                              }`}
+                              title={img.title}
+                            >
+                              {img.dataUrl ? (
+                                <img src={img.dataUrl} alt={img.title} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full bg-teal-900 flex items-center justify-center text-teal-200">
+                                  <span className="material-symbols-outlined text-[16px]">spa</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-[#dde7e3] dark:border-[#23403f] text-xs">
+                    <span className="text-[#5f7571] dark:text-[#8fa8a3]">
+                      {clientImages.length} visual anchor{clientImages.length === 1 ? '' : 's'}
+                    </span>
+                    {activeClientImg && activeClientImg.id !== 'img-seed-jamie' && (
+                      <button
+                        onClick={() => handleDeleteDashboardImage(activeClientImg.id)}
+                        className="text-[#b3392a] dark:text-[#f4a496] hover:underline flex items-center gap-1 font-medium"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">delete</span>
+                        Remove Image
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Interactive Mood Card & Care Journey */}
@@ -2871,21 +3619,44 @@ export default function App() {
               </div>
 
               {/* Sidebar Footer Controls */}
-              <div className="space-y-1 pt-4 border-t border-teal-800/60">
-                <button
-                  className="flex items-center gap-3 w-full text-left rounded-xl px-3.5 py-2 text-sm text-[#b7d3ce] hover:bg-white/10 transition"
-                  onClick={exportData}
+              <div className="pt-3 border-t border-teal-800/60">
+                <div
+                  onClick={() => setProfileMenuOpen(true)}
+                  className="flex items-center gap-2.5 p-2 rounded-xl bg-teal-900/60 hover:bg-teal-900/90 cursor-pointer transition mb-2 group"
+                  title="Click to view overview & update picture"
                 >
-                  <span className="material-symbols-outlined text-[18px]">download</span>
-                  <span>Export Data</span>
-                </button>
-                <button
-                  className="flex items-center gap-3 w-full text-left rounded-xl px-3.5 py-2 text-sm text-[#f4a496] hover:bg-[#3b1f1b]/50 transition"
-                  onClick={logout}
-                >
-                  <span className="material-symbols-outlined text-[18px]">logout</span>
-                  <span>Sign Out</span>
-                </button>
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden bg-teal-600 text-white flex items-center justify-center font-bold text-xs shrink-0 ring-1 ring-white/20">
+                    {userAvatar ? (
+                      <img src={userAvatar} alt={U.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{U.name.replace('Dr. ', '')[0]}</span>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
+                      <span className="material-symbols-outlined text-[13px]">photo_camera</span>
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-semibold text-white truncate group-hover:text-teal-200 transition-colors">{U.name}</div>
+                    <div className="text-[10px] text-teal-300 capitalize">{U.role} · Click to edit</div>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <button
+                    className="flex items-center gap-3 w-full text-left rounded-xl px-3.5 py-2 text-sm text-[#b7d3ce] hover:bg-white/10 transition"
+                    onClick={exportData}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">download</span>
+                    <span>Export Data</span>
+                  </button>
+                  <button
+                    className="flex items-center gap-3 w-full text-left rounded-xl px-3.5 py-2 text-sm text-[#f4a496] hover:bg-[#3b1f1b]/50 transition"
+                    onClick={logout}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">logout</span>
+                    <span>Sign Out</span>
+                  </button>
+                </div>
               </div>
             </aside>
 
@@ -2948,15 +3719,186 @@ export default function App() {
 
                   <div className="h-6 w-px bg-[#dde7e3] dark:bg-[#23403f]" />
 
-                  {/* User Profile Pill */}
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-xs">
-                      {U.name.replace('Dr. ', '')[0]}
-                    </div>
-                    <div className="hidden md:block leading-tight text-left">
-                      <div className="text-xs font-bold text-[#14302c] dark:text-[#e3efec]">{U.name}</div>
-                      <div className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3] capitalize">{U.role}</div>
-                    </div>
+                  {/* User Profile Pill & Overview Popover */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setProfileMenuOpen((o) => !o)}
+                      className="flex items-center gap-2 p-1 sm:px-2 sm:py-1.5 rounded-2xl hover:bg-[#e3f1ee] dark:hover:bg-[#173b3a] transition cursor-pointer group border border-transparent hover:border-[#dde7e3] dark:hover:border-[#23403f]"
+                      aria-label="User Profile and Overview"
+                    >
+                      <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-xs shadow-xs ring-2 ring-teal-700/20 dark:ring-teal-400/20 group-hover:ring-teal-700 dark:group-hover:ring-teal-400 transition-all shrink-0">
+                        {userAvatar ? (
+                          <img src={userAvatar} alt={U.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span>{U.name.replace('Dr. ', '')[0]}</span>
+                        )}
+                        <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
+                          <span className="material-symbols-outlined text-[15px]">photo_camera</span>
+                        </div>
+                      </div>
+                      <div className="hidden md:block leading-tight text-left">
+                        <div className="text-xs font-bold text-[#14302c] dark:text-[#e3efec] group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors flex items-center gap-0.5">
+                          <span>{U.name}</span>
+                          <span className="material-symbols-outlined text-[16px] text-[#5f7571] dark:text-[#8fa8a3]">expand_more</span>
+                        </div>
+                        <div className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3] capitalize">{U.role}</div>
+                      </div>
+                    </button>
+
+                    {/* Hidden Avatar File Input */}
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarUpload}
+                    />
+
+                    {/* Profile Overview Dropdown Card */}
+                    {profileMenuOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setProfileMenuOpen(false)} />
+                        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-[#14292a] border border-[#dde7e3] dark:border-[#23403f] shadow-2xl z-50 p-5 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-[#14302c] dark:text-[#e3efec]">
+                          {/* Header / Picture update */}
+                          <div className="flex items-center gap-3.5 pb-4 border-b border-[#dde7e3] dark:border-[#23403f]">
+                            <div className="relative group shrink-0">
+                              <div
+                                onClick={() => avatarInputRef.current?.click()}
+                                className="w-16 h-16 rounded-full overflow-hidden bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-2xl shadow-sm ring-2 ring-teal-700/30 cursor-pointer"
+                                title="Click to upload/change photo"
+                              >
+                                {userAvatar ? (
+                                  <img src={userAvatar} alt={U.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <span>{U.name.replace('Dr. ', '')[0]}</span>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => avatarInputRef.current?.click()}
+                                className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-teal-700 hover:bg-teal-800 text-white flex items-center justify-center shadow-md transition cursor-pointer"
+                                title="Upload / change picture"
+                              >
+                                <span className="material-symbols-outlined text-[13px]">photo_camera</span>
+                              </button>
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-serif font-bold text-base m-0 truncate">{U.name}</h4>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#e3f1ee] dark:bg-[#173b3a] text-teal-800 dark:text-teal-200 capitalize">
+                                  {U.role}
+                                </span>
+                              </div>
+                              <div className="text-xs text-[#5f7571] dark:text-[#8fa8a3] truncate mt-0.5">{U.email}</div>
+                              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                                <button
+                                  type="button"
+                                  onClick={() => avatarInputRef.current?.click()}
+                                  className="text-xs font-semibold text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">upload</span>
+                                  {userAvatar ? 'Change Photo' : 'Upload Photo'}
+                                </button>
+                                {userAvatar && (
+                                  <>
+                                    <span className="text-[#5f7571] dark:text-[#8fa8a3]">•</span>
+                                    <button
+                                      type="button"
+                                      onClick={handleRemoveAvatar}
+                                      className="text-xs font-semibold text-[#b3392a] dark:text-[#f4a496] hover:underline cursor-pointer"
+                                    >
+                                      Remove
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Quick Overview Section */}
+                          <div className="py-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">
+                                {U.role === 'consultant' ? 'Practitioner Overview' : 'Client Sanctuary Overview'}
+                              </span>
+                              <span className="text-[11px] text-teal-700 dark:text-teal-400 font-semibold">Active Profile</span>
+                            </div>
+
+                            {U.role === 'consultant' ? (
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                                  <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Active Clients</div>
+                                  <div className="font-serif text-lg font-bold text-teal-900 dark:text-teal-200 mt-0.5">{acc().length}</div>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                                  <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Pending Triage</div>
+                                  <div className="font-serif text-lg font-bold text-[#e9b44c] mt-0.5">{S.cl.filter((c) => c.status === 'Pending').length}</div>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                                  <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Upcoming</div>
+                                  <div className="font-serif text-lg font-bold text-[#6c8ebf] mt-0.5">{S.ap.filter((a) => a.date >= T()).length} sessions</div>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                                  <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Vault Documents</div>
+                                  <div className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec] mt-0.5">{S.fl.length} files</div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                                  <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Intake Status</div>
+                                  <div className="font-serif text-base font-bold text-teal-900 dark:text-teal-200 mt-0.5">{myC()?.status || 'Pending'}</div>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                                  <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Mindful Streak</div>
+                                  <div className="font-serif text-lg font-bold text-[#e9b44c] mt-0.5">{streak(U.id)} Days</div>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                                  <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Care Goals</div>
+                                  <div className="font-serif text-lg font-bold text-[#6c8ebf] mt-0.5">
+                                    {S.pl.filter((p) => p.uid === U.id && p.done).length} / {S.pl.filter((p) => p.uid === U.id).length}
+                                  </div>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                                  <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Documents</div>
+                                  <div className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec] mt-0.5">
+                                    {S.fl.filter((f) => f.uid === U.id).length} files
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Footer Actions */}
+                          <div className="pt-3 border-t border-[#dde7e3] dark:border-[#23403f] flex items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              className={`${clsBtnSecondary} text-xs py-1.5 px-3 flex-1 justify-center cursor-pointer`}
+                              onClick={() => {
+                                setProfileMenuOpen(false);
+                                go(U.role === 'client' ? 'cl-home' : 'c-home');
+                              }}
+                            >
+                              <span className="material-symbols-outlined text-[16px]">dashboard</span>
+                              Overview
+                            </button>
+                            <button
+                              type="button"
+                              className={`${clsBtnDanger} text-xs py-1.5 px-3 flex-1 justify-center cursor-pointer`}
+                              onClick={() => {
+                                setProfileMenuOpen(false);
+                                logout();
+                              }}
+                            >
+                              <span className="material-symbols-outlined text-[16px]">logout</span>
+                              Sign Out
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </header>
