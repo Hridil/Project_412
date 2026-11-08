@@ -35,6 +35,34 @@ export const seed = () => ({
     v,
     note: i === 6 ? 'Feeling calm and centered after mindfulness practice.' : ''
   })),
+  fb: [
+    {
+      id: 501,
+      clientId: 'jamie',
+      clientName: 'Jamie Lee',
+      consultantId: 'cons',
+      date: dOff(-2),
+      rating: 5,
+      category: 'Session Experience',
+      message: 'The grounding exercises and box breathing we practiced in yesterday\'s session were exceptionally helpful during a high-stress moment today. Thank you for creating such a safe and supportive space.',
+      isAnonymous: false,
+      read: true,
+      reply: 'So glad to hear the box breathing supported you, Jamie. We will build on this in our next session!'
+    },
+    {
+      id: 502,
+      clientId: 'cdemo',
+      clientName: 'Demo Client',
+      consultantId: 'cons',
+      date: dOff(0),
+      rating: 4,
+      category: 'Care Plan & Exercises',
+      message: 'I really appreciate having access to the shared documents and care plan tasks. It would be great to continue focusing on sensory pacing next week.',
+      isAnonymous: true,
+      read: false,
+      reply: null
+    }
+  ],
   dashImages: {
     cons: [
       {

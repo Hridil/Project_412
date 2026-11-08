@@ -37,7 +37,10 @@ export default function ClientDossierModal({
   handleCancelAp,
   handleAddPlan,
   handleTogglePlan,
-  handleAddNote
+  handleAddNote,
+  handleToggleFeedbackRead,
+  handleReplyFeedback,
+  handleDeleteFeedback
 }) {
   if (!selectedClient) return null;
 
@@ -48,6 +51,7 @@ export default function ClientDossierModal({
   const clientSessions = S.ap.filter((a) => a.cid === selectedClient.id || a.uid === selectedClient.uid).sort(srt);
   const clientPlans = S.pl.filter((p) => p.cid === selectedClient.id || p.uid === selectedClient.uid);
   const clientNotes = S.nt.filter((n) => n.cid === selectedClient.id);
+  const clientFeedbacks = (S.fb || []).filter((f) => f.clientId === selectedClient.uid);
   const completedPlans = clientPlans.filter((p) => p.done).length;
 
   return (
@@ -129,7 +133,8 @@ export default function ClientDossierModal({
             ['files', 'Documents & Files', 'folder_shared', clientFiles.length],
             ['sessions', 'Appointments', 'calendar_month', clientSessions.length],
             ['plans', 'Care Plans', 'fact_check', clientPlans.length],
-            ['notes', 'Clinical Notes', 'edit_note', clientNotes.length]
+            ['notes', 'Clinical Notes', 'edit_note', clientNotes.length],
+            ['feedback', 'Feedback', 'rate_review', clientFeedbacks.length]
           ].map(([tabKey, label, icon, badge]) => (
             <button
               key={tabKey}
@@ -475,6 +480,126 @@ export default function ClientDossierModal({
                   <EmptyState msg="No clinical notes recorded for this client yet." />
                 )}
               </div>
+            </div>
+          )}
+
+          {/* CLIENT FEEDBACK TAB */}
+          {clientModalTab === 'feedback' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h4 className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec] m-0">
+                  Client Care Feedback ({clientFeedbacks.length})
+                </h4>
+                {clientFeedbacks.length > 0 && (
+                  <div className="text-xs px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 font-semibold flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px] text-amber-500 fill-amber-500">star</span>
+                    <span>
+                      Avg {(clientFeedbacks.reduce((s, f) => s + (f.rating || 5), 0) / clientFeedbacks.length).toFixed(1)} / 5.0
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {clientFeedbacks.length ? (
+                <div className="space-y-3">
+                  {clientFeedbacks.map((f) => (
+                    <div
+                      key={f.id}
+                      className={`p-4 rounded-xl border transition-colors ${
+                        !f.read
+                          ? 'border-teal-600 dark:border-teal-400 bg-teal-50/30 dark:bg-teal-950/20'
+                          : 'border-[#dde7e3] dark:border-[#23403f] bg-white dark:bg-[#14292a]'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#e3f1ee] dark:bg-[#173b3a] text-teal-800 dark:text-teal-300">
+                              {f.category}
+                            </span>
+                            {f.isAnonymous && (
+                              <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[13px]">visibility_off</span>
+                                Anonymous
+                              </span>
+                            )}
+                            {!f.read && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] font-bold">
+                                NEW
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3]">
+                            Submitted on {f.date}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <span
+                              key={s}
+                              className={`material-symbols-outlined text-base ${
+                                s <= (f.rating || 5)
+                                  ? 'text-amber-500 fill-amber-500'
+                                  : 'text-gray-300 dark:text-gray-600'
+                              }`}
+                              style={{ fontVariationSettings: s <= (f.rating || 5) ? "'FILL' 1" : "'FILL' 0" }}
+                            >
+                              star
+                            </span>
+                          ))}
+                          <span className="text-xs font-bold text-[#14302c] dark:text-[#e3efec] ml-1">
+                            {f.rating || 5}/5
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="my-3 text-xs sm:text-sm text-[#14302c] dark:text-[#e3efec] italic bg-[#f8faf9] dark:bg-[#0f1f1e] p-3 rounded-lg border border-[#dde7e3]/60 dark:border-[#23403f]/60">
+                        "{f.message}"
+                      </div>
+
+                      {f.reply && (
+                        <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/60 mb-2">
+                          <div className="text-[11px] font-semibold text-teal-800 dark:text-teal-300 flex items-center gap-1 mb-0.5">
+                            <span className="material-symbols-outlined text-[14px]">verified</span>
+                            Clinician Response
+                          </div>
+                          <p className="text-xs text-[#14302c] dark:text-[#cfe5e1]">
+                            {f.reply}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#dde7e3]/60 dark:border-[#23403f]/60 flex-wrap">
+                        {handleToggleFeedbackRead && (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFeedbackRead(f.id)}
+                            className="text-xs text-teal-700 dark:text-teal-400 hover:underline cursor-pointer flex items-center gap-1 font-medium"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">
+                              {f.read ? 'mark_chat_unread' : 'check_circle'}
+                            </span>
+                            <span>{f.read ? 'Mark as Unread' : 'Mark as Reviewed'}</span>
+                          </button>
+                        )}
+                        {handleDeleteFeedback && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteFeedback(f.id)}
+                            className="text-xs text-[#b3392a] dark:text-[#f4a496] hover:opacity-85 cursor-pointer ml-auto flex items-center gap-0.5"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">delete</span>
+                            <span>Remove</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState msg="This client has not shared any feedback or session reflections yet." />
+              )}
             </div>
           )}
         </div>

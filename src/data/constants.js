@@ -15,6 +15,7 @@ export const NS = [
   ['c-schedule', 'Schedule', 'calendar_month'],
   ['c-notes', 'Session Notes', 'edit_note'],
   ['c-plans', 'Care Plans', 'fact_check'],
+  ['c-feedback', 'Client Feedback', 'rate_review'],
   ['c-notif', 'Notifications', 'notifications']
 ];
 
@@ -25,6 +26,7 @@ export const NC = [
   ['cl-sessions', 'My Sessions', 'calendar_month'],
   ['cl-goals', 'My Goals', 'check_circle'],
   ['cl-files', 'Documents', 'upload_file'],
+  ['cl-feedback', 'Give Feedback', 'rate_review'],
   ['cl-res', 'Wellbeing Toolkit', 'local_florist'],
   ['cl-notif', 'Notifications', 'notifications']
 ];

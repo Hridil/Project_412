@@ -26,6 +26,7 @@ import ConsultantSchedule from './views/consultant/ConsultantSchedule.jsx';
 import SessionNotes from './views/consultant/SessionNotes.jsx';
 import CarePlans from './views/consultant/CarePlans.jsx';
 import ConsultantNotif from './views/consultant/ConsultantNotif.jsx';
+import ConsultantFeedback from './views/consultant/ConsultantFeedback.jsx';
 
 import ClientHome from './views/client/ClientHome.jsx';
 import MoodJournal from './views/client/MoodJournal.jsx';
@@ -35,12 +36,19 @@ import ClientGoals from './views/client/ClientGoals.jsx';
 import ClientDocumentsView from './views/client/ClientDocuments.jsx';
 import WellbeingToolkit from './views/client/WellbeingToolkit.jsx';
 import ClientNotif from './views/client/ClientNotif.jsx';
+import ClientFeedback from './views/client/ClientFeedback.jsx';
 
 export default function App() {
   const [S, setS] = useState(() => {
     try {
       const saved = localStorage.getItem('mcpro');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (!parsed.fb) {
+          parsed.fb = seed().fb;
+        }
+        return parsed;
+      }
     } catch {
       // ignore
     }
@@ -674,6 +682,84 @@ export default function App() {
     showToast('All notifications marked as read');
   };
 
+  const handleAddFeedback = ({ rating, category, message, isAnonymous }) => {
+    const dateStr = getNowDateString();
+    const newFeedback = {
+      id: uid(),
+      clientId: U.id,
+      clientName: U.name,
+      consultantId: 'cons',
+      date: dateStr,
+      rating: rating || 5,
+      category: category || 'Session Experience',
+      message,
+      isAnonymous: Boolean(isAnonymous),
+      read: false,
+      reply: null
+    };
+    setS((prev) => ({
+      ...prev,
+      fb: [newFeedback, ...(prev.fb || [])],
+      nf: [
+        {
+          id: uid(),
+          to: 'cons',
+          msg: isAnonymous
+            ? `Anonymous client submitted a new care reflection (${rating || 5}/5 stars).`
+            : `${U.name} submitted a new care reflection (${rating || 5}/5 stars).`,
+          date: dateStr,
+          read: false
+        },
+        ...prev.nf
+      ]
+    }));
+    showToast('Care reflection submitted successfully. Thank you!');
+  };
+
+  const handleToggleFeedbackRead = (id) => {
+    setS((prev) => ({
+      ...prev,
+      fb: (prev.fb || []).map((f) => (f.id === id ? { ...f, read: !f.read } : f))
+    }));
+  };
+
+  const handleReplyFeedback = (id, replyText) => {
+    let targetClientId = null;
+    const dateStr = getNowDateString();
+    setS((prev) => {
+      const updatedFb = (prev.fb || []).map((f) => {
+        if (f.id === id) {
+          targetClientId = f.clientId;
+          return { ...f, reply: replyText, read: true };
+        }
+        return f;
+      });
+      const newNotifications = [...prev.nf];
+      if (targetClientId) {
+        newNotifications.unshift({
+          id: uid(),
+          to: targetClientId,
+          msg: `Dr. Demo Consultant replied to your care reflection: "${replyText.slice(0, 45)}${replyText.length > 45 ? '...' : ''}"`,
+          date: dateStr,
+          read: false
+        });
+      }
+      return {
+        ...prev,
+        fb: updatedFb,
+        nf: newNotifications
+      };
+    });
+  };
+
+  const handleDeleteFeedback = (id) => {
+    setS((prev) => ({
+      ...prev,
+      fb: (prev.fb || []).filter((f) => f.id !== id)
+    }));
+    showToast('Feedback removed');
+  };
+
   const renderPageContent = () => {
     if (!U) return null;
 
@@ -771,6 +857,20 @@ export default function App() {
           />
         );
 
+      case 'c-feedback':
+        return (
+          <ConsultantFeedback
+            U={U}
+            S={S}
+            handleToggleFeedbackRead={handleToggleFeedbackRead}
+            handleReplyFeedback={handleReplyFeedback}
+            handleDeleteFeedback={handleDeleteFeedback}
+            setSelectedClientId={setSelectedClientId}
+            setClientModalTab={setClientModalTab}
+            showToast={showToast}
+          />
+        );
+
       case 'c-notif':
         return (
           <ConsultantNotif
@@ -852,6 +952,17 @@ export default function App() {
             handleFileAdd={handleFileAdd}
             setPreviewFile={setPreviewFile}
             handleDeleteItem={handleDeleteItem}
+            showToast={showToast}
+          />
+        );
+
+      case 'cl-feedback':
+        return (
+          <ClientFeedback
+            U={U}
+            S={S}
+            handleAddFeedback={handleAddFeedback}
+            handleDeleteFeedback={handleDeleteFeedback}
             showToast={showToast}
           />
         );
@@ -971,6 +1082,9 @@ export default function App() {
           handleAddPlan={handleAddPlan}
           handleTogglePlan={handleTogglePlan}
           handleAddNote={handleAddNote}
+          handleToggleFeedbackRead={handleToggleFeedbackRead}
+          handleReplyFeedback={handleReplyFeedback}
+          handleDeleteFeedback={handleDeleteFeedback}
         />
 
         <FilePreviewModal
