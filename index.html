@@ -18,6 +18,8 @@
     />
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS CDN for Excel (.xlsx, .xls, .csv) Previewing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script id="tailwind-config">
       tailwind.config = {
         darkMode: 'class',
@@ -94,6 +96,31 @@
     </script>
   </head>
   <body class="bg-[#f2f5f3] dark:bg-[#0d1b1a] text-[#14302c] dark:text-[#e3efec] antialiased">
+    <!-- Top System Multi-Page Navigation Bar -->
+    <nav class="bg-[#0c3b37] text-white px-4 py-2 text-xs flex items-center justify-between border-b border-teal-800">
+      <div class="flex items-center gap-2">
+        <span class="font-serif font-bold text-white tracking-wide">MindCare Pro</span>
+        <span class="text-teal-400">·</span>
+        <span class="text-teal-200 hidden sm:inline">Sanctuary Health Platform</span>
+      </div>
+      <div class="flex items-center gap-1 sm:gap-2">
+        <a href="/consultant.html" class="text-teal-200 hover:text-white transition px-2 py-0.5 rounded hover:bg-white/10">
+          Practitioner Suite
+        </a>
+        <a href="/client.html" class="text-teal-200 hover:text-white transition px-2 py-0.5 rounded hover:bg-white/10">
+          Client Sanctuary
+        </a>
+        <a href="/resources.html" class="text-teal-200 hover:text-white transition px-2 py-0.5 rounded hover:bg-white/10">
+          Toolkit
+        </a>
+        <a href="/feedback.html" class="text-teal-200 hover:text-white transition px-2 py-0.5 rounded hover:bg-white/10">
+          Feedback
+        </a>
+        <a href="/crisis.html" class="text-rose-200 hover:text-white transition px-2 py-0.5 rounded hover:bg-rose-900/40 font-semibold">
+          Crisis (988)
+        </a>
+      </div>
+    </nav>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

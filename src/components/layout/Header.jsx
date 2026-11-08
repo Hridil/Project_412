@@ -10,6 +10,8 @@ export default function Header({
   dark,
   toggleTheme,
   go,
+  goBack,
+  canGoBack,
   unreadCount,
   userAvatar,
   avatarInputRef,
@@ -25,7 +27,7 @@ export default function Header({
 }) {
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-8 py-3 bg-white/90 dark:bg-[#14292a]/90 backdrop-blur-md border-b border-[#dde7e3] dark:border-[#23403f]">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
         <button
           className="lg:hidden w-9 h-9 rounded-xl bg-[#e3f1ee] dark:bg-[#173b3a] flex items-center justify-center text-teal-800 dark:text-teal-200"
           onClick={() => setSideOpen(!sideOpen)}
@@ -33,17 +35,30 @@ export default function Header({
         >
           <span className="material-symbols-outlined text-[20px]">menu</span>
         </button>
+
+        {canGoBack && (
+          <button
+            onClick={goBack}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#e3f1ee] hover:bg-[#d5ede8] dark:bg-[#173b3a] dark:hover:bg-[#1f4e4d] text-teal-800 dark:text-teal-200 text-xs font-semibold transition cursor-pointer shadow-2xs"
+            title="Go back to previous page"
+            aria-label="Go back"
+          >
+            <span className="material-symbols-outlined text-[17px]">arrow_back</span>
+            <span className="hidden sm:inline">Back</span>
+          </button>
+        )}
+
         <h2 className="font-serif text-lg sm:text-xl font-bold text-[#14302c] dark:text-[#e3efec]">
           {currentPageTitle}
         </h2>
       </div>
 
       <div className="flex items-center gap-2.5 sm:gap-4">
-        {/* Crisis Support Pill */}
+        {/* Crisis Support Pill linked to dedicated crisis.html */}
         <a
-          href="tel:988"
+          href="/crisis.html"
           className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fde8e4] text-[#b3392a] dark:bg-[#3b1f1b] dark:text-[#f4a496] text-xs font-semibold hover:opacity-90 transition"
-          title="24/7 Lifeline Support"
+          title="24/7 Lifeline Support & Crisis Sanctuary"
         >
           <span className="material-symbols-outlined text-[16px]">emergency</span>
           <span>24/7 Crisis (988)</span>

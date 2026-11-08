@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindCare Pro · Care Quality & Feedback Center</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS CDN for Excel (.xlsx, .xls, .csv) Previewing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#005c55',
+              'primary-container': '#0f766e',
+              'app-bg-light': '#f2f5f3',
+              'app-bg-dark': '#0d1b1a',
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+              serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    data-page="feedback"
+    class="bg-[#f2f5f3] dark:bg-[#0d1b1a] text-[#14302c] dark:text-[#e3efec] antialiased"
+  >
+    <!-- Top Portal Navigation Banner with Back Button -->
+    <header class="bg-[#0c3b37] text-white px-4 py-2 text-xs flex items-center justify-between border-b border-teal-800">
+      <div class="flex items-center gap-3">
+        <a
+          href="/index.html"
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-800/80 hover:bg-teal-700 text-teal-100 font-semibold transition"
+          title="Return to Main Portal"
+        >
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span>Back to Main Portal</span>
+        </a>
+        <span class="hidden sm:inline text-teal-300">|</span>
+        <span class="font-semibold text-teal-100 hidden sm:inline">Care Quality & Clinical Feedback Center</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="/consultant.html" class="text-teal-200 hover:text-white transition px-2 py-0.5 rounded hover:bg-white/10">
+          Practitioner Suite
+        </a>
+        <a href="/client.html" class="text-teal-200 hover:text-white transition px-2 py-0.5 rounded hover:bg-white/10">
+          Client Sanctuary
+        </a>
+        <a href="/crisis.html" class="text-rose-200 hover:text-white transition px-2 py-0.5 rounded hover:bg-rose-900/40 font-semibold">
+          24/7 Crisis (988)
+        </a>
+      </div>
+    </header>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -56,9 +56,20 @@ export default function App() {
   });
 
   const [U, setU] = useState(null);
-  const [role, setRoleState] = useState('consultant');
+  const [role, setRoleState] = useState(() => {
+    return document.body.dataset.role || 'consultant';
+  });
   const [isSignup, setIsSignup] = useState(false);
-  const [page, setPage] = useState('c-home');
+  const [page, setPage] = useState(() => {
+    const hash = window.location.hash.replace(/^#\/?/, '');
+    if (hash) return hash;
+    const dp = document.body.dataset.page;
+    if (dp === 'feedback') {
+      return document.body.dataset.role === 'client' ? 'cl-feedback' : 'c-feedback';
+    }
+    return dp || 'c-home';
+  });
+  const [pageHistory, setPageHistory] = useState([]);
   const [sideOpen, setSideOpen] = useState(false);
   const [dark, setDark] = useState(() => {
     try {
@@ -163,18 +174,60 @@ export default function App() {
     setIsSignup(false);
   };
 
-  const go = (p) => {
+  // URL Hash synchronization for browser Back / Forward buttons
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hashPage = window.location.hash.replace(/^#\/?/, '');
+      if (hashPage && hashPage !== page) {
+        setPage(hashPage);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [page]);
+
+  const go = (p, replace = false) => {
+    if (!replace && p !== page) {
+      setPageHistory((prev) => [...prev, page]);
+    }
     setPage(p);
     setSideOpen(false);
     setProfileMenuOpen(false);
+    window.location.hash = p;
     window.scrollTo(0, 0);
   };
+
+  const goBack = () => {
+    setSideOpen(false);
+    setProfileMenuOpen(false);
+    if (pageHistory.length > 0) {
+      const prev = pageHistory[pageHistory.length - 1];
+      setPageHistory((history) => history.slice(0, -1));
+      setPage(prev);
+      window.location.hash = prev;
+    } else {
+      const homePage = U?.role === 'client' ? 'cl-home' : 'c-home';
+      if (page !== homePage) {
+        setPage(homePage);
+        window.location.hash = homePage;
+      } else if (window.history.length > 1) {
+        window.history.back();
+      }
+    }
+    window.scrollTo(0, 0);
+  };
+
+  const canGoBack = Boolean(
+    U && (page !== (U.role === 'client' ? 'cl-home' : 'c-home') || pageHistory.length > 0)
+  );
 
   const logout = () => {
     setU(null);
     setRole('consultant');
     setIsBreathing(false);
     setProfileMenuOpen(false);
+    setPageHistory([]);
+    window.location.hash = '';
   };
 
   // Helper getters
@@ -1036,6 +1089,8 @@ export default function App() {
                 dark={dark}
                 toggleTheme={toggleTheme}
                 go={go}
+                goBack={goBack}
+                canGoBack={canGoBack}
                 unreadCount={unreadCount}
                 userAvatar={userAvatar}
                 avatarInputRef={avatarInputRef}
@@ -1051,6 +1106,33 @@ export default function App() {
               />
 
               <div className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+                {/* Trauma-Informed Back & Breadcrumb Navigation Bar */}
+                {canGoBack && (
+                  <nav
+                    aria-label="Breadcrumb navigation"
+                    className="mb-5 flex items-center justify-between gap-3 p-3 rounded-2xl bg-white/80 dark:bg-[#14292a]/80 border border-[#dde7e3] dark:border-[#23403f] backdrop-blur-xs shadow-2xs"
+                  >
+                    <button
+                      onClick={goBack}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#e3f1ee] hover:bg-[#d5ede8] dark:bg-[#173b3a] dark:hover:bg-[#1f4e4d] text-teal-800 dark:text-teal-200 text-xs font-semibold transition cursor-pointer shadow-2xs"
+                      title="Return to previous screen"
+                    >
+                      <span className="material-symbols-outlined text-[17px]">arrow_back</span>
+                      <span>Back to {U?.role === 'client' ? 'Dashboard' : 'Overview'}</span>
+                    </button>
+                    <div className="flex items-center gap-1.5 text-xs text-[#5f7571] dark:text-[#8fa8a3]">
+                      <button
+                        className="cursor-pointer hover:text-teal-700 dark:hover:text-teal-300 transition font-medium"
+                        onClick={() => go(U?.role === 'client' ? 'cl-home' : 'c-home')}
+                      >
+                        {U?.role === 'client' ? 'Client Sanctuary' : 'Clinical Overview'}
+                      </button>
+                      <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                      <span className="font-semibold text-[#14302c] dark:text-[#e3efec]">{currentPageTitle}</span>
+                    </div>
+                  </nav>
+                )}
+
                 {renderPageContent()}
 
                 <div className="text-center text-xs text-[#5f7571] dark:text-[#8fa8a3] mt-12 mb-4">
