@@ -13,6 +13,9 @@ import Header from './components/layout/Header.jsx';
 import Sidebar from './components/layout/Sidebar.jsx';
 import Toast from './components/common/Toast.jsx';
 
+// Supabase Integration Client
+import { supabaseApi, isSupabaseConfigured } from './services/supabaseClient.js';
+
 // Modals
 import ClientDossierModal from './components/modals/ClientDossierModal.jsx';
 import FilePreviewModal from './components/modals/FilePreviewModal.jsx';
@@ -164,6 +167,67 @@ export default function App() {
   const [breathPhaseIndex, setBreathPhaseIndex] = useState(0);
   const [breathCycle, setBreathCycle] = useState(1);
   const [somaticLevel, setSomaticLevel] = useState(3);
+
+  // Synchronize data from Supabase on mount
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+    let isMounted = true;
+    supabaseApi
+      .fetchAppData()
+      .then((data) => {
+        if (!isMounted || !data) return;
+        setS((prev) => {
+          const existingClEmails = new Set(prev.cl.map((c) => (c.email || '').toLowerCase()));
+          const newClients = data.clients.filter((c) => !existingClEmails.has(c.email.toLowerCase()));
+
+          const existingConsEmails = new Set(
+            (prev.consultants || [])
+              .map((c) => (c.email || '').toLowerCase())
+          );
+          const newCons = data.consultants.filter(
+            (c) => !existingConsEmails.has(c.email.toLowerCase())
+          );
+
+          const existingAccEmails = new Set(prev.acc.map((a) => (a.email || '').toLowerCase()));
+          const newAccs = [
+            ...data.clients.map((c) => ({
+              id: c.uid,
+              person_id: c.person_id,
+              client_id: c.id,
+              name: c.name,
+              email: c.email,
+              role: 'client',
+              avatar: c.avatar,
+              contact_no: c.contact_no
+            })),
+            ...data.consultants.map((c) => ({
+              id: c.uid,
+              person_id: c.person_id,
+              consultant_id: c.id,
+              name: c.name,
+              email: c.email,
+              role: 'consultant',
+              avatar: c.avatar,
+              contact_no: c.contact_no
+            }))
+          ].filter((a) => !existingAccEmails.has(a.email.toLowerCase()));
+
+          return {
+            ...prev,
+            cl: [...prev.cl, ...newClients],
+            consultants: [...(prev.consultants || []), ...newCons],
+            acc: [...prev.acc, ...newAccs]
+          };
+        });
+      })
+      .catch((err) => {
+        console.warn('Supabase initial sync notice:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Sync state to LocalStorage
   useEffect(() => {
@@ -372,11 +436,28 @@ export default function App() {
   const userAvatar = U?.avatar || S.avatars?.[U?.id] || null;
 
   // Authentication Handlers
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
+    const em = d.email.trim().toLowerCase();
+    const pw = d.pw;
+
+    // 1. Authenticate with Supabase if configured
+    if (isSupabaseConfigured()) {
+      try {
+        const dbUser = await supabaseApi.login(em, pw, role);
+        setU(dbUser);
+        go(dbUser.role === 'client' ? 'cl-home' : 'c-home');
+        showToast(`Welcome back, ${dbUser.name}`);
+        return;
+      } catch (err) {
+        console.warn('Supabase authentication check:', err.message);
+      }
+    }
+
+    // 2. Fallback to local accounts
     const u = S.acc.find(
-      (a) => a.email === d.email.trim().toLowerCase() && a.pw === d.pw && a.role === role
+      (a) => a.email === em && a.pw === pw && a.role === role
     );
     if (!u) {
       showToast(`No ${role} account matches those credentials.`);
@@ -387,7 +468,7 @@ export default function App() {
     showToast(`Welcome back, ${u.name}`);
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
     const em = d.email.trim().toLowerCase();
@@ -395,17 +476,55 @@ export default function App() {
       showToast('Email already registered. Please sign in.');
       return;
     }
-    const id = 'u' + uid();
+
     const dateStr = getNowDateString();
-    const newAcc = {
-      id,
-      name: d.name.trim(),
-      email: em,
-      pw: d.pw,
-      role,
-      avatar: null,
-      contact_no: d.contact_no?.trim() || ''
-    };
+    let newAcc = null;
+
+    // Save to Supabase if configured
+    if (isSupabaseConfigured()) {
+      try {
+        showToast('Saving to Supabase database...');
+        const reg = await supabaseApi.register({
+          name: d.name.trim(),
+          email: em,
+          password: d.pw,
+          role,
+          phone: d.contact_no?.trim() || '',
+          dob: d.dob || null,
+          reason: d.reason?.trim() || 'General wellness & clinical support',
+          specialization: d.specialization?.trim() || 'Trauma-Informed Clinical Practice',
+          qualification: d.qualification?.trim() || 'Licensed Mental Health Clinician'
+        });
+
+        newAcc = {
+          id: reg.id,
+          person_id: reg.person_id,
+          client_id: reg.client_id,
+          consultant_id: reg.consultant_id,
+          name: reg.name,
+          email: reg.email,
+          pw: d.pw,
+          role: reg.role,
+          avatar: reg.avatar || null,
+          contact_no: reg.contact_no
+        };
+      } catch (err) {
+        console.error('Supabase registration failed:', err);
+        showToast(`Supabase Error: ${err.message}`);
+        return;
+      }
+    } else {
+      const id = 'u' + uid();
+      newAcc = {
+        id,
+        name: d.name.trim(),
+        email: em,
+        pw: d.pw,
+        role,
+        avatar: null,
+        contact_no: d.contact_no?.trim() || ''
+      };
+    }
 
     let newClList = [...S.cl];
     let newConsultantList = [...(S.consultants || [])];
@@ -413,14 +532,16 @@ export default function App() {
 
     if (role === 'client') {
       const newCl = {
-        id: uid(),
-        uid: id,
+        id: newAcc.client_id || uid(),
+        uid: newAcc.id,
+        person_id: newAcc.person_id,
         name: d.name.trim(),
         email: em,
         contact_no: d.contact_no?.trim() || '',
         dob: d.dob || null,
         status: 'ACTIVE',
-        reason: d.reason?.trim() || 'General wellness & clinical support'
+        reason: d.reason?.trim() || 'General wellness & clinical support',
+        avatar: newAcc.avatar || null
       };
       newClList.push(newCl);
       notifs.unshift(
@@ -433,7 +554,7 @@ export default function App() {
         },
         {
           id: uid(),
-          to: id,
+          to: newAcc.id,
           msg: `Welcome to MindCare Sanctuary, ${d.name}. Your profile is active and ready for consultations.`,
           date: dateStr,
           read: false
@@ -441,18 +562,20 @@ export default function App() {
       );
     } else {
       const newCons = {
-        id: uid(),
-        uid: id,
+        id: newAcc.consultant_id || uid(),
+        uid: newAcc.id,
+        person_id: newAcc.person_id,
         name: d.name.trim(),
         email: em,
         contact_no: d.contact_no?.trim() || '',
-        specialization: d.specialization?.trim() || 'General Clinical Practice',
-        qualification: d.qualification?.trim() || 'Licensed Mental Health Clinician'
+        specialization: d.specialization?.trim() || 'Trauma-Informed Clinical Practice',
+        qualification: d.qualification?.trim() || 'Licensed Mental Health Clinician',
+        avatar: newAcc.avatar || null
       };
       newConsultantList.push(newCons);
       notifs.unshift({
         id: uid(),
-        to: id,
+        to: newAcc.id,
         msg: `Welcome, ${d.name}. Your clinical practice dashboard is ready.`,
         date: dateStr,
         read: false
@@ -471,8 +594,8 @@ export default function App() {
     go(role === 'client' ? 'cl-home' : 'c-home');
     showToast(
       role === 'consultant'
-        ? `Practitioner account created for ${newAcc.name}`
-        : `Welcome to MindCare, ${newAcc.name}`
+        ? `Practitioner account created for ${newAcc.name} (Stored in Supabase)`
+        : `Welcome to MindCare, ${newAcc.name}! (Stored in Supabase)`
     );
     e.target.reset();
     setIsSignup(false);
