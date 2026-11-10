@@ -249,8 +249,8 @@ export const supabaseApi = {
     return {
       id: 'u' + user.person_id,
       person_id: user.person_id,
-      client_id: user.client?.[0]?.client_id || null,
-      consultant_id: user.consultant?.[0]?.consultant_id || null,
+      client_id: user.client?.client_id || (Array.isArray(user.client) ? user.client[0]?.client_id : null) || null,
+      consultant_id: user.consultant?.consultant_id || (Array.isArray(user.consultant) ? user.consultant[0]?.consultant_id : null) || null,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -261,14 +261,14 @@ export const supabaseApi = {
 
   // Fetch all Clients from Supabase
   getClients: async () => {
-    const data = await supabaseFetch("client?select=*,person(*),person_contact(contact_no)&order=client_id.asc");
+    const data = await supabaseFetch("client?select=*,person(*,person_contact(*))&order=client_id.asc");
     return (data || []).map((c) => ({
       id: c.client_id,
       uid: 'u' + c.person_id,
       person_id: c.person_id,
       name: c.person?.name || "Client",
       email: c.person?.email || "",
-      contact_no: c.person_contact?.[0]?.contact_no || "",
+      contact_no: c.person?.person_contact?.[0]?.contact_no || "",
       dob: c.dob || null,
       status: c.account_status || "ACTIVE",
       reason: c.reason || "General clinical support",
@@ -278,14 +278,14 @@ export const supabaseApi = {
 
   // Fetch all Consultants from Supabase
   getConsultants: async () => {
-    const data = await supabaseFetch("consultant?select=*,person(*),person_contact(contact_no)&order=consultant_id.asc");
+    const data = await supabaseFetch("consultant?select=*,person(*,person_contact(*))&order=consultant_id.asc");
     return (data || []).map((c) => ({
       id: c.consultant_id,
       uid: 'u' + c.person_id,
       person_id: c.person_id,
       name: c.person?.name || "Practitioner",
       email: c.person?.email || "",
-      contact_no: c.person_contact?.[0]?.contact_no || "",
+      contact_no: c.person?.person_contact?.[0]?.contact_no || "",
       specialization: c.specialization || "Clinical Practice",
       qualification: c.qualification || "Licensed Clinician",
       avatar: c.person?.avatar_url || null

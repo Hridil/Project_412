@@ -413,7 +413,14 @@ export default function App() {
   };
 
   // Helper getters
-  const myC = () => S.cl.find((c) => c.uid === U?.id);
+  const myC = () =>
+    S.cl.find(
+      (c) =>
+        c.uid === U?.id ||
+        c.id === U?.client_id ||
+        c.person_id === U?.person_id ||
+        (U?.email && (c.email || '').toLowerCase() === U.email.toLowerCase())
+    );
   const cn = (id) => S.cl.find((c) => c.id === id)?.name || 'Client';
   const selectedClient = S.cl.find((c) => c.id === selectedClientId) || null;
   const acc = () => S.cl.filter((c) => c.status === 'Accepted' || c.status === 'ACTIVE');
