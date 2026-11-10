@@ -26,3 +26,8 @@ dist-ssr
 # Agent credentials
 .agents/mcp_config.json
 
+# Env File
+.env
+
+# Database
+/database/DemoDB

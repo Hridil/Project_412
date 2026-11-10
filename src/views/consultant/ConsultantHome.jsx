@@ -54,7 +54,7 @@ export default function ConsultantHome({
           <div className="flex items-center gap-1.5 text-xs text-[#5f7571] dark:text-[#8fa8a3] uppercase tracking-wider mb-1">
             <span>Clinical Dashboard</span>
             <span>•</span>
-            <span>{U.name ? ${U.name}'s Practice : 'Clinical Practice'}</span>
+            <span>{U.name ? `${U.name}'s Practice` : 'Clinical Practice'}</span>
           </div>
           <h1 className="font-serif text-[28px] font-bold m-0 text-[#14302c] dark:text-[#e3efec]">
             Good day, {U.name.split(' ').slice(-1)[0]}
