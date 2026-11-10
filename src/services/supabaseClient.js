@@ -3,8 +3,13 @@
 // Uses native fetch() for zero-dependency PostgREST & Storage support
 // ====================================================================
 
-const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY || "";
+const SUPABASE_URL =
+  import.meta.env?.VITE_SUPABASE_URL ||
+  "https://lsxpftzwwnexeixtvqcc.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  import.meta.env?.VITE_SUPABASE_ANON_KEY ||
+  "sb_publishable_2Yd0uF2QhyJqzNfzabI7xg_4oII1QWS";
 
 export const isSupabaseConfigured = () => {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes("your-project"));
