@@ -375,7 +375,7 @@ export default function ConsultantFeedback({
                     <textarea
                       value={replyInput}
                       onChange={(e) => setReplyInput(e.target.value)}
-                      placeholder="e.g. Thank you for this reflection, Jamie. We will incorporate this into our next session pacing..."
+                      placeholder="e.g. Thank you for this reflection. We will incorporate this into our next session pacing..."
                       className={`${clsTextarea} min-h-[80px] text-xs`}
                     />
                     <div className="flex items-center justify-end gap-2">

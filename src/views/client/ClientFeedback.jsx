@@ -82,7 +82,7 @@ export default function ClientFeedback({
               <h3 className={`${clsCardTitle} mb-0`}>Share Your Reflection</h3>
             </div>
             <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] mb-4">
-              Your feedback is shared directly with Dr. Demo Consultant to continually refine your care plan and therapeutic safety.
+              Your feedback is shared directly with your clinician to continually refine your care plan and therapeutic safety.
             </p>
 
             <form onSubmit={onSubmit} className="space-y-4">

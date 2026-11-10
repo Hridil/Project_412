@@ -43,8 +43,8 @@ export default function ConsultantSchedule({
               <div>
                 <label className={clsLabel}>Select Client</label>
                 <select name="cid" className={clsInput} required>
-                  <option value="">Select accepted client...</option>
-                  {S.cl.filter((c) => c.status === 'Accepted').map((c) => (
+                  <option value="">Select active client...</option>
+                  {S.cl.filter((c) => c.status === 'Accepted' || c.status === 'ACTIVE').map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.email})
                     </option>
@@ -62,12 +62,10 @@ export default function ConsultantSchedule({
                 </div>
               </div>
               <div>
-                <label className={clsLabel}>Session Type</label>
-                <select name="type" className={clsInput}>
-                  <option>Online Telehealth Consultation</option>
-                  <option>In-Person Sanctuary Consultation</option>
-                  <option>Focused Follow-up (30m)</option>
-                  <option>Intake Assessment Session</option>
+                <label className={clsLabel}>Consultation Modality (Mode)</label>
+                <select name="appointment_mode" className={clsInput}>
+                  <option value="ONLINE">Online Telehealth Consultation (Video)</option>
+                  <option value="OFFLINE">In-Person Sanctuary Consultation (Offline)</option>
                 </select>
               </div>
               <button className={`${clsBtnPrimary} w-full mt-4 cursor-pointer`}>
@@ -101,7 +99,7 @@ export default function ConsultantSchedule({
                       )}
                     </div>
                     <div className="flex gap-2">
-                      {a.status === 'Requested' && (
+                      {(a.status === 'Requested' || a.status === 'REQUESTED') && (
                         <button
                           className={`${clsBtnPrimary} text-xs py-1 px-2.5 cursor-pointer`}
                           onClick={() => handleConfirmAp(a.id)}

@@ -29,7 +29,7 @@ export default function ClientDocuments({
       <div>
         <h1 className="font-serif text-[28px] font-bold m-0 text-[#14302c] dark:text-[#e3efec]">Confidential Documents</h1>
         <p className={`${clsMuted} mt-1`}>
-          Encrypted, HIPAA-compliant document sharing with Dr. Demo Consultant.
+          Encrypted, HIPAA-compliant document sharing with your clinical care team.
         </p>
       </div>
 

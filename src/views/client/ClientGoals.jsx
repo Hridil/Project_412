@@ -23,7 +23,7 @@ export default function ClientGoals({
     <div className="space-y-6">
       <div>
         <h1 className="font-serif text-[28px] font-bold m-0 text-[#14302c] dark:text-[#e3efec]">My Care Plan & Goals</h1>
-        <p className={`${clsMuted} mt-1`}>Collaborative micro-steps assigned by Dr. Demo Consultant.</p>
+        <p className={`${clsMuted} mt-1`}>Collaborative micro-steps assigned by your clinical care team.</p>
       </div>
 
       <div className={clsCard}>

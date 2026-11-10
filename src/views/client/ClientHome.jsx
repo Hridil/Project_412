@@ -37,7 +37,7 @@ export default function ClientHome({
   const pl = S.pl.filter((p) => p.uid === U.id);
   const dn = pl.filter((p) => p.done).length;
   const td = S.md.find((m) => m.uid === U.id && m.date === T());
-  const clientImages = S.dashImages?.[U.id] || (U.id === 'jamie' ? S.dashImages?.['jamie'] || [] : []);
+  const clientImages = S.dashImages?.[U.id] || [];
   const activeClientImg = clientImages[0] || null;
 
   return (
@@ -267,7 +267,7 @@ export default function ClientHome({
               <span className="text-[#5f7571] dark:text-[#8fa8a3]">
                 {clientImages.length} visual anchor{clientImages.length === 1 ? '' : 's'}
               </span>
-              {activeClientImg && activeClientImg.id !== 'img-seed-jamie' && (
+              {activeClientImg && (
                 <button
                   onClick={() => handleDeleteDashboardImage(activeClientImg.id)}
                   className="text-[#b3392a] dark:text-[#f4a496] hover:underline flex items-center gap-1 font-medium cursor-pointer"

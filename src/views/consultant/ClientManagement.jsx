@@ -22,7 +22,12 @@ export default function ClientManagement({
 }) {
   const q = Q.q.toLowerCase();
   const rows = S.cl.filter(
-    (c) => (c.name + c.email).toLowerCase().includes(q) && (Q.f === 'all' || c.status === Q.f)
+    (c) =>
+      (c.name + c.email).toLowerCase().includes(q) &&
+      (Q.f === 'all' ||
+        c.status === Q.f ||
+        (Q.f === 'ACTIVE' && c.status === 'Accepted') ||
+        (Q.f === 'SUSPENDED' && c.status === 'Rejected'))
   );
 
   return (
@@ -40,14 +45,15 @@ export default function ClientManagement({
             onChange={(e) => setQ({ ...Q, q: e.target.value })}
           />
           <select
-            className={`${clsInput} py-2 w-32`}
+            className={`${clsInput} py-2 w-36`}
             value={Q.f}
             onChange={(e) => setQ({ ...Q, f: e.target.value })}
           >
             <option value="all">All statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Accepted">Accepted</option>
-            <option value="Rejected">Rejected</option>
+            <option value="ACTIVE">Active</option>
+            <option value="Pending">Pending Triage</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="SUSPENDED">Suspended</option>
           </select>
         </div>
       </div>
@@ -123,22 +129,22 @@ export default function ClientManagement({
                             <span className="material-symbols-outlined text-[16px]">visibility</span>
                             Profile
                           </button>
-                          {c.status !== 'Accepted' && (
+                          {c.status !== 'ACTIVE' && c.status !== 'Accepted' && (
                             <button
                               className={`${clsBtnPrimary} text-xs py-1 px-2 cursor-pointer`}
-                              onClick={() => handleDecision(c.id, 'Accepted')}
-                              title="Accept Client"
+                              onClick={() => handleDecision(c.id, 'ACTIVE')}
+                              title="Activate Client"
                             >
                               <span className="material-symbols-outlined text-[16px]">check</span>
                             </button>
                           )}
-                          {c.status !== 'Rejected' && (
+                          {c.status !== 'SUSPENDED' && c.status !== 'Rejected' && (
                             <button
                               className={`${clsBtnDanger} text-xs py-1 px-2 cursor-pointer`}
-                              onClick={() => handleDecision(c.id, 'Rejected')}
-                              title="Decline Client"
+                              onClick={() => handleDecision(c.id, 'SUSPENDED')}
+                              title="Suspend Client"
                             >
-                              <span className="material-symbols-outlined text-[16px]">close</span>
+                              <span className="material-symbols-outlined text-[16px]">block</span>
                             </button>
                           )}
                         </div>

@@ -24,7 +24,7 @@ export default function ClientSessions({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-[28px] font-bold m-0 text-[#14302c] dark:text-[#e3efec]">My Sessions</h1>
-          <p className={`${clsMuted} mt-1`}>Your scheduled consultations with Dr. Demo Consultant.</p>
+          <p className={`${clsMuted} mt-1`}>Your scheduled consultations with your clinical care team.</p>
         </div>
         <button className={`${clsBtnPrimary} cursor-pointer`} onClick={() => go('cl-book')}>
           <span className="material-symbols-outlined text-[18px]">add</span>

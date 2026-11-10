@@ -44,9 +44,35 @@ export default function App() {
       const saved = localStorage.getItem('mcpro');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (!parsed.fb) {
-          parsed.fb = seed().fb;
-        }
+        // Clean out legacy dummy records
+        const dummyUserIds = new Set(['cons', 'cdemo', 'jamie']);
+        const dummyEmails = new Set(['demo@mindcare.com', 'client@mindcare.com', 'jamie@example.com']);
+
+        parsed.acc = (parsed.acc || []).filter(
+          (a) => !dummyUserIds.has(a.id) && !dummyEmails.has(a.email)
+        );
+        parsed.cl = (parsed.cl || []).filter(
+          (c) => !dummyUserIds.has(c.uid) && !dummyEmails.has(c.email)
+        );
+        parsed.consultants = (parsed.consultants || []).filter(
+          (c) => !dummyUserIds.has(c.uid) && !dummyEmails.has(c.email)
+        );
+        parsed.ap = (parsed.ap || []).filter((a) => !dummyUserIds.has(a.uid));
+        parsed.slots = parsed.slots || [];
+        parsed.nt = (parsed.nt || []).filter((n) => n.id !== 101);
+        parsed.pl = (parsed.pl || []).filter((p) => !dummyUserIds.has(p.uid));
+        parsed.nf = (parsed.nf || []).filter((n) => !dummyUserIds.has(n.to));
+        parsed.fl = (parsed.fl || []).filter((f) => !dummyUserIds.has(f.uid));
+        parsed.md = (parsed.md || []).filter((m) => !dummyUserIds.has(m.uid));
+        parsed.fb = (parsed.fb || []).filter((f) => !dummyUserIds.has(f.clientId));
+        parsed.dashImages = parsed.dashImages || {};
+        delete parsed.dashImages['cons'];
+        delete parsed.dashImages['jamie'];
+        parsed.avatars = parsed.avatars || {};
+        delete parsed.avatars['cons'];
+        delete parsed.avatars['cdemo'];
+        delete parsed.avatars['jamie'];
+
         return parsed;
       }
     } catch {
@@ -58,7 +84,17 @@ export default function App() {
   const [U, setU] = useState(() => {
     try {
       const savedUser = localStorage.getItem('mcuser');
-      if (savedUser) return JSON.parse(savedUser);
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        if (
+          ['cons', 'cdemo', 'jamie'].includes(parsed?.id) ||
+          ['demo@mindcare.com', 'client@mindcare.com', 'jamie@example.com'].includes(parsed?.email)
+        ) {
+          localStorage.removeItem('mcuser');
+          return null;
+        }
+        return parsed;
+      }
     } catch {
       // ignore
     }
@@ -316,7 +352,7 @@ export default function App() {
   const myC = () => S.cl.find((c) => c.uid === U?.id);
   const cn = (id) => S.cl.find((c) => c.id === id)?.name || 'Client';
   const selectedClient = S.cl.find((c) => c.id === selectedClientId) || null;
-  const acc = () => S.cl.filter((c) => c.status === 'Accepted');
+  const acc = () => S.cl.filter((c) => c.status === 'Accepted' || c.status === 'ACTIVE');
   const moodsOf = (u) => S.md.filter((m) => m.uid === u).sort((a, b) => a.date.localeCompare(b.date));
   const avg = (u) => {
     const m = moodsOf(u).slice(-7);
@@ -360,22 +396,84 @@ export default function App() {
       return;
     }
     const id = 'u' + uid();
-    const newAcc = { id, name: d.name.trim(), email: em, pw: d.pw, role: 'client', avatar: null };
-    const newCl = { id: uid(), uid: id, name: d.name.trim(), email: em, status: 'Pending', reason: d.reason };
     const dateStr = getNowDateString();
+    const newAcc = {
+      id,
+      name: d.name.trim(),
+      email: em,
+      pw: d.pw,
+      role,
+      avatar: null,
+      contact_no: d.contact_no?.trim() || ''
+    };
+
+    let newClList = [...S.cl];
+    let newConsultantList = [...(S.consultants || [])];
+    let notifs = [...S.nf];
+
+    if (role === 'client') {
+      const newCl = {
+        id: uid(),
+        uid: id,
+        name: d.name.trim(),
+        email: em,
+        contact_no: d.contact_no?.trim() || '',
+        dob: d.dob || null,
+        status: 'ACTIVE',
+        reason: d.reason?.trim() || 'General wellness & clinical support'
+      };
+      newClList.push(newCl);
+      notifs.unshift(
+        {
+          id: uid() + 1,
+          to: 'cons',
+          msg: `New client ${d.name} enrolled in the sanctuary.`,
+          date: dateStr,
+          read: false
+        },
+        {
+          id: uid(),
+          to: id,
+          msg: `Welcome to MindCare Sanctuary, ${d.name}. Your profile is active and ready for consultations.`,
+          date: dateStr,
+          read: false
+        }
+      );
+    } else {
+      const newCons = {
+        id: uid(),
+        uid: id,
+        name: d.name.trim(),
+        email: em,
+        contact_no: d.contact_no?.trim() || '',
+        specialization: d.specialization?.trim() || 'General Clinical Practice',
+        qualification: d.qualification?.trim() || 'Licensed Mental Health Clinician'
+      };
+      newConsultantList.push(newCons);
+      notifs.unshift({
+        id: uid(),
+        to: id,
+        msg: `Welcome, ${d.name}. Your clinical practice dashboard is ready.`,
+        date: dateStr,
+        read: false
+      });
+    }
 
     setS((prev) => ({
       ...prev,
       acc: [...prev.acc, newAcc],
-      cl: [...prev.cl, newCl],
-      nf: [
-        { id: uid() + 1, to: 'cons', msg: `${d.name} requested clinical access.`, date: dateStr, read: false },
-        { id: uid(), to: id, msg: 'Welcome to MindCare Sanctuary. Your access request is currently pending clinical review.', date: dateStr, read: false },
-        ...prev.nf
-      ]
+      cl: newClList,
+      consultants: newConsultantList,
+      nf: notifs
     }));
 
-    showToast('Account created. Please sign in.');
+    setU(newAcc);
+    go(role === 'client' ? 'cl-home' : 'c-home');
+    showToast(
+      role === 'consultant'
+        ? `Practitioner account created for ${newAcc.name}`
+        : `Welcome to MindCare, ${newAcc.name}`
+    );
     e.target.reset();
     setIsSignup(false);
   };
@@ -408,15 +506,26 @@ export default function App() {
   const handleSchedule = (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
-    const c = S.cl.find((x) => x.id === +d.cid);
+    const c = S.cl.find((x) => x.id === +d.cid || x.id === d.cid);
     if (!c) return;
     const dateStr = getNowDateString();
-    const newAp = { id: uid(), uid: c.uid, cid: c.id, date: d.date, time: d.time, type: d.type, status: 'Confirmed' };
+    const mode = d.appointment_mode || 'ONLINE';
+    const newAp = {
+      id: uid(),
+      uid: c.uid,
+      cid: c.id,
+      consultant_id: U.id,
+      date: d.date,
+      time: d.time,
+      type: mode === 'ONLINE' ? 'Online Telehealth Consultation' : 'In-Person Sanctuary Consultation',
+      appointment_mode: mode,
+      status: 'CONFIRMED'
+    };
     setS((prev) => ({
       ...prev,
       ap: [...prev.ap, newAp],
       nf: [
-        { id: uid(), to: c.uid, msg: `A consultation was scheduled for ${d.date} at ${d.time}.`, date: dateStr, read: false },
+        { id: uid(), to: c.uid, msg: `A consultation (${mode}) was scheduled for ${d.date} at ${d.time}.`, date: dateStr, read: false },
         ...prev.nf
       ]
     }));
@@ -430,7 +539,7 @@ export default function App() {
     const dateStr = getNowDateString();
     setS((prev) => ({
       ...prev,
-      ap: prev.ap.map((x) => (x.id === id ? { ...x, status: 'Confirmed' } : x)),
+      ap: prev.ap.map((x) => (x.id === id ? { ...x, status: 'CONFIRMED' } : x)),
       nf: [
         { id: uid(), to: a.uid, msg: `Your session on ${a.date} at ${a.time} is now confirmed.`, date: dateStr, read: false },
         ...prev.nf
@@ -445,11 +554,11 @@ export default function App() {
     const dateStr = getNowDateString();
     setS((prev) => ({
       ...prev,
-      ap: prev.ap.filter((x) => x.id !== id),
+      ap: prev.ap.map((x) => (x.id === id ? { ...x, status: 'CANCELLED' } : x)),
       nf: [
         {
           id: uid(),
-          to: U.role === 'client' ? 'cons' : a.uid,
+          to: U.role === 'client' ? (a.consultant_id || 'cons') : a.uid,
           msg: `Session on ${a.date} at ${a.time} was cancelled.`,
           date: dateStr,
           read: false
@@ -546,22 +655,27 @@ export default function App() {
     const d = Object.fromEntries(new FormData(e.target));
     const clientRecord = myC();
     const dateStr = getNowDateString();
+    const mode = d.appointment_mode || 'ONLINE';
+    const targetConsultant = d.consultant_id || (S.consultants?.[0]?.uid || 'cons');
     const newAp = {
       id: uid(),
       uid: U.id,
-      cid: clientRecord?.id,
+      cid: clientRecord?.id || U.id,
+      consultant_id: targetConsultant,
       date: d.date,
       time: d.time,
-      type: d.type,
-      status: 'Requested',
-      pre: { reason: d.reason, goals: d.goals, contact: d.contact }
+      type: mode === 'ONLINE' ? 'Online Telehealth Consultation' : 'In-Person Sanctuary Consultation',
+      appointment_mode: mode,
+      status: 'REQUESTED',
+      reason: d.reason || '',
+      pre: { reason: d.reason, goals: d.goals, contact: d.contact || U.email }
     };
     setS((prev) => ({
       ...prev,
-      ap: [...prev.ap, newAp],
+      ap: [newAp, ...prev.ap],
       nf: [
-        { id: uid() + 1, to: U.id, msg: `Consultation requested for ${d.date} at ${d.time}.`, date: dateStr, read: false },
-        { id: uid(), to: 'cons', msg: `${U.name} requested session on ${d.date} at ${d.time}.`, date: dateStr, read: false },
+        { id: uid() + 1, to: U.id, msg: `Consultation (${mode}) requested for ${d.date} at ${d.time}.`, date: dateStr, read: false },
+        { id: uid(), to: targetConsultant, msg: `${U.name} requested an ${mode} session on ${d.date} at ${d.time}.`, date: dateStr, read: false },
         ...prev.nf
       ]
     }));
@@ -635,7 +749,7 @@ export default function App() {
       ...prev,
       fl: [...prev.fl, ...files],
       nf: [
-        { id: uid(), to: targetUid, msg: `Dr. Demo Consultant uploaded files for your care plan: ${files.map((f) => f.name).join(', ')}.`, date: dateStr, read: false },
+        { id: uid(), to: targetUid, msg: `${U?.name || 'Your Clinician'} uploaded files for your care plan: ${files.map((f) => f.name).join(', ')}.`, date: dateStr, read: false },
         ...prev.nf
       ]
     }));
@@ -874,7 +988,7 @@ export default function App() {
         newNotifications.unshift({
           id: uid(),
           to: targetClientId,
-          msg: `Dr. Demo Consultant replied to your care reflection: "${replyText.slice(0, 45)}${replyText.length > 45 ? '...' : ''}"`,
+          msg: `${U?.name || 'Your Clinician'} replied to your care reflection: "${replyText.slice(0, 45)}${replyText.length > 45 ? '...' : ''}"`,
           date: dateStr,
           read: false
         });
@@ -1053,6 +1167,7 @@ export default function App() {
         return (
           <BookSession
             U={U}
+            S={S}
             T={T}
             handleBookSession={handleBookSession}
           />

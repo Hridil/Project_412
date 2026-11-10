@@ -84,10 +84,18 @@ export default function AuthScreen({
           </div>
 
           <h2 className="font-serif text-3xl font-bold text-[#14302c] dark:text-[#e3efec]">
-            {isSignup ? 'Apply for Clinical Intake' : 'Sign in to Sanctuary'}
+            {isSignup
+              ? role === 'consultant'
+                ? 'Register Practitioner Profile'
+                : 'Apply for Clinical Intake'
+              : 'Sign in to Sanctuary'}
           </h2>
           <p className={`${clsMuted} mt-1 mb-6`}>
-            {isSignup ? 'Create a secure client portal profile.' : 'Access your practice or client wellbeing space.'}
+            {isSignup
+              ? role === 'consultant'
+                ? 'Set up your clinical practice and practitioner credentials.'
+                : 'Create your secure, confidential patient profile.'
+              : `Access your ${role === 'consultant' ? 'clinical practice' : 'healing sanctuary'} workspace.`}
           </p>
 
           {/* Role Switcher Tabs */}
@@ -99,7 +107,9 @@ export default function AuthScreen({
                   ? 'bg-white dark:bg-[#14292a] text-teal-800 dark:text-teal-200 shadow-xs'
                   : 'text-[#5f7571] dark:text-[#8fa8a3]'
               }`}
-              onClick={() => setRole('consultant')}
+              onClick={() => {
+                setRole('consultant');
+              }}
             >
               Consultant
             </button>
@@ -110,7 +120,9 @@ export default function AuthScreen({
                   ? 'bg-white dark:bg-[#14292a] text-teal-800 dark:text-teal-200 shadow-xs'
                   : 'text-[#5f7571] dark:text-[#8fa8a3]'
               }`}
-              onClick={() => setRole('client')}
+              onClick={() => {
+                setRole('client');
+              }}
             >
               Client
             </button>
@@ -124,7 +136,7 @@ export default function AuthScreen({
                   name="email"
                   type="email"
                   className={clsInput}
-                  defaultValue={role === 'consultant' ? 'demo@mindcare.com' : 'jamie@example.com'}
+                  placeholder="Enter your registered email address"
                   required
                 />
               </div>
@@ -134,7 +146,7 @@ export default function AuthScreen({
                   name="pw"
                   type="password"
                   className={clsInput}
-                  defaultValue={role === 'consultant' ? 'MindCare123' : 'Jamie1234'}
+                  placeholder="Enter your password"
                   required
                 />
               </div>
@@ -146,54 +158,114 @@ export default function AuthScreen({
             <form onSubmit={handleSignup} className="space-y-4">
               <div>
                 <label className={clsLabel}>Full Name</label>
-                <input name="name" className={clsInput} placeholder="e.g. Alex Morgan" required />
+                <input
+                  name="name"
+                  className={clsInput}
+                  placeholder={role === 'consultant' ? 'e.g. Dr. Sarah Jenkins' : 'e.g. Alex Morgan'}
+                  required
+                />
               </div>
               <div>
                 <label className={clsLabel}>Email Address</label>
-                <input name="email" type="email" className={clsInput} placeholder="alex@example.com" required />
+                <input
+                  name="email"
+                  type="email"
+                  className={clsInput}
+                  placeholder="Enter contact email address"
+                  required
+                />
               </div>
+              <div>
+                <label className={clsLabel}>Contact Phone Number</label>
+                <input
+                  name="contact_no"
+                  type="tel"
+                  className={clsInput}
+                  placeholder="+1 (555) 000-0000"
+                  required
+                />
+              </div>
+
+              {role === 'client' ? (
+                <>
+                  <div>
+                    <label className={clsLabel}>Date of Birth</label>
+                    <input name="dob" type="date" className={clsInput} required />
+                  </div>
+                  <div>
+                    <label className={clsLabel}>Intake Reflection / Presenting Concern</label>
+                    <textarea
+                      name="reason"
+                      className={clsTextarea}
+                      placeholder="Describe what brings you to care (e.g., stress regulation, trauma recovery, mindfulness CBT)..."
+                      required
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className={clsLabel}>Clinical Specialization</label>
+                    <input
+                      name="specialization"
+                      className={clsInput}
+                      placeholder="e.g. Trauma-Informed CBT, Somatic Experiencing, Mindfulness"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className={clsLabel}>Credentials & Qualifications</label>
+                    <textarea
+                      name="qualification"
+                      className={clsTextarea}
+                      placeholder="e.g. Ph.D. Clinical Psychology, Licensed Marriage & Family Therapist (LMFT)"
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
               <div>
                 <label className={clsLabel}>Choose Password (min 8 characters)</label>
-                <input name="pw" type="password" minLength={8} className={clsInput} required />
-              </div>
-              <div>
-                <label className={clsLabel}>Intake Reflection: What would you like help with?</label>
-                <textarea name="reason" className={clsTextarea} placeholder="Stress, anxiety, mindfulness, work burnout..." />
+                <input
+                  name="pw"
+                  type="password"
+                  minLength={8}
+                  className={clsInput}
+                  placeholder="Create a secure password"
+                  required
+                />
               </div>
               <button className={`${clsBtnPrimary} w-full mt-2 py-2.5`}>
-                Submit Intake Application
+                {role === 'consultant' ? 'Create Practitioner Account' : 'Submit Intake Application'}
               </button>
             </form>
           )}
 
           <div className="mt-6 text-center text-xs text-[#5f7571] dark:text-[#8fa8a3]">
-            {role === 'client' &&
-              (isSignup ? (
-                <p>
-                  Already have an active client account?{' '}
-                  <button type="button" className="text-teal-700 dark:text-teal-400 font-bold hover:underline cursor-pointer" onClick={() => setIsSignup(false)}>
-                    Sign in
-                  </button>
-                </p>
-              ) : (
-                <p>
-                  New patient applying for intake?{' '}
-                  <button type="button" className="text-teal-700 dark:text-teal-400 font-bold hover:underline cursor-pointer" onClick={() => setIsSignup(true)}>
-                    Create client profile
-                  </button>
-                </p>
-              ))}
-          </div>
-
-          {/* Demo Quick Credentials Card */}
-          <div className="mt-8 p-4 rounded-xl bg-[#e3f1ee] dark:bg-[#173b3a] border border-teal-700/20 text-xs text-[#0b5a54] dark:text-teal-300 space-y-1">
-            <div className="font-bold flex items-center gap-1.5 mb-1 text-sm">
-              <span className="material-symbols-outlined text-[16px]">key</span>
-              <span>Demo Credentials Pre-configured</span>
-            </div>
-            <div><b>Consultant:</b> demo@mindcare.com / MindCare123</div>
-            <div><b>Client (Jamie):</b> jamie@example.com / Jamie1234</div>
-            <div><b>New Client (Demo):</b> client@mindcare.com / Client123</div>
+            {isSignup ? (
+              <p>
+                Already have an active {role} account?{' '}
+                <button
+                  type="button"
+                  className="text-teal-700 dark:text-teal-400 font-bold hover:underline cursor-pointer"
+                  onClick={() => setIsSignup(false)}
+                >
+                  Sign in
+                </button>
+              </p>
+            ) : (
+              <p>
+                Need a new {role} profile?{' '}
+                <button
+                  type="button"
+                  className="text-teal-700 dark:text-teal-400 font-bold hover:underline cursor-pointer"
+                  onClick={() => setIsSignup(true)}
+                >
+                  {role === 'consultant' ? 'Register as Consultant' : 'Create Client Profile'}
+                </button>
+              </p>
+            )}
           </div>
         </div>
       </div>

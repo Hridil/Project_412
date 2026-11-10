@@ -43,7 +43,7 @@ export default function ConsultantHome({
   const up = S.ap.filter((a) => a.date >= T()).sort(srt);
   const pn = S.cl.filter((c) => c.status === 'Pending');
   const activeClients = acc();
-  const consImages = S.dashImages?.['cons'] || (S.dashImages?.[U.id] || []);
+  const consImages = S.dashImages?.[U.id] || [];
   const activeConsImg = consImages[0] || null;
   const clientVaultUploads = S.fl.filter((f) => f.uploadedBy === 'client');
 
@@ -54,7 +54,7 @@ export default function ConsultantHome({
           <div className="flex items-center gap-1.5 text-xs text-[#5f7571] dark:text-[#8fa8a3] uppercase tracking-wider mb-1">
             <span>Clinical Dashboard</span>
             <span>•</span>
-            <span>Dr. Demo Practice</span>
+            <span>{U.name ? ${U.name}'s Practice : 'Clinical Practice'}</span>
           </div>
           <h1 className="font-serif text-[28px] font-bold m-0 text-[#14302c] dark:text-[#e3efec]">
             Good day, {U.name.split(' ').slice(-1)[0]}
