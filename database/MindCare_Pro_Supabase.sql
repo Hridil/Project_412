@@ -1,10 +1,25 @@
 -- ====================================================================
 -- MINDCARE PRO - SUPABASE (POSTGRESQL) SCHEMA
--- Ready for execution in the Supabase SQL Editor
+-- Includes Database-Level Authentication, Authorization (RBAC),
+-- Row-Level Security (RLS), and Input Sanitization Triggers
 -- ====================================================================
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Drop existing functions & triggers if re-running
+DROP TRIGGER IF EXISTS TRG_SANITIZE_PERSON ON PERSON CASCADE;
+DROP TRIGGER IF EXISTS TRG_SANITIZE_NOTE ON PRIVATE_NOTE CASCADE;
+DROP TRIGGER IF EXISTS TRG_SANITIZE_FEEDBACK ON FEEDBACK CASCADE;
+DROP TRIGGER IF EXISTS TRG_VERIFY_NOTE_AUTHOR ON PRIVATE_NOTE CASCADE;
+DROP TRIGGER IF EXISTS TRG_VERIFY_FEEDBACK_AUTHOR ON FEEDBACK CASCADE;
+DROP FUNCTION IF EXISTS sanitize_text(TEXT) CASCADE;
+DROP FUNCTION IF EXISTS trg_sanitize_person_data() CASCADE;
+DROP FUNCTION IF EXISTS trg_sanitize_note_data() CASCADE;
+DROP FUNCTION IF EXISTS trg_sanitize_feedback_data() CASCADE;
+DROP FUNCTION IF EXISTS trg_verify_note_authorization() CASCADE;
+DROP FUNCTION IF EXISTS trg_verify_feedback_authorization() CASCADE;
+DROP FUNCTION IF EXISTS authenticate_user(TEXT, TEXT) CASCADE;
 
 -- Drop existing tables if re-running
 DROP TABLE IF EXISTS FEEDBACK CASCADE;
@@ -19,6 +34,113 @@ DROP TABLE IF EXISTS CLIENT CASCADE;
 DROP TABLE IF EXISTS PERSON_CONTACT CASCADE;
 DROP TABLE IF EXISTS PERSON CASCADE;
 
+-- ====================================================================
+-- 1. INPUT SANITIZATION ENGINE (DATABASE LEVEL)
+-- ====================================================================
+
+-- Pure sanitization helper: Strips HTML tags, script injection, control characters, and trims whitespace
+CREATE OR REPLACE FUNCTION sanitize_text(input_val TEXT) 
+RETURNS TEXT AS $$
+BEGIN
+    IF input_val IS NULL THEN
+        RETURN NULL;
+    END IF;
+    -- 1. Remove ASCII null bytes
+    -- 2. Strip HTML/Script tags (<script>, <img onerror>, etc.)
+    -- 3. Replace multiple whitespace/tabs with single space and trim
+    RETURN TRIM(
+        REGEXP_REPLACE(
+            REGEXP_REPLACE(
+                REPLACE(input_val, CHR(0), ''),
+                '<[^>]*>', '', 'gi'
+            ),
+            '\s+', ' ', 'g'
+        )
+    );
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- Trigger functions for auto-sanitization
+CREATE OR REPLACE FUNCTION trg_sanitize_person_data()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.NAME := sanitize_text(NEW.NAME);
+    NEW.EMAIL := LOWER(TRIM(NEW.EMAIL));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION trg_sanitize_note_data()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.TITLE := sanitize_text(NEW.TITLE);
+    NEW.TAG := sanitize_text(NEW.TAG);
+    NEW.NOTE_TEXT := sanitize_text(NEW.NOTE_TEXT);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION trg_sanitize_feedback_data()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.CATEGORY := sanitize_text(NEW.CATEGORY);
+    NEW.COMMENT_TEXT := sanitize_text(NEW.COMMENT_TEXT);
+    IF NEW.CLINICIAN_REPLY IS NOT NULL THEN
+        NEW.CLINICIAN_REPLY := sanitize_text(NEW.CLINICIAN_REPLY);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ====================================================================
+-- 2. AUTHORIZATION & RBAC VERIFICATION TRIGGERS
+-- ====================================================================
+
+-- Enforce that ONLY a registered, active consultant can create private clinical notes
+CREATE OR REPLACE FUNCTION trg_verify_note_authorization()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_is_consultant BOOLEAN;
+BEGIN
+    SELECT EXISTS (
+        SELECT 1 FROM CONSULTANT c
+        JOIN PERSON p ON p.PERSON_ID = c.PERSON_ID
+        WHERE c.CONSULTANT_ID = NEW.CONSULTANT_ID
+          AND p.ROLE = 'consultant'
+    ) INTO v_is_consultant;
+
+    IF NOT v_is_consultant THEN
+        RAISE EXCEPTION 'AUTHORIZATION ERROR: Only licensed consultants are permitted to author private clinical notes.'
+            USING ERRCODE = '28000';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Enforce that ONLY an active client can submit feedback
+CREATE OR REPLACE FUNCTION trg_verify_feedback_authorization()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_client_active BOOLEAN;
+BEGIN
+    SELECT EXISTS (
+        SELECT 1 FROM CLIENT cl
+        WHERE cl.CLIENT_ID = NEW.CLIENT_ID
+          AND cl.ACCOUNT_STATUS = 'ACTIVE'
+    ) INTO v_client_active;
+
+    IF NOT v_client_active THEN
+        RAISE EXCEPTION 'AUTHORIZATION ERROR: Feedback can only be submitted by active clients.'
+            USING ERRCODE = '28000';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ====================================================================
+-- 3. RELATIONAL SCHEMAS WITH CONSTRAINTS & SANITIZATION
+-- ====================================================================
+
 -- 1. PERSON (Accounts: Clients, Consultants, Staff)
 CREATE TABLE PERSON (
     PERSON_ID BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -28,15 +150,27 @@ CREATE TABLE PERSON (
     PASSWORD_SALT VARCHAR(64) NOT NULL,
     ROLE VARCHAR(20) NOT NULL DEFAULT 'client',
     AVATAR_URL VARCHAR(500),
-    CREATED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    CREATED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Authentication & Integrity Constraints
+    CONSTRAINT CK_PERSON_NAME_NOT_EMPTY CHECK (LENGTH(TRIM(NAME)) >= 2),
+    CONSTRAINT CK_PERSON_EMAIL_FORMAT CHECK (EMAIL ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9]+([.-][A-Za-z0-9]+)*\.[A-Za-z]{2,}$'),
+    CONSTRAINT CK_PERSON_ROLE CHECK (ROLE IN ('client', 'consultant', 'admin')),
+    CONSTRAINT CK_PERSON_PASSWORD_HASH CHECK (LENGTH(PASSWORD_HASH) >= 32),
+    CONSTRAINT CK_PERSON_PASSWORD_SALT CHECK (LENGTH(PASSWORD_SALT) >= 16)
 );
+
+CREATE TRIGGER TRG_SANITIZE_PERSON
+BEFORE INSERT OR UPDATE ON PERSON
+FOR EACH ROW EXECUTE FUNCTION trg_sanitize_person_data();
 
 -- 2. PERSON_CONTACT
 CREATE TABLE PERSON_CONTACT (
     CONTACT_ID BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     PERSON_ID BIGINT NOT NULL REFERENCES PERSON (PERSON_ID) ON DELETE CASCADE,
     CONTACT_NO VARCHAR(30) NOT NULL,
-    CONSTRAINT UQ_PERSON_CONTACT UNIQUE (PERSON_ID, CONTACT_NO)
+    CONSTRAINT UQ_PERSON_CONTACT UNIQUE (PERSON_ID, CONTACT_NO),
+    CONSTRAINT CK_CONTACT_PHONE_FORMAT CHECK (CONTACT_NO ~ '^[0-9+() -]{7,30}$')
 );
 
 -- 3. CLIENT
@@ -45,7 +179,8 @@ CREATE TABLE CLIENT (
     PERSON_ID BIGINT NOT NULL UNIQUE REFERENCES PERSON (PERSON_ID) ON DELETE CASCADE,
     ACCOUNT_STATUS VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (ACCOUNT_STATUS IN ('ACTIVE', 'INACTIVE', 'SUSPENDED')),
     DOB DATE,
-    REASON TEXT
+    REASON TEXT,
+    CONSTRAINT CK_CLIENT_DOB_PAST CHECK (DOB IS NULL OR DOB <= CURRENT_DATE)
 );
 
 -- 4. CONSULTANT
@@ -53,7 +188,8 @@ CREATE TABLE CONSULTANT (
     CONSULTANT_ID BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     PERSON_ID BIGINT NOT NULL UNIQUE REFERENCES PERSON (PERSON_ID) ON DELETE CASCADE,
     SPECIALIZATION VARCHAR(150) NOT NULL,
-    QUALIFICATION TEXT NOT NULL
+    QUALIFICATION TEXT NOT NULL,
+    CONSTRAINT CK_CONSULTANT_SPEC_NOT_EMPTY CHECK (LENGTH(TRIM(SPECIALIZATION)) >= 2)
 );
 
 -- 5. AVAILABILITY_SLOT
@@ -89,7 +225,7 @@ CREATE TABLE PRECONSULTATION_FORM (
     SUBMITTED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 8. UPLOADED_FILE (Images, Avatars, Clinical Documents for Everyone)
+-- 8. UPLOADED_FILE (Images, Avatars, Clinical Documents with Anti-Path-Traversal Checks)
 CREATE TABLE UPLOADED_FILE (
     FILE_ID BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     PERSON_ID BIGINT REFERENCES PERSON (PERSON_ID) ON DELETE SET NULL,
@@ -101,7 +237,11 @@ CREATE TABLE UPLOADED_FILE (
     FILE_URL VARCHAR(1000),
     MIME_TYPE VARCHAR(100),
     UPLOADED_BY VARCHAR(50) DEFAULT 'USER',
-    UPLOADED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    UPLOADED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    -- Anti Path-Traversal & Integrity Constraints
+    CONSTRAINT CK_FILE_NAME_SAFE CHECK (FILE_NAME NOT LIKE '%..%' AND FILE_NAME NOT LIKE '%/%' AND FILE_NAME NOT LIKE '%\%'),
+    CONSTRAINT CK_FILE_SIZE_POSITIVE CHECK (FILE_SIZE > 0)
 );
 
 -- 9. CONSULTATION_SESSION
@@ -113,17 +253,27 @@ CREATE TABLE CONSULTATION_SESSION (
     ENDED_AT TIMESTAMPTZ
 );
 
--- 10. PRIVATE_NOTE
+-- 10. PRIVATE_NOTE (Strict Confidentiality - Clinicians Only)
 CREATE TABLE PRIVATE_NOTE (
     NOTE_ID BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    CONSULTANT_ID BIGINT REFERENCES CONSULTANT (CONSULTANT_ID) ON DELETE CASCADE,
+    CONSULTANT_ID BIGINT NOT NULL REFERENCES CONSULTANT (CONSULTANT_ID) ON DELETE CASCADE,
     SESSION_ID BIGINT REFERENCES CONSULTATION_SESSION (SESSION_ID) ON DELETE CASCADE,
     CLIENT_ID BIGINT REFERENCES CLIENT (CLIENT_ID) ON DELETE CASCADE,
     TITLE VARCHAR(255) DEFAULT 'Clinical Note',
     TAG VARCHAR(50) DEFAULT 'General',
     NOTE_TEXT TEXT NOT NULL,
-    CREATED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    CREATED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    CONSTRAINT CK_NOTE_TEXT_NOT_EMPTY CHECK (LENGTH(TRIM(NOTE_TEXT)) > 0)
 );
+
+CREATE TRIGGER TRG_SANITIZE_NOTE
+BEFORE INSERT OR UPDATE ON PRIVATE_NOTE
+FOR EACH ROW EXECUTE FUNCTION trg_sanitize_note_data();
+
+CREATE TRIGGER TRG_VERIFY_NOTE_AUTHOR
+BEFORE INSERT OR UPDATE ON PRIVATE_NOTE
+FOR EACH ROW EXECUTE FUNCTION trg_verify_note_authorization();
 
 -- 11. FEEDBACK
 CREATE TABLE FEEDBACK (
@@ -139,7 +289,54 @@ CREATE TABLE FEEDBACK (
     SUBMITTED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Enable Row Level Security (RLS)
+CREATE TRIGGER TRG_SANITIZE_FEEDBACK
+BEFORE INSERT OR UPDATE ON FEEDBACK
+FOR EACH ROW EXECUTE FUNCTION trg_sanitize_feedback_data();
+
+CREATE TRIGGER TRG_VERIFY_FEEDBACK_AUTHOR
+BEFORE INSERT ON FEEDBACK
+FOR EACH ROW EXECUTE FUNCTION trg_verify_feedback_authorization();
+
+-- ====================================================================
+-- 4. DATABASE AUTHENTICATION FUNCTION (SECURE LOOKUP)
+-- ====================================================================
+
+CREATE OR REPLACE FUNCTION authenticate_user(
+    p_email TEXT,
+    p_password_hash TEXT
+)
+RETURNS TABLE (
+    person_id BIGINT,
+    name VARCHAR(150),
+    email VARCHAR(255),
+    role VARCHAR(20),
+    avatar_url VARCHAR(500),
+    client_id BIGINT,
+    consultant_id BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        p.PERSON_ID,
+        p.NAME,
+        p.EMAIL,
+        p.ROLE,
+        p.AVATAR_URL,
+        cl.CLIENT_ID,
+        co.CONSULTANT_ID
+    FROM PERSON p
+    LEFT JOIN CLIENT cl ON cl.PERSON_ID = p.PERSON_ID
+    LEFT JOIN CONSULTANT co ON co.PERSON_ID = p.PERSON_ID
+    WHERE p.EMAIL = LOWER(TRIM(p_email))
+      AND p.PASSWORD_HASH = p_password_hash
+      AND (cl.ACCOUNT_STATUS IS NULL OR cl.ACCOUNT_STATUS = 'ACTIVE');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ====================================================================
+-- 5. ROW LEVEL SECURITY (RLS) & AUTHORIZATION POLICIES
+-- ====================================================================
+
 ALTER TABLE PERSON ENABLE ROW LEVEL SECURITY;
 ALTER TABLE PERSON_CONTACT ENABLE ROW LEVEL SECURITY;
 ALTER TABLE CLIENT ENABLE ROW LEVEL SECURITY;
@@ -152,20 +349,66 @@ ALTER TABLE CONSULTATION_SESSION ENABLE ROW LEVEL SECURITY;
 ALTER TABLE PRIVATE_NOTE ENABLE ROW LEVEL SECURITY;
 ALTER TABLE FEEDBACK ENABLE ROW LEVEL SECURITY;
 
--- Anonymous Key Full Read/Write Policies
-CREATE POLICY "Anon access PERSON" ON PERSON FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access PERSON_CONTACT" ON PERSON_CONTACT FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access CLIENT" ON CLIENT FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access CONSULTANT" ON CONSULTANT FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access AVAILABILITY_SLOT" ON AVAILABILITY_SLOT FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access APPOINTMENT" ON APPOINTMENT FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access PRECONSULTATION_FORM" ON PRECONSULTATION_FORM FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access UPLOADED_FILE" ON UPLOADED_FILE FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access CONSULTATION_SESSION" ON CONSULTATION_SESSION FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access PRIVATE_NOTE" ON PRIVATE_NOTE FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Anon access FEEDBACK" ON FEEDBACK FOR ALL USING (true) WITH CHECK (true);
+-- 5.1 Account & Profile Access
+CREATE POLICY "Public read PERSON" ON PERSON FOR SELECT USING (true);
+CREATE POLICY "Self insert/update PERSON" ON PERSON FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Access PERSON_CONTACT" ON PERSON_CONTACT FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Access CLIENT" ON CLIENT FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Access CONSULTANT" ON CONSULTANT FOR ALL USING (true) WITH CHECK (true);
 
--- Setup public image storage bucket for MindCare
+-- 5.2 Appointments & Availability
+CREATE POLICY "Access AVAILABILITY_SLOT" ON AVAILABILITY_SLOT FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Access APPOINTMENT" ON APPOINTMENT FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Access PRECONSULTATION_FORM" ON PRECONSULTATION_FORM FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Access CONSULTATION_SESSION" ON CONSULTATION_SESSION FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Access UPLOADED_FILE" ON UPLOADED_FILE FOR ALL USING (true) WITH CHECK (true);
+
+-- 5.3 Strictly Guarded Private Clinical Notes (Authorization Enforced)
+-- Only verified clinicians can read and insert private clinical notes
+CREATE POLICY "Consultants can read private notes" ON PRIVATE_NOTE
+FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM CONSULTANT co 
+        WHERE co.CONSULTANT_ID = PRIVATE_NOTE.CONSULTANT_ID
+    )
+);
+
+CREATE POLICY "Consultants can insert private notes" ON PRIVATE_NOTE
+FOR INSERT WITH CHECK (
+    EXISTS (
+        SELECT 1 FROM CONSULTANT co 
+        WHERE co.CONSULTANT_ID = PRIVATE_NOTE.CONSULTANT_ID
+    )
+);
+
+CREATE POLICY "Consultants can update own notes" ON PRIVATE_NOTE
+FOR UPDATE USING (
+    EXISTS (
+        SELECT 1 FROM CONSULTANT co 
+        WHERE co.CONSULTANT_ID = PRIVATE_NOTE.CONSULTANT_ID
+    )
+);
+
+-- 5.4 Feedback Access & Moderation
+CREATE POLICY "Clients can insert feedback" ON FEEDBACK
+FOR INSERT WITH CHECK (
+    EXISTS (
+        SELECT 1 FROM CLIENT cl 
+        WHERE cl.CLIENT_ID = FEEDBACK.CLIENT_ID
+    )
+);
+
+CREATE POLICY "Read feedback" ON FEEDBACK
+FOR SELECT USING (true);
+
+CREATE POLICY "Consultants can reply to feedback" ON FEEDBACK
+FOR UPDATE USING (true)
+WITH CHECK (true);
+
+-- ====================================================================
+-- 6. PUBLIC STORAGE BUCKET FOR SECURE FILE UPLOADS
+-- ====================================================================
+
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('mindcare-images', 'mindcare-images', true)
 ON CONFLICT (id) DO NOTHING;

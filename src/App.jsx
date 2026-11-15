@@ -459,6 +459,14 @@ export default function App() {
         return;
       } catch (err) {
         console.warn('Supabase authentication check:', err.message);
+        if (
+          err.message.includes('Authorization Error') ||
+          err.message.includes('Invalid password') ||
+          err.message.includes('Invalid email format')
+        ) {
+          showToast(err.message);
+          return;
+        }
       }
     }
 

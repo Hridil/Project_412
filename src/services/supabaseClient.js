@@ -15,6 +15,63 @@ export const isSupabaseConfigured = () => {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes("your-project"));
 };
 
+// ====================================================================
+// INPUT SANITIZATION & SECURITY VALIDATION
+// ====================================================================
+
+// Strip HTML tags, script injection, control characters, and trim whitespace
+export const sanitizeText = (str) => {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/\0/g, '')
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .trim();
+};
+
+// Validate RFC 5322 email regex and normalize
+export const sanitizeEmail = (email) => {
+  if (typeof email !== 'string') return '';
+  const cleaned = email.trim().toLowerCase();
+  const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9]+([.-][A-Za-z0-9]+)*\.[A-Za-z]{2,}$/;
+  if (!emailRegex.test(cleaned)) {
+    throw new Error(`Invalid email format: "${email}". Must be a valid email address.`);
+  }
+  return cleaned;
+};
+
+// Prevent path traversal attacks and dangerous file characters
+export const sanitizeFileName = (fileName) => {
+  if (typeof fileName !== 'string') return 'document';
+  return fileName
+    .replace(/(\.\.[/\\]|[/\\])/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .slice(0, 255);
+};
+
+// Validate phone numbers against injection
+export const sanitizePhone = (phone) => {
+  if (!phone || typeof phone !== 'string') return '';
+  const cleaned = phone.trim();
+  const phoneRegex = /^[0-9+() -]{7,30}$/;
+  if (!phoneRegex.test(cleaned)) {
+    throw new Error(`Invalid phone number format: "${phone}". Only digits, +, -, and () are allowed.`);
+  }
+  return cleaned;
+};
+
+// Role-Based Authorization Guard
+export const checkAuthorization = (currentUser, allowedRoles, action = 'this action') => {
+  if (!currentUser) {
+    throw new Error(`Authentication Required: Please sign in to perform ${action}.`);
+  }
+  const role = currentUser.role;
+  if (!allowedRoles.includes(role)) {
+    throw new Error(`Authorization Denied: Role "${role}" is not permitted to perform ${action}. Permitted roles: [${allowedRoles.join(', ')}].`);
+  }
+  return true;
+};
+
 // Cryptographic Salt & Hash in Browser Web Crypto API (PBKDF2 SHA-256)
 export const generateSalt = () => {
   const arr = new Uint8Array(16);
@@ -83,7 +140,7 @@ export const uploadImageToSupabase = async (file, personId = null, purpose = "ge
     };
   }
 
-  const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+  const cleanName = sanitizeFileName(file.name);
   const uniquePath = `${Date.now()}_${cleanName}`;
   const storageUrl = `${SUPABASE_URL}/storage/v1/object/mindcare-images/${uniquePath}`;
 
@@ -143,7 +200,7 @@ export const uploadImageToSupabase = async (file, personId = null, purpose = "ge
 
 // Supabase API Operations
 export const supabaseApi = {
-  // Auth: Register with Salted Password and create linked Client or Consultant record
+  // Auth: Register with Sanitized Input & Salted Password
   register: async ({
     name,
     email,
@@ -155,6 +212,27 @@ export const supabaseApi = {
     specialization = "",
     qualification = ""
   }) => {
+    // 0. Input Sanitization & Authorization Validations
+    const cleanName = sanitizeText(name);
+    if (!cleanName || cleanName.length < 2) {
+      throw new Error("Validation Error: Name must be at least 2 characters.");
+    }
+
+    const cleanEmail = sanitizeEmail(email);
+
+    if (!['client', 'consultant'].includes(role)) {
+      throw new Error(`Validation Error: Unauthorized role "${role}". Allowed roles: client, consultant.`);
+    }
+
+    if (!password || password.length < 6) {
+      throw new Error("Validation Error: Password must be at least 6 characters.");
+    }
+
+    const cleanPhone = phone ? sanitizePhone(phone) : "";
+    const cleanReason = sanitizeText(reason);
+    const cleanSpecialization = sanitizeText(specialization);
+    const cleanQualification = sanitizeText(qualification);
+
     const salt = generateSalt();
     const hash = await hashPassword(password, salt);
 
@@ -162,8 +240,8 @@ export const supabaseApi = {
     const [person] = await supabaseFetch("person", {
       method: "POST",
       body: JSON.stringify({
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
+        name: cleanName,
+        email: cleanEmail,
         password_hash: hash,
         password_salt: salt,
         role
@@ -171,13 +249,13 @@ export const supabaseApi = {
     });
 
     // 2. Insert into person_contact table if phone is provided
-    if (phone && phone.trim()) {
+    if (cleanPhone) {
       try {
         await supabaseFetch("person_contact", {
           method: "POST",
           body: JSON.stringify({
             person_id: person.person_id,
-            contact_no: phone.trim()
+            contact_no: cleanPhone
           })
         });
       } catch (e) {
@@ -194,8 +272,8 @@ export const supabaseApi = {
         method: "POST",
         body: JSON.stringify({
           person_id: person.person_id,
-          specialization: specialization.trim() || "Trauma-Informed Clinical Practice",
-          qualification: qualification.trim() || "Licensed Mental Health Clinician"
+          specialization: cleanSpecialization || "Trauma-Informed Clinical Practice",
+          qualification: cleanQualification || "Licensed Mental Health Clinician"
         })
       });
       consultantId = cons?.consultant_id;
@@ -206,7 +284,7 @@ export const supabaseApi = {
           person_id: person.person_id,
           account_status: "ACTIVE",
           dob: dob || null,
-          reason: reason.trim() || "General wellness & clinical support"
+          reason: cleanReason || "General wellness & clinical support"
         })
       });
       clientId = cli?.client_id;
@@ -221,14 +299,15 @@ export const supabaseApi = {
       email: person.email,
       role: person.role,
       avatar: person.avatar_url || null,
-      contact_no: phone.trim()
+      contact_no: cleanPhone
     };
   },
 
-  // Auth: Login with Salted Password Check against Supabase
+  // Auth: Login with Sanitized Email & Salted Password Check against Supabase
   login: async (email, password, expectedRole = null) => {
-    const cleanEmail = encodeURIComponent(email.trim().toLowerCase());
-    const query = `person?email=eq.${cleanEmail}&select=*,client(*),consultant(*),person_contact(*)`;
+    const cleanEmail = sanitizeEmail(email);
+    const encodedEmail = encodeURIComponent(cleanEmail);
+    const query = `person?email=eq.${encodedEmail}&select=*,client(*),consultant(*),person_contact(*)`;
     const users = await supabaseFetch(query);
 
     if (!users || users.length === 0) {
@@ -237,8 +316,9 @@ export const supabaseApi = {
 
     const user = users[0];
 
+    // Authorization: Check Role Access
     if (expectedRole && user.role !== expectedRole) {
-      throw new Error(`Account exists but is registered as a ${user.role}, not a ${expectedRole}.`);
+      throw new Error(`Authorization Error: Account is registered as a ${user.role}, not authorized as a ${expectedRole}.`);
     }
 
     const computedHash = await hashPassword(password, user.password_salt);
@@ -297,34 +377,75 @@ export const supabaseApi = {
     return supabaseFetch("appointment?select=*,client(client_id,person(name,email)),consultant(consultant_id,person(name,email))&order=appointment_date.desc");
   },
 
-  createAppointment: async (appointmentData) => {
+  createAppointment: async (appointmentData, currentUser = null) => {
+    if (currentUser) {
+      checkAuthorization(currentUser, ['client', 'consultant', 'admin'], 'book or schedule an appointment');
+    }
+    const cleanReason = sanitizeText(appointmentData.reason || '');
     return supabaseFetch("appointment", {
       method: "POST",
-      body: JSON.stringify(appointmentData)
+      body: JSON.stringify({
+        ...appointmentData,
+        reason: cleanReason
+      })
     });
   },
 
-  // Feedback
+  // Feedback with Authorization & Input Sanitization
   getFeedback: async () => {
     return supabaseFetch("feedback?select=*,client(client_id,person(name))&order=submitted_at.desc");
   },
 
-  createFeedback: async (feedbackData) => {
+  createFeedback: async (feedbackData, currentUser = null) => {
+    if (currentUser) {
+      checkAuthorization(currentUser, ['client'], 'submit session feedback');
+    }
+    const cleanComment = sanitizeText(feedbackData.comment_text || '');
+    const cleanCategory = sanitizeText(feedbackData.category || 'Session Experience');
+    const rating = Number(feedbackData.rating);
+    if (!rating || rating < 1 || rating > 5) {
+      throw new Error("Validation Error: Feedback rating must be an integer between 1 and 5.");
+    }
+
     return supabaseFetch("feedback", {
       method: "POST",
-      body: JSON.stringify(feedbackData)
+      body: JSON.stringify({
+        ...feedbackData,
+        category: cleanCategory,
+        comment_text: cleanComment,
+        rating
+      })
     });
   },
 
-  // Notes
-  getNotes: async () => {
+  // Private Clinical Notes with Strict Clinician Authorization & Sanitization
+  getNotes: async (currentUser = null) => {
+    if (currentUser) {
+      checkAuthorization(currentUser, ['consultant', 'admin'], 'access private clinical notes');
+    }
     return supabaseFetch("private_note?select=*&order=created_at.desc");
   },
 
-  createNote: async (noteData) => {
+  createNote: async (noteData, currentUser = null) => {
+    if (currentUser) {
+      checkAuthorization(currentUser, ['consultant', 'admin'], 'author private clinical notes');
+    }
+    const cleanTitle = sanitizeText(noteData.title || 'Clinical Note');
+    const cleanTag = sanitizeText(noteData.tag || 'General');
+    const cleanText = sanitizeText(noteData.note_text || '');
+
+    if (!cleanText || cleanText.length < 2) {
+      throw new Error("Validation Error: Clinical note text cannot be empty.");
+    }
+
     return supabaseFetch("private_note", {
       method: "POST",
-      body: JSON.stringify(noteData)
+      body: JSON.stringify({
+        ...noteData,
+        title: cleanTitle,
+        tag: cleanTag,
+        note_text: cleanText
+      })
     });
   },
 
