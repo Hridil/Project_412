@@ -111,34 +111,43 @@ export const canConsultantHandleClient = (consultant, client, appointments = [],
   const consId = consultant.id;
   const consUid = consultant.uid || consultant.id;
   const consDbId = consultant.consultant_id;
+  const consPersonId = consultant.person_id;
+
+  const matchesCons = (targetId) => {
+    if (!targetId) return false;
+    return (
+      targetId === consId ||
+      targetId === consUid ||
+      (consDbId && (targetId === consDbId || targetId === ('u' + consDbId) || +targetId === +consDbId)) ||
+      (consPersonId && (targetId === consPersonId || targetId === ('u' + consPersonId) || +targetId === +consPersonId))
+    );
+  };
 
   if (
-    (client.assignedConsultantId &&
-      (client.assignedConsultantId === consId || client.assignedConsultantId === consUid || (consDbId && client.assignedConsultantId === consDbId))) ||
-    (client.consultant_id &&
-      (client.consultant_id === consId || client.consultant_id === consUid || (consDbId && client.consultant_id === consDbId)))
+    matchesCons(client.assignedConsultantId) ||
+    matchesCons(client.consultant_id)
   ) {
     return true;
   }
 
   const hasAp = appointments.some(
     (a) =>
-      (a.cid === client.id || a.uid === client.uid) &&
-      (a.consultant_id === consId || a.consultant_id === consUid || (consDbId && a.consultant_id === consDbId))
+      (a.cid === client.id || a.uid === client.uid || a.client_id === client.id || (client.person_id && a.uid === ('u' + client.person_id))) &&
+      matchesCons(a.consultant_id)
   );
   if (hasAp) return true;
 
   const hasNt = notes.some(
     (n) =>
-      n.cid === client.id &&
-      (n.consultant_id === consId || n.consultant_id === consUid || (consDbId && n.consultant_id === consDbId))
+      (n.cid === client.id || n.client_id === client.id) &&
+      matchesCons(n.consultant_id)
   );
   if (hasNt) return true;
 
   const hasPl = plans.some(
     (p) =>
       (p.cid === client.id || p.uid === client.uid) &&
-      (p.consultant_id === consId || p.consultant_id === consUid || (consDbId && p.consultant_id === consDbId))
+      matchesCons(p.consultant_id)
   );
   if (hasPl) return true;
 
@@ -203,10 +212,32 @@ export const supabaseFetch = async (endpoint, options = {}) => {
 };
 
 // Supabase Storage & Database Image/Picture Upload
-export const uploadImageToSupabase = async (file, personId = null, purpose = "general", fallbackDataUrl = null) => {
+export const uploadImageToSupabase = async (
+  file,
+  personId = null,
+  purposeOrOptions = "general",
+  fallbackDataUrl = null,
+  extraClientId = null,
+  extraUploadedBy = null
+) => {
+  let purpose = "general";
+  let clientId = extraClientId || null;
+  let uploadedBy = extraUploadedBy || "USER";
+  let finalUrl = fallbackDataUrl || null;
+
+  if (typeof purposeOrOptions === "object" && purposeOrOptions !== null) {
+    purpose = purposeOrOptions.purpose || purpose;
+    clientId = purposeOrOptions.clientId !== undefined ? purposeOrOptions.clientId : clientId;
+    uploadedBy = purposeOrOptions.uploadedBy || uploadedBy;
+    if (purposeOrOptions.fallbackDataUrl) {
+      finalUrl = purposeOrOptions.fallbackDataUrl;
+    }
+  } else if (typeof purposeOrOptions === "string") {
+    purpose = purposeOrOptions;
+  }
+
   const cleanName = sanitizeFileName(file?.name || (purpose === 'avatar' ? 'avatar.jpg' : 'image.jpg'));
   const uniquePath = `${Date.now()}_${cleanName}`;
-  let finalUrl = fallbackDataUrl || null;
 
   if (isSupabaseConfigured() && file) {
     try {
@@ -237,21 +268,29 @@ export const uploadImageToSupabase = async (file, personId = null, purpose = "ge
     finalUrl = fallbackDataUrl || (file ? URL.createObjectURL(file) : '');
   }
 
+  let insertedRecord = null;
+
   // 1. Record uploaded picture in database table `uploaded_file`
   if (isSupabaseConfigured()) {
     try {
-      await supabaseFetch("uploaded_file", {
+      const payload = {
+        file_name: cleanName,
+        file_size: file?.size || (finalUrl ? finalUrl.length : 0),
+        file_path: uniquePath,
+        file_url: finalUrl,
+        mime_type: file?.type || "image/jpeg",
+        uploaded_by: (uploadedBy || "USER").toUpperCase()
+      };
+      if (personId) payload.person_id = personId;
+      if (clientId) payload.client_id = clientId;
+
+      const rows = await supabaseFetch("uploaded_file", {
         method: "POST",
-        body: JSON.stringify({
-          person_id: personId,
-          file_name: cleanName,
-          file_size: file?.size || (finalUrl ? finalUrl.length : 0),
-          file_path: uniquePath,
-          file_url: finalUrl,
-          mime_type: file?.type || "image/jpeg",
-          uploaded_by: "USER"
-        })
+        body: JSON.stringify(payload)
       });
+      if (Array.isArray(rows) && rows.length > 0) {
+        insertedRecord = rows[0];
+      }
     } catch (e) {
       console.warn("Could not insert uploaded_file row in database:", e);
     }
@@ -270,9 +309,12 @@ export const uploadImageToSupabase = async (file, personId = null, purpose = "ge
   }
 
   return {
+    file_id: insertedRecord?.file_id || null,
     file_url: finalUrl,
     file_name: cleanName,
-    file_size: file?.size || (finalUrl ? finalUrl.length : 0)
+    file_size: file?.size || (finalUrl ? finalUrl.length : 0),
+    mime_type: file?.type || "image/jpeg",
+    uploaded_by: uploadedBy
   };
 };
 
@@ -417,21 +459,46 @@ export const supabaseApi = {
     };
   },
 
-  // Fetch all Clients from Supabase
+  // Fetch all Clients from Supabase with Caseload & Status Resolution
   getClients: async () => {
-    const data = await supabaseFetch("client?select=*,person(*,person_contact(*))&order=client_id.asc");
-    return (data || []).map((c) => ({
-      id: c.client_id,
-      uid: 'u' + c.person_id,
-      person_id: c.person_id,
-      name: c.person?.name || "Client",
-      email: c.person?.email || "",
-      contact_no: c.person?.person_contact?.[0]?.contact_no || "",
-      dob: c.dob || null,
-      status: c.account_status || "ACTIVE",
-      reason: c.reason || "General clinical support",
-      avatar: c.person?.avatar_url || null
-    }));
+    const [clientsData, appointmentsData] = await Promise.all([
+      supabaseFetch("client?select=*,person(*,person_contact(*))&order=client_id.asc"),
+      supabaseFetch("appointment?select=client_id,consultant_id,status,consultant(person_id)&order=appointment_id.desc").catch(() => [])
+    ]);
+
+    return (clientsData || []).map((c) => {
+      // Find latest appointment for this client to determine assigned clinician & active status
+      const ap = (appointmentsData || []).find((a) => a.client_id === c.client_id);
+      const assignedConsUid = ap?.consultant?.person_id
+        ? 'u' + ap.consultant.person_id
+        : ap?.consultant_id
+        ? 'u' + ap.consultant_id
+        : null;
+
+      let resolvedStatus = 'ACTIVE';
+      if (c.account_status === 'SUSPENDED') {
+        resolvedStatus = 'SUSPENDED';
+      } else if (c.account_status === 'INACTIVE' || ap?.status === 'REQUESTED') {
+        resolvedStatus = 'Pending';
+      } else if (c.account_status === 'ACTIVE' || ap?.status === 'CONFIRMED' || ap?.status === 'COMPLETED') {
+        resolvedStatus = 'Accepted';
+      }
+
+      return {
+        id: c.client_id,
+        uid: 'u' + c.person_id,
+        person_id: c.person_id,
+        name: c.person?.name || "Client",
+        email: c.person?.email || "",
+        contact_no: c.person?.person_contact?.[0]?.contact_no || "",
+        dob: c.dob || null,
+        status: resolvedStatus,
+        reason: c.reason || "General clinical support",
+        avatar: c.person?.avatar_url || null,
+        assignedConsultantId: assignedConsUid,
+        consultant_id: ap?.consultant_id || null
+      };
+    });
   },
 
   // Fetch all Consultants from Supabase
@@ -450,9 +517,148 @@ export const supabaseApi = {
     }));
   },
 
+  // Fetch all Vault & Overview Files from Supabase
+  getFiles: async () => {
+    const data = await supabaseFetch(
+      "uploaded_file?select=*,person(person_id,name,role),client(client_id,person_id,person(name))&order=uploaded_at.desc"
+    );
+    return (data || []).map((f) => {
+      const resolvedClientId = f.client_id || f.client?.client_id || null;
+      const clientPersonId = f.client?.person_id || (f.uploaded_by !== 'CONSULTANT' ? f.person_id : null);
+      const targetUid = clientPersonId
+        ? 'u' + clientPersonId
+        : resolvedClientId
+        ? 'u' + resolvedClientId
+        : f.person_id
+        ? 'u' + f.person_id
+        : 'u1';
+
+      return {
+        id: f.file_id,
+        uid: targetUid,
+        cid: resolvedClientId,
+        client_id: resolvedClientId,
+        person_id: f.person_id,
+        consultant_id: f.uploaded_by === 'CONSULTANT' && f.person_id ? 'u' + f.person_id : null,
+        name: f.file_name,
+        size: f.file_size,
+        type: f.mime_type || 'application/octet-stream',
+        dataUrl: f.file_url,
+        date: (f.uploaded_at || '').split('T')[0] || new Date().toISOString().split('T')[0],
+        uploadedBy: (f.uploaded_by || 'CLIENT').toLowerCase()
+      };
+    });
+  },
+
+  // Update Client Acceptance / Triage Decision in Supabase
+  updateClientDecision: async (clientId, status, consultantId = null) => {
+    const dbStatus = (status === 'Accepted' || status === 'ACTIVE')
+      ? 'ACTIVE'
+      : (status === 'Rejected' || status === 'SUSPENDED')
+      ? 'SUSPENDED'
+      : 'INACTIVE';
+
+    // 1. Update account status in client table
+    await supabaseFetch(`client?client_id=eq.${clientId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ account_status: dbStatus })
+    });
+
+    // 2. Synchronize appointment record
+    try {
+      const existingApts = await supabaseFetch(`appointment?client_id=eq.${clientId}&order=appointment_id.desc&limit=1`);
+      if (existingApts && existingApts.length > 0) {
+        const apt = existingApts[0];
+        const newAptStatus = (dbStatus === 'ACTIVE') ? 'CONFIRMED' : (dbStatus === 'SUSPENDED') ? 'CANCELLED' : 'REQUESTED';
+        const aptPatch = { status: newAptStatus };
+        if (consultantId && dbStatus === 'ACTIVE') {
+          aptPatch.consultant_id = consultantId;
+        }
+        await supabaseFetch(`appointment?appointment_id=eq.${apt.appointment_id}`, {
+          method: "PATCH",
+          body: JSON.stringify(aptPatch)
+        });
+      } else if (dbStatus === 'ACTIVE' && consultantId) {
+        // Create confirmed consultation session to establish persistent caseload relationship
+        const todayStr = new Date().toISOString().split('T')[0];
+        await supabaseFetch("appointment", {
+          method: "POST",
+          body: JSON.stringify({
+            client_id: clientId,
+            consultant_id: consultantId,
+            status: 'CONFIRMED',
+            appointment_mode: 'ONLINE',
+            appointment_date: todayStr,
+            appointment_time: '10:00:00',
+            reason: 'Caseload Consultation Intake'
+          })
+        });
+      }
+    } catch (e) {
+      console.warn("Could not synchronize appointment on client decision:", e);
+    }
+  },
+
+  // Assign Client to Consultant Caseload in Supabase
+  assignClientToConsultant: async (clientId, consultantId) => {
+    // 1. Mark client as ACTIVE
+    await supabaseFetch(`client?client_id=eq.${clientId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ account_status: 'ACTIVE' })
+    });
+
+    // 2. Update or create confirmed appointment linking client and consultant
+    try {
+      const existingApts = await supabaseFetch(`appointment?client_id=eq.${clientId}&order=appointment_id.desc&limit=1`);
+      if (existingApts && existingApts.length > 0) {
+        const apt = existingApts[0];
+        const aptPatch = { status: 'CONFIRMED' };
+        if (consultantId) aptPatch.consultant_id = consultantId;
+        await supabaseFetch(`appointment?appointment_id=eq.${apt.appointment_id}`, {
+          method: "PATCH",
+          body: JSON.stringify(aptPatch)
+        });
+      } else if (consultantId) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        await supabaseFetch("appointment", {
+          method: "POST",
+          body: JSON.stringify({
+            client_id: clientId,
+            consultant_id: consultantId,
+            status: 'CONFIRMED',
+            appointment_mode: 'ONLINE',
+            appointment_date: todayStr,
+            appointment_time: '10:00:00',
+            reason: 'Caseload Assignment'
+          })
+        });
+      }
+    } catch (e) {
+      console.warn("Could not link appointment on caseload assignment:", e);
+    }
+  },
+
   // Fetch all Appointments
   getAppointments: async () => {
-    return supabaseFetch("appointment?select=*,client(client_id,person(name,email)),consultant(consultant_id,person(name,email))&order=appointment_date.desc");
+    const data = await supabaseFetch(
+      "appointment?select=*,client(client_id,person_id,person(name,email)),consultant(consultant_id,person_id,person(name,email))&order=appointment_date.desc"
+    );
+    return (data || []).map((a) => ({
+      id: a.appointment_id,
+      uid: a.client?.person_id ? 'u' + a.client.person_id : 'u' + a.client_id,
+      cid: a.client_id,
+      consultant_id: a.consultant?.person_id
+        ? 'u' + a.consultant.person_id
+        : a.consultant_id
+        ? 'u' + a.consultant_id
+        : 'cons',
+      date: a.appointment_date,
+      time: a.appointment_time,
+      type: a.appointment_mode === 'ONLINE' ? 'Online Telehealth Consultation' : 'In-Person Sanctuary Consultation',
+      appointment_mode: a.appointment_mode || 'ONLINE',
+      status: a.status,
+      reason: a.reason || ''
+    }));
   },
 
   createAppointment: async (appointmentData, currentUser = null) => {
@@ -471,7 +677,19 @@ export const supabaseApi = {
 
   // Feedback with Authorization & Input Sanitization
   getFeedback: async () => {
-    return supabaseFetch("feedback?select=*,client(client_id,person(name))&order=submitted_at.desc");
+    const data = await supabaseFetch("feedback?select=*,client(client_id,person_id,person(name))&order=submitted_at.desc");
+    return (data || []).map((f) => ({
+      id: f.feedback_id,
+      cid: f.client_id,
+      client_name: f.is_anonymous ? 'Anonymous Client' : (f.client?.person?.name || 'Client'),
+      rating: f.rating,
+      category: f.category || 'Session Experience',
+      comment: f.comment_text,
+      reply: f.clinician_reply,
+      isAnonymous: f.is_anonymous === 1,
+      read: f.read_status === 1,
+      date: (f.submitted_at || '').split('T')[0] || new Date().toISOString().split('T')[0]
+    }));
   },
 
   createFeedback: async (feedbackData, currentUser = null) => {
@@ -501,7 +719,22 @@ export const supabaseApi = {
     if (currentUser) {
       checkAuthorization(currentUser, ['consultant', 'admin'], 'access private clinical notes');
     }
-    return supabaseFetch("private_note?select=*&order=created_at.desc");
+    const data = await supabaseFetch(
+      "private_note?select=*,consultant(person_id),client(client_id,person_id)&order=created_at.desc"
+    );
+    return (data || []).map((n) => ({
+      id: n.note_id,
+      cid: n.client_id,
+      consultant_id: n.consultant?.person_id
+        ? 'u' + n.consultant.person_id
+        : n.consultant_id
+        ? 'u' + n.consultant_id
+        : 'cons',
+      title: n.title,
+      tag: n.tag,
+      body: n.note_text,
+      date: (n.created_at || '').split('T')[0] || new Date().toISOString().split('T')[0]
+    }));
   },
 
   createNote: async (noteData, currentUser = null) => {
@@ -527,15 +760,19 @@ export const supabaseApi = {
     });
   },
 
-  // Master Initial Data Synchronizer
+  // Master Initial Data Synchronizer Across All Devices
   fetchAppData: async () => {
     if (!isSupabaseConfigured()) return null;
     try {
-      const [clients, consultants] = await Promise.all([
-        supabaseApi.getClients(),
-        supabaseApi.getConsultants()
+      const [clients, consultants, files, appointments, notes, feedback] = await Promise.all([
+        supabaseApi.getClients().catch((e) => { console.warn("getClients notice:", e); return []; }),
+        supabaseApi.getConsultants().catch((e) => { console.warn("getConsultants notice:", e); return []; }),
+        supabaseApi.getFiles().catch((e) => { console.warn("getFiles notice:", e); return []; }),
+        supabaseApi.getAppointments().catch((e) => { console.warn("getAppointments notice:", e); return []; }),
+        supabaseApi.getNotes().catch((e) => { console.warn("getNotes notice:", e); return []; }),
+        supabaseApi.getFeedback().catch((e) => { console.warn("getFeedback notice:", e); return []; })
       ]);
-      return { clients, consultants };
+      return { clients, consultants, files, appointments, notes, feedback };
     } catch (e) {
       console.warn("Supabase fetchAppData encountered an issue:", e);
       return null;

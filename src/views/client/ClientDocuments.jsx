@@ -24,9 +24,10 @@ export default function ClientDocuments({
   // Tenant Isolation: strictly filter vault documents to only files owned by or explicitly directed to this client
   const isOwnFile = (f) =>
     f.uid === U.id ||
-    (U.client_id && f.client_id === U.client_id) ||
+    (U.client_id && (f.client_id === U.client_id || f.cid === U.client_id)) ||
     (U.person_id && f.person_id === U.person_id) ||
-    (c?.id && f.cid === c.id);
+    (c?.id && (f.cid === c.id || f.client_id === c.id)) ||
+    (c?.uid && f.uid === c.uid);
 
   const myFiles = S.fl.filter(isOwnFile);
   const isPending = c?.status === 'Pending';

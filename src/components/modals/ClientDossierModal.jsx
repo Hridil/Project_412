@@ -52,7 +52,13 @@ export default function ClientDossierModal({
   const clientMoods = moodsOf(selectedClient.uid);
   const clientAvg = avg(selectedClient.uid);
   const clientStreak = streak(selectedClient.uid);
-  const clientFiles = S.fl.filter((f) => f.uid === selectedClient.uid);
+  const clientFiles = (S.fl || []).filter(
+    (f) =>
+      f.uid === selectedClient.uid ||
+      f.cid === selectedClient.id ||
+      f.client_id === selectedClient.id ||
+      (selectedClient.person_id && f.person_id === selectedClient.person_id)
+  );
   const displayedClientFiles = clientFiles.filter(
     (f) => !dossierFileSearch.trim() || f.name.toLowerCase().includes(dossierFileSearch.trim().toLowerCase())
   );

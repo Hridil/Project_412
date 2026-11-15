@@ -125,7 +125,13 @@ export default function ClientManagement({
                       p.id === c.consultant_id
                   );
                   const mAvg = avg(c.uid);
-                  const filesCount = S.fl.filter((f) => f.uid === c.uid).length;
+                  const filesCount = (S.fl || []).filter(
+                    (f) =>
+                      f.uid === c.uid ||
+                      f.cid === c.id ||
+                      f.client_id === c.id ||
+                      (c.person_id && f.person_id === c.person_id)
+                  ).length;
                   const sessionsCount = S.ap.filter((a) => a.cid === c.id || a.uid === c.uid).length;
 
                   return (

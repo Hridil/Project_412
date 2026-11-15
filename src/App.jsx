@@ -177,20 +177,76 @@ export default function App() {
       .then((data) => {
         if (!isMounted || !data) return;
         setS((prev) => {
-          const existingClEmails = new Set(prev.cl.map((c) => (c.email || '').toLowerCase()));
-          const newClients = data.clients.filter((c) => !existingClEmails.has(c.email.toLowerCase()));
+          // 1. Clients: Merge and resolve canonical status & caseload
+          const existingClMap = new Map((prev.cl || []).map((c) => [c.id, c]));
+          const mergedClients = (data.clients || []).map((dbClient) => {
+            const existing = existingClMap.get(dbClient.id);
+            return {
+              ...(existing || {}),
+              ...dbClient,
+              status: dbClient.status || existing?.status || 'ACTIVE',
+              assignedConsultantId:
+                dbClient.assignedConsultantId !== undefined
+                  ? dbClient.assignedConsultantId
+                  : existing?.assignedConsultantId,
+              consultant_id:
+                dbClient.consultant_id !== undefined
+                  ? dbClient.consultant_id
+                  : existing?.consultant_id
+            };
+          });
+          const dbClientIds = new Set((data.clients || []).map((c) => c.id));
+          const localOnlyClients = (prev.cl || []).filter((c) => !dbClientIds.has(c.id));
+          const finalClients = [...mergedClients, ...localOnlyClients];
 
-          const existingConsEmails = new Set(
-            (prev.consultants || [])
-              .map((c) => (c.email || '').toLowerCase())
-          );
-          const newCons = data.consultants.filter(
-            (c) => !existingConsEmails.has(c.email.toLowerCase())
-          );
+          // 2. Files: Populate client linkage and sync vault files across devices
+          const clientByPersonId = new Map(finalClients.map((c) => [c.person_id, c]));
+          const clientById = new Map(finalClients.map((c) => [c.id, c]));
 
-          const existingAccEmails = new Set(prev.acc.map((a) => (a.email || '').toLowerCase()));
+          const enrichedDbFiles = (data.files || []).map((f) => {
+            const client = clientById.get(f.client_id || f.cid) || clientByPersonId.get(f.person_id);
+            const targetUid = client?.uid || (f.person_id ? 'u' + f.person_id : (f.client_id ? 'u' + f.client_id : f.uid));
+            return {
+              ...f,
+              uid: targetUid,
+              cid: client?.id || f.client_id || f.cid || null,
+              dataUrl: f.dataUrl || f.url || f.file_url
+            };
+          });
+
+          const dbFileIds = new Set(enrichedDbFiles.map((f) => f.id));
+          const localOnlyFiles = (prev.fl || []).filter((f) => !dbFileIds.has(f.id));
+          const finalFiles = [...enrichedDbFiles, ...localOnlyFiles];
+
+          // 3. Appointments
+          const dbApIds = new Set((data.appointments || []).map((a) => a.id));
+          const localOnlyAps = (prev.ap || []).filter((a) => !dbApIds.has(a.id));
+          const finalAppointments = [...(data.appointments || []), ...localOnlyAps];
+
+          // 4. Clinical Notes
+          const dbNoteIds = new Set((data.notes || []).map((n) => n.id));
+          const localOnlyNotes = (prev.nt || []).filter((n) => !dbNoteIds.has(n.id));
+          const finalNotes = [...(data.notes || []), ...localOnlyNotes];
+
+          // 5. Feedback
+          const dbFbIds = new Set((data.feedback || []).map((f) => f.id));
+          const localOnlyFb = (prev.fb || []).filter((f) => !dbFbIds.has(f.id));
+          const finalFeedback = [...(data.feedback || []), ...localOnlyFb];
+
+          // 6. Consultants
+          const existingConsMap = new Map((prev.consultants || []).map((c) => [c.id, c]));
+          const mergedCons = (data.consultants || []).map((dbC) => ({
+            ...(existingConsMap.get(dbC.id) || {}),
+            ...dbC
+          }));
+          const dbConsIds = new Set((data.consultants || []).map((c) => c.id));
+          const localOnlyCons = (prev.consultants || []).filter((c) => !dbConsIds.has(c.id));
+          const finalCons = [...mergedCons, ...localOnlyCons];
+
+          // 7. Accounts for auth
+          const existingAccMap = new Map((prev.acc || []).map((a) => [a.email.toLowerCase(), a]));
           const newAccs = [
-            ...data.clients.map((c) => ({
+            ...finalClients.map((c) => ({
               id: c.uid,
               person_id: c.person_id,
               client_id: c.id,
@@ -200,7 +256,7 @@ export default function App() {
               avatar: c.avatar,
               contact_no: c.contact_no
             })),
-            ...data.consultants.map((c) => ({
+            ...finalCons.map((c) => ({
               id: c.uid,
               person_id: c.person_id,
               consultant_id: c.id,
@@ -210,13 +266,22 @@ export default function App() {
               avatar: c.avatar,
               contact_no: c.contact_no
             }))
-          ].filter((a) => !existingAccEmails.has(a.email.toLowerCase()));
+          ];
+          newAccs.forEach((acc) => {
+            if (!existingAccMap.has(acc.email.toLowerCase())) {
+              existingAccMap.set(acc.email.toLowerCase(), acc);
+            }
+          });
 
           return {
             ...prev,
-            cl: [...prev.cl, ...newClients],
-            consultants: [...(prev.consultants || []), ...newCons],
-            acc: [...prev.acc, ...newAccs]
+            cl: finalClients,
+            fl: finalFiles,
+            ap: finalAppointments,
+            nt: finalNotes,
+            fb: finalFeedback,
+            consultants: finalCons,
+            acc: Array.from(existingAccMap.values())
           };
         });
       })
@@ -432,17 +497,22 @@ export default function App() {
       const consId = consultant.id;
       const consUid = consultant.uid || consultant.id;
       const consDbId = consultant.consultant_id;
+      const consPersonId = consultant.person_id;
+
+      const matchesCons = (targetId) => {
+        if (!targetId) return false;
+        return (
+          targetId === consId ||
+          targetId === consUid ||
+          (consDbId && (targetId === consDbId || targetId === ('u' + consDbId) || +targetId === +consDbId)) ||
+          (consPersonId && (targetId === consPersonId || targetId === ('u' + consPersonId) || +targetId === +consPersonId))
+        );
+      };
 
       // 1. Direct assignment attribute on client
       if (
-        (client.assignedConsultantId &&
-          (client.assignedConsultantId === consId ||
-            client.assignedConsultantId === consUid ||
-            (consDbId && client.assignedConsultantId === consDbId))) ||
-        (client.consultant_id &&
-          (client.consultant_id === consId ||
-            client.consultant_id === consUid ||
-            (consDbId && client.consultant_id === consDbId)))
+        matchesCons(client.assignedConsultantId) ||
+        matchesCons(client.consultant_id)
       ) {
         return true;
       }
@@ -450,20 +520,16 @@ export default function App() {
       // 2. Scheduled appointments connecting consultant and client
       const hasAp = (S.ap || []).some(
         (a) =>
-          (a.cid === client.id || a.uid === client.uid) &&
-          (a.consultant_id === consId ||
-            a.consultant_id === consUid ||
-            (consDbId && a.consultant_id === consDbId))
+          (a.cid === client.id || a.uid === client.uid || a.client_id === client.id || (client.person_id && a.uid === ('u' + client.person_id))) &&
+          matchesCons(a.consultant_id)
       );
       if (hasAp) return true;
 
       // 3. Clinical notes authored by consultant for this client
       const hasNt = (S.nt || []).some(
         (n) =>
-          n.cid === client.id &&
-          (n.consultant_id === consId ||
-            n.consultant_id === consUid ||
-            (consDbId && n.consultant_id === consDbId))
+          (n.cid === client.id || n.client_id === client.id) &&
+          matchesCons(n.consultant_id)
       );
       if (hasNt) return true;
 
@@ -471,9 +537,7 @@ export default function App() {
       const hasPl = (S.pl || []).some(
         (p) =>
           (p.cid === client.id || p.uid === client.uid) &&
-          (p.consultant_id === consId ||
-            p.consultant_id === consUid ||
-            (consDbId && p.consultant_id === consDbId))
+          matchesCons(p.consultant_id)
       );
       if (hasPl) return true;
 
@@ -482,7 +546,7 @@ export default function App() {
     [S.ap, S.nt, S.pl]
   );
 
-  const handleAssignClient = (clientId) => {
+  const handleAssignClient = async (clientId) => {
     if (!U || U.role !== 'consultant') return;
     const c = S.cl.find((x) => x.id === clientId);
     if (!c) return;
@@ -500,6 +564,19 @@ export default function App() {
       )
     }));
     showToast(`Client ${c.name} assigned to your caseload.`);
+
+    if (isSupabaseConfigured()) {
+      try {
+        const consDbId =
+          U?.consultant_id ||
+          (U?.id && !isNaN(String(U.id).replace('u', ''))
+            ? parseInt(String(U.id).replace('u', ''), 10)
+            : 1);
+        await supabaseApi.assignClientToConsultant(clientId, consDbId);
+      } catch (err) {
+        console.warn('Could not persist caseload assignment to Supabase:', err);
+      }
+    }
   };
 
   const moodsOf = (u) => S.md.filter((m) => m.uid === u).sort((a, b) => a.date.localeCompare(b.date));
@@ -695,7 +772,7 @@ export default function App() {
   };
 
   // Action Handlers
-  const handleDecision = (id, status) => {
+  const handleDecision = async (id, status) => {
     const c = S.cl.find((x) => x.id === id);
     if (!c) return;
     const dateStr = getNowDateString();
@@ -726,9 +803,23 @@ export default function App() {
       ]
     }));
     showToast(`${c.name} marked as ${status}`);
+
+    // Persist triage / acceptance decision to Supabase so it syncs to other devices
+    if (isSupabaseConfigured() && c.id) {
+      try {
+        const consDbId =
+          U?.consultant_id ||
+          (U?.role === 'consultant' && U?.id && !isNaN(String(U.id).replace('u', ''))
+            ? parseInt(String(U.id).replace('u', ''), 10)
+            : 1);
+        await supabaseApi.updateClientDecision(c.id, status, consDbId);
+      } catch (err) {
+        console.warn('Could not persist client decision to Supabase:', err);
+      }
+    }
   };
 
-  const handleSchedule = (e) => {
+  const handleSchedule = async (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
     const c = S.cl.find((x) => x.id === +d.cid || x.id === d.cid);
@@ -756,6 +847,28 @@ export default function App() {
     }));
     showToast('Session scheduled');
     e.target.reset();
+
+    // Persist appointment to Supabase
+    if (isSupabaseConfigured() && U) {
+      try {
+        const consDbId =
+          U.consultant_id ||
+          (U.id && !isNaN(String(U.id).replace('u', ''))
+            ? parseInt(String(U.id).replace('u', ''), 10)
+            : 1);
+        await supabaseApi.createAppointment({
+          client_id: c.id,
+          consultant_id: consDbId,
+          appointment_date: d.date,
+          appointment_time: d.time?.length === 5 ? `${d.time}:00` : d.time,
+          appointment_mode: mode,
+          status: 'CONFIRMED',
+          reason: 'Caseload Consultation Session'
+        }, U);
+      } catch (err) {
+        console.warn('Could not persist appointment to Supabase:', err);
+      }
+    }
   };
 
   const handleConfirmAp = (id) => {
@@ -931,22 +1044,35 @@ export default function App() {
     if (!rawFiles.length) return;
     const dateStr = getNowDateString();
 
+    const myClient = S.cl.find((c) => c.uid === U.id || (U.person_id && c.person_id === U.person_id));
+    const clientId = U.client_id || myClient?.id || null;
+    const personId = U.person_id || myClient?.person_id || (U.id && !isNaN(String(U.id).replace('u', '')) ? parseInt(String(U.id).replace('u', ''), 10) : null);
+
     const files = await Promise.all(
       rawFiles.map(async (f) => {
         const dataUrl = await readFileAsDataUrl(f);
         let finalUrl = dataUrl;
+        let fileId = null;
         if (isSupabaseConfigured() && U) {
           try {
-            const personId = U.person_id || (U.id && !isNaN(U.id.replace('u', '')) ? parseInt(U.id.replace('u', ''), 10) : null);
-            const uploaded = await uploadImageToSupabase(f, personId, "document", dataUrl);
+            const uploaded = await uploadImageToSupabase(f, personId, {
+              purpose: "document",
+              clientId: clientId,
+              uploadedBy: "CLIENT",
+              fallbackDataUrl: dataUrl
+            });
             if (uploaded?.file_url) finalUrl = uploaded.file_url;
+            if (uploaded?.file_id) fileId = uploaded.file_id;
           } catch (err) {
             console.warn('Database file upload fallback:', err);
           }
         }
         return {
-          id: uid() + Math.random(),
+          id: fileId || uid() + Math.random(),
           uid: U.id,
+          cid: clientId,
+          client_id: clientId,
+          person_id: personId,
           name: f.name,
           size: f.size,
           type: f.type || 'application/octet-stream',
@@ -976,28 +1102,39 @@ export default function App() {
       showToast('Please select a target client');
       return;
     }
-    const c = S.cl.find((x) => x.uid === targetUid);
+    const c = S.cl.find((x) => x.uid === targetUid || x.id === targetUid);
     const rawFiles = Array.from(e.target.f.files || []);
     if (!rawFiles.length) return;
     const dateStr = getNowDateString();
+
+    const clientId = c?.id || null;
+    const personId = c?.person_id || (targetUid && !isNaN(String(targetUid).replace('u', '')) ? parseInt(String(targetUid).replace('u', ''), 10) : null);
 
     const files = await Promise.all(
       rawFiles.map(async (f) => {
         const dataUrl = await readFileAsDataUrl(f);
         let finalUrl = dataUrl;
+        let fileId = null;
         if (isSupabaseConfigured() && U) {
           try {
-            const targetClient = S.cl.find((x) => x.uid === targetUid);
-            const personId = targetClient?.person_id || (targetUid && !isNaN(targetUid.replace('u', '')) ? parseInt(targetUid.replace('u', ''), 10) : null);
-            const uploaded = await uploadImageToSupabase(f, personId, "document", dataUrl);
+            const uploaded = await uploadImageToSupabase(f, personId, {
+              purpose: "document",
+              clientId: clientId,
+              uploadedBy: "CONSULTANT",
+              fallbackDataUrl: dataUrl
+            });
             if (uploaded?.file_url) finalUrl = uploaded.file_url;
+            if (uploaded?.file_id) fileId = uploaded.file_id;
           } catch (err) {
             console.warn('Database consultant upload fallback:', err);
           }
         }
         return {
-          id: uid() + Math.random(),
-          uid: targetUid,
+          id: fileId || uid() + Math.random(),
+          uid: c?.uid || targetUid,
+          cid: clientId,
+          client_id: clientId,
+          person_id: personId,
           consultant_id: U?.id || 'cons',
           name: f.name,
           size: f.size,
@@ -1013,7 +1150,7 @@ export default function App() {
       ...prev,
       fl: [...prev.fl, ...files],
       nf: [
-        { id: uid(), to: targetUid, msg: `${U?.name || 'Your Clinician'} uploaded files for your care plan: ${files.map((f) => f.name).join(', ')}.`, date: dateStr, read: false },
+        { id: uid(), to: c?.uid || targetUid, msg: `${U?.name || 'Your Clinician'} uploaded files for your care plan: ${files.map((f) => f.name).join(', ')}.`, date: dateStr, read: false },
         ...prev.nf
       ]
     }));

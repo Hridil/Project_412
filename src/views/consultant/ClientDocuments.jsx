@@ -40,16 +40,39 @@ export default function ClientDocuments({
   );
 
   const myCaseloadDocs = S.fl.filter((f) => {
-    if (f.uploadedBy === 'consultant' && (f.consultant_id === U?.id || f.uid === U?.id)) return true;
-    const clientOwner = S.cl.find((c) => c.uid === f.uid);
-    return isClientAssignedToConsultant ? isClientAssignedToConsultant(clientOwner, U) : true;
+    if (
+      f.uploadedBy === 'consultant' &&
+      (f.consultant_id === U?.id ||
+        f.consultant_id === U?.consultant_id ||
+        f.consultant_id === ('u' + U?.consultant_id) ||
+        (U?.person_id && f.person_id === U?.person_id))
+    ) {
+      return true;
+    }
+    const clientOwner = S.cl.find(
+      (c) =>
+        c.uid === f.uid ||
+        c.id === f.cid ||
+        c.id === f.client_id ||
+        (f.person_id && c.person_id === f.person_id)
+    );
+    return isClientAssignedToConsultant ? isClientAssignedToConsultant(clientOwner, U) : false;
   });
 
   const query = docSearchQuery.trim().toLowerCase();
 
   const filteredDocs = myCaseloadDocs.filter((f) => {
-    const clientOwner = S.cl.find((c) => c.uid === f.uid);
-    const matchesClientFilter = docFilterUid === 'all' || f.uid === docFilterUid;
+    const clientOwner = S.cl.find(
+      (c) =>
+        c.uid === f.uid ||
+        c.id === f.cid ||
+        c.id === f.client_id ||
+        (f.person_id && c.person_id === f.person_id)
+    );
+    const matchesClientFilter =
+      docFilterUid === 'all' ||
+      f.uid === docFilterUid ||
+      (clientOwner && (clientOwner.uid === docFilterUid || String(clientOwner.id) === String(docFilterUid)));
 
     let matchesSearch = true;
     if (query) {
@@ -203,7 +226,7 @@ export default function ClientDocuments({
                   <option value="all">All Caseload ({myCaseloadDocs.length})</option>
                   {myClients.map((c) => (
                     <option key={c.id} value={c.uid}>
-                      {c.name} ({myCaseloadDocs.filter((f) => f.uid === c.uid).length})
+                      {c.name} ({myCaseloadDocs.filter((f) => f.uid === c.uid || f.cid === c.id || f.client_id === c.id || (c.person_id && f.person_id === c.person_id)).length})
                     </option>
                   ))}
                 </select>
@@ -255,7 +278,7 @@ export default function ClientDocuments({
           <div className={clsCard}>
             {filteredDocs.length ? (
               filteredDocs.map((f) => {
-                const clientOwner = S.cl.find((c) => c.uid === f.uid);
+                const clientOwner = S.cl.find((c) => c.uid === f.uid || c.id === f.cid || c.id === f.client_id || (f.person_id && c.person_id === f.person_id));
                 const matchedClient = query && (clientOwner?.name || '').toLowerCase().includes(query);
                 const matchedFile = query && f.name.toLowerCase().includes(query);
 
