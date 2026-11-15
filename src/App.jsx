@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // Formatters & Media Utilities
 import { T, uid, srt, dOff, getNowDateString } from './utils/formatters.js';
@@ -14,7 +14,7 @@ import Sidebar from './components/layout/Sidebar.jsx';
 import Toast from './components/common/Toast.jsx';
 
 // Supabase Integration Client
-import { supabaseApi, isSupabaseConfigured } from './services/supabaseClient.js';
+import { supabaseApi, isSupabaseConfigured, uploadImageToSupabase } from './services/supabaseClient.js';
 
 // Modals
 import ClientDossierModal from './components/modals/ClientDossierModal.jsx';
@@ -424,6 +424,84 @@ export default function App() {
   const cn = (id) => S.cl.find((c) => c.id === id)?.name || 'Client';
   const selectedClient = S.cl.find((c) => c.id === selectedClientId) || null;
   const acc = () => S.cl.filter((c) => c.status === 'Accepted' || c.status === 'ACTIVE');
+
+  // Tenant Isolation Helper: verify if a client is selected/handled by a specific consultant
+  const isClientAssignedToConsultant = useCallback(
+    (client, consultant) => {
+      if (!client || !consultant) return false;
+      const consId = consultant.id;
+      const consUid = consultant.uid || consultant.id;
+      const consDbId = consultant.consultant_id;
+
+      // 1. Direct assignment attribute on client
+      if (
+        (client.assignedConsultantId &&
+          (client.assignedConsultantId === consId ||
+            client.assignedConsultantId === consUid ||
+            (consDbId && client.assignedConsultantId === consDbId))) ||
+        (client.consultant_id &&
+          (client.consultant_id === consId ||
+            client.consultant_id === consUid ||
+            (consDbId && client.consultant_id === consDbId)))
+      ) {
+        return true;
+      }
+
+      // 2. Scheduled appointments connecting consultant and client
+      const hasAp = (S.ap || []).some(
+        (a) =>
+          (a.cid === client.id || a.uid === client.uid) &&
+          (a.consultant_id === consId ||
+            a.consultant_id === consUid ||
+            (consDbId && a.consultant_id === consDbId))
+      );
+      if (hasAp) return true;
+
+      // 3. Clinical notes authored by consultant for this client
+      const hasNt = (S.nt || []).some(
+        (n) =>
+          n.cid === client.id &&
+          (n.consultant_id === consId ||
+            n.consultant_id === consUid ||
+            (consDbId && n.consultant_id === consDbId))
+      );
+      if (hasNt) return true;
+
+      // 4. Care plans assigned by consultant to this client
+      const hasPl = (S.pl || []).some(
+        (p) =>
+          (p.cid === client.id || p.uid === client.uid) &&
+          (p.consultant_id === consId ||
+            p.consultant_id === consUid ||
+            (consDbId && p.consultant_id === consDbId))
+      );
+      if (hasPl) return true;
+
+      return false;
+    },
+    [S.ap, S.nt, S.pl]
+  );
+
+  const handleAssignClient = (clientId) => {
+    if (!U || U.role !== 'consultant') return;
+    const c = S.cl.find((x) => x.id === clientId);
+    if (!c) return;
+    setS((prev) => ({
+      ...prev,
+      cl: prev.cl.map((x) =>
+        x.id === clientId
+          ? {
+              ...x,
+              assignedConsultantId: U.id,
+              consultant_id: U.consultant_id || U.id,
+              status: x.status === 'Pending' ? 'Accepted' : x.status
+            }
+          : x
+      )
+    }));
+    showToast(`Client ${c.name} assigned to your caseload.`);
+  };
+
   const moodsOf = (u) => S.md.filter((m) => m.uid === u).sort((a, b) => a.date.localeCompare(b.date));
   const avg = (u) => {
     const m = moodsOf(u).slice(-7);
@@ -623,7 +701,16 @@ export default function App() {
     const dateStr = getNowDateString();
     setS((prev) => ({
       ...prev,
-      cl: prev.cl.map((x) => (x.id === id ? { ...x, status } : x)),
+      cl: prev.cl.map((x) =>
+        x.id === id
+          ? {
+              ...x,
+              status,
+              assignedConsultantId: U?.role === 'consultant' ? (x.assignedConsultantId || U.id) : x.assignedConsultantId,
+              consultant_id: U?.role === 'consultant' ? (x.consultant_id || U.consultant_id || U.id) : x.consultant_id
+            }
+          : x
+      ),
       nf: [
         { id: uid() + 1, to: 'cons', msg: `Client ${c.name} ${status.toLowerCase()}.`, date: dateStr, read: false },
         {
@@ -711,7 +798,15 @@ export default function App() {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
     const dateStr = getNowDateString();
-    const newNote = { id: uid(), cid: +d.cid, title: d.title, tag: d.tag, body: d.body, date: dateStr };
+    const newNote = {
+      id: uid(),
+      cid: +d.cid,
+      consultant_id: U?.id || 'cons',
+      title: d.title,
+      tag: d.tag,
+      body: d.body,
+      date: dateStr
+    };
     setS((prev) => ({ ...prev, nt: [newNote, ...prev.nt] }));
     e.target.reset();
     showToast('Clinical note saved');
@@ -723,7 +818,16 @@ export default function App() {
     const c = S.cl.find((x) => x.id === +d.cid);
     if (!c) return;
     const dateStr = getNowDateString();
-    const newPlan = { id: uid(), cid: c.id, uid: c.uid, title: d.title, due: d.due, details: d.details, done: false };
+    const newPlan = {
+      id: uid(),
+      cid: c.id,
+      uid: c.uid,
+      consultant_id: U?.id || 'cons',
+      title: d.title,
+      due: d.due,
+      details: d.details,
+      done: false
+    };
     setS((prev) => ({
       ...prev,
       pl: [newPlan, ...prev.pl],
@@ -830,13 +934,23 @@ export default function App() {
     const files = await Promise.all(
       rawFiles.map(async (f) => {
         const dataUrl = await readFileAsDataUrl(f);
+        let finalUrl = dataUrl;
+        if (isSupabaseConfigured() && U) {
+          try {
+            const personId = U.person_id || (U.id && !isNaN(U.id.replace('u', '')) ? parseInt(U.id.replace('u', ''), 10) : null);
+            const uploaded = await uploadImageToSupabase(f, personId, "document", dataUrl);
+            if (uploaded?.file_url) finalUrl = uploaded.file_url;
+          } catch (err) {
+            console.warn('Database file upload fallback:', err);
+          }
+        }
         return {
           id: uid() + Math.random(),
           uid: U.id,
           name: f.name,
           size: f.size,
           type: f.type || 'application/octet-stream',
-          dataUrl,
+          dataUrl: finalUrl,
           date: dateStr,
           uploadedBy: 'client'
         };
@@ -870,13 +984,25 @@ export default function App() {
     const files = await Promise.all(
       rawFiles.map(async (f) => {
         const dataUrl = await readFileAsDataUrl(f);
+        let finalUrl = dataUrl;
+        if (isSupabaseConfigured() && U) {
+          try {
+            const targetClient = S.cl.find((x) => x.uid === targetUid);
+            const personId = targetClient?.person_id || (targetUid && !isNaN(targetUid.replace('u', '')) ? parseInt(targetUid.replace('u', ''), 10) : null);
+            const uploaded = await uploadImageToSupabase(f, personId, "document", dataUrl);
+            if (uploaded?.file_url) finalUrl = uploaded.file_url;
+          } catch (err) {
+            console.warn('Database consultant upload fallback:', err);
+          }
+        }
         return {
           id: uid() + Math.random(),
           uid: targetUid,
+          consultant_id: U?.id || 'cons',
           name: f.name,
           size: f.size,
           type: f.type || 'application/octet-stream',
-          dataUrl,
+          dataUrl: finalUrl,
           date: dateStr,
           uploadedBy: 'consultant'
         };
@@ -908,6 +1034,21 @@ export default function App() {
       return;
     }
 
+    let finalImgUrl = compressed.dataUrl;
+
+    // Persist raw uploaded picture to Supabase database & storage
+    if (isSupabaseConfigured() && U) {
+      try {
+        const personId = U.person_id || (U.id && !isNaN(U.id.replace('u', '')) ? parseInt(U.id.replace('u', ''), 10) : null);
+        const uploaded = await uploadImageToSupabase(file, personId, "dashboard", compressed.dataUrl);
+        if (uploaded?.file_url) {
+          finalImgUrl = uploaded.file_url;
+        }
+      } catch (err) {
+        console.warn('Database dashboard picture upload fallback:', err);
+      }
+    }
+
     const dateStr = getNowDateString();
     const newImg = {
       id: uid(),
@@ -915,7 +1056,7 @@ export default function App() {
       name: file.name,
       title: defaultTitle?.trim() || file.name.replace(/\.[^/.]+$/, ''),
       caption: defaultCaption?.trim() || (U.role === 'client' ? 'Personal grounding reflection & serene anchor' : 'Practice sanctuary space & clinical suite'),
-      dataUrl: compressed.dataUrl,
+      dataUrl: finalImgUrl,
       dimensions: `${compressed.width} × ${compressed.height}`,
       date: dateStr,
       size: `${Math.max(1, Math.round(file.size / 1024))} KB`,
@@ -1024,7 +1165,20 @@ export default function App() {
       showToast('Could not process avatar image');
       return;
     }
-    const dataUrl = compressed.dataUrl;
+    let dataUrl = compressed.dataUrl;
+
+    // Persist raw uploaded picture to Supabase database & storage
+    if (isSupabaseConfigured() && U) {
+      try {
+        const personId = U.person_id || (U.id && !isNaN(U.id.replace('u', '')) ? parseInt(U.id.replace('u', ''), 10) : null);
+        const uploaded = await uploadImageToSupabase(file, personId, "avatar", dataUrl);
+        if (uploaded?.file_url) {
+          dataUrl = uploaded.file_url;
+        }
+      } catch (err) {
+        console.warn('Database avatar upload fallback:', err);
+      }
+    }
 
     setS((prev) => ({
       ...prev,
@@ -1036,7 +1190,7 @@ export default function App() {
     }));
 
     setU((prev) => (prev ? { ...prev, avatar: dataUrl } : prev));
-    showToast('Profile picture updated successfully!');
+    showToast('Profile picture saved to database successfully!');
     e.target.value = '';
   };
 
@@ -1158,7 +1312,6 @@ export default function App() {
             U={U}
             S={S}
             T={T}
-            acc={acc}
             avg={avg}
             cn={cn}
             srt={srt}
@@ -1176,12 +1329,14 @@ export default function App() {
             setPreviewFile={setPreviewFile}
             go={go}
             showToast={showToast}
+            isClientAssignedToConsultant={isClientAssignedToConsultant}
           />
         );
 
       case 'c-clients':
         return (
           <ClientManagement
+            U={U}
             S={S}
             Q={Q}
             setQ={setQ}
@@ -1190,12 +1345,15 @@ export default function App() {
             handleDecision={handleDecision}
             avg={avg}
             E={E}
+            isClientAssignedToConsultant={isClientAssignedToConsultant}
+            handleAssignClient={handleAssignClient}
           />
         );
 
       case 'c-docs':
         return (
           <ClientDocuments
+            U={U}
             S={S}
             docFilterUid={docFilterUid}
             setDocFilterUid={setDocFilterUid}
@@ -1207,12 +1365,14 @@ export default function App() {
             setSelectedClientId={setSelectedClientId}
             setClientModalTab={setClientModalTab}
             showToast={showToast}
+            isClientAssignedToConsultant={isClientAssignedToConsultant}
           />
         );
 
       case 'c-schedule':
         return (
           <ConsultantSchedule
+            U={U}
             S={S}
             T={T}
             srt={srt}
@@ -1220,27 +1380,32 @@ export default function App() {
             handleSchedule={handleSchedule}
             handleConfirmAp={handleConfirmAp}
             handleCancelAp={handleCancelAp}
+            isClientAssignedToConsultant={isClientAssignedToConsultant}
           />
         );
 
       case 'c-notes':
         return (
           <SessionNotes
+            U={U}
             S={S}
             cn={cn}
             handleAddNote={handleAddNote}
             handleDeleteItem={handleDeleteItem}
+            isClientAssignedToConsultant={isClientAssignedToConsultant}
           />
         );
 
       case 'c-plans':
         return (
           <CarePlans
+            U={U}
             S={S}
             T={T}
             cn={cn}
             handleAddPlan={handleAddPlan}
             handleDeleteItem={handleDeleteItem}
+            isClientAssignedToConsultant={isClientAssignedToConsultant}
           />
         );
 
@@ -1502,12 +1667,18 @@ export default function App() {
           handleToggleFeedbackRead={handleToggleFeedbackRead}
           handleReplyFeedback={handleReplyFeedback}
           handleDeleteFeedback={handleDeleteFeedback}
+          U={U}
+          isClientAssignedToConsultant={isClientAssignedToConsultant}
+          handleAssignClient={handleAssignClient}
         />
 
         <FilePreviewModal
           previewFile={previewFile}
           setPreviewFile={setPreviewFile}
           showToast={showToast}
+          U={U}
+          S={S}
+          isClientAssignedToConsultant={isClientAssignedToConsultant}
         />
 
         <Toast toastOn={toastOn} toastMsg={toastMsg} />

@@ -50,7 +50,20 @@ export const compressImage = (file, maxWidth = 1280, maxHeight = 800, quality = 
   });
 };
 
-export const handleDownloadFile = (f, showToast = () => {}) => {
+export const handleDownloadFile = (f, showToast = () => {}, currentUser = null) => {
+  // Client Vault Isolation Check: clients can ONLY access and download their own files
+  if (currentUser && currentUser.role === 'client') {
+    const isOwner =
+      f.uid === currentUser.id ||
+      (currentUser.client_id && f.client_id === currentUser.client_id) ||
+      (currentUser.person_id && f.person_id === currentUser.person_id) ||
+      (currentUser.email && f.email === currentUser.email);
+    if (!isOwner) {
+      showToast('Security Alert: You are strictly authorized to download your own confidential files.');
+      return;
+    }
+  }
+
   // If original uploaded data exists, download real binary data
   if (f.dataUrl) {
     const a = document.createElement('a');

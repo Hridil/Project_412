@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   clsBtnPrimary,
   clsBtnSecondary,
@@ -39,15 +39,23 @@ export default function ClientDossierModal({
   handleTogglePlan,
   handleAddNote,
   handleToggleFeedbackRead,
-  handleReplyFeedback,
-  handleDeleteFeedback
+  handleDeleteFeedback,
+  U,
+  isClientAssignedToConsultant,
+  handleAssignClient
 }) {
+  const [dossierFileSearch, setDossierFileSearch] = useState('');
+
   if (!selectedClient) return null;
 
+  const isAssignedToMe = isClientAssignedToConsultant ? isClientAssignedToConsultant(selectedClient, U) : true;
   const clientMoods = moodsOf(selectedClient.uid);
   const clientAvg = avg(selectedClient.uid);
   const clientStreak = streak(selectedClient.uid);
   const clientFiles = S.fl.filter((f) => f.uid === selectedClient.uid);
+  const displayedClientFiles = clientFiles.filter(
+    (f) => !dossierFileSearch.trim() || f.name.toLowerCase().includes(dossierFileSearch.trim().toLowerCase())
+  );
   const clientSessions = S.ap.filter((a) => a.cid === selectedClient.id || a.uid === selectedClient.uid).sort(srt);
   const clientPlans = S.pl.filter((p) => p.cid === selectedClient.id || p.uid === selectedClient.uid);
   const clientNotes = S.nt.filter((n) => n.cid === selectedClient.id);
@@ -125,6 +133,25 @@ export default function ClientDossierModal({
             </div>
           )}
         </div>
+
+        {/* Caseload Boundary Banner */}
+        {!isAssignedToMe && (
+          <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/60 p-3.5 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <span className="material-symbols-outlined text-[18px]">verified_user</span>
+              <span>
+                <b>Caseload Notice:</b> This client is not currently assigned to you. Private clinical notes and confidential documents are restricted.
+              </span>
+            </div>
+            <button
+              className={`${clsBtnPrimary} text-xs py-1 px-3 cursor-pointer shrink-0`}
+              onClick={() => handleAssignClient && handleAssignClient(selectedClient.id)}
+            >
+              <span className="material-symbols-outlined text-[15px]">person_add</span>
+              Assign to My Caseload
+            </button>
+          </div>
+        )}
 
         {/* Modal Tab Navigation */}
         <div className="flex items-center px-4 sm:px-6 border-b border-[#dde7e3] dark:border-[#23403f] bg-[#f2f5f3]/40 dark:bg-[#0d1b1a]/40 overflow-x-auto gap-1">
@@ -238,81 +265,115 @@ export default function ClientDossierModal({
                 <p className={clsMuted}>Confidential records, intake questionnaires, and worksheets exchanged with this client.</p>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-200 mb-2 flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px]">upload_file</span>
-                  Share Document with {selectedClient.name}
-                </h5>
-                <form
-                  onSubmit={(e) => handleConsultantUpload(e, selectedClient.uid)}
-                  className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
-                >
-                  <input type="file" name="f" multiple className={`${clsInput} py-1.5 flex-1`} required />
-                  <button className={`${clsBtnPrimary} whitespace-nowrap`}>
-                    <span className="material-symbols-outlined text-[16px]">send</span>
-                    Upload for Client
+              {!isAssignedToMe ? (
+                <div className="p-8 text-center bg-[#f2f5f3] dark:bg-[#0d1b1a] rounded-2xl border border-amber-300 dark:border-amber-900/50">
+                  <span className="material-symbols-outlined text-4xl text-amber-600 mb-2">lock</span>
+                  <h4 className="font-serif font-bold text-base text-[#14302c] dark:text-[#e3efec] mb-1">
+                    Confidential Vault Restricted
+                  </h4>
+                  <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] max-w-sm mx-auto mb-4">
+                    This client is assigned to another practitioner. You can only view and manage documents for clients selected in your caseload.
+                  </p>
+                  <button
+                    className={`${clsBtnPrimary} text-xs py-1.5 px-3 cursor-pointer`}
+                    onClick={() => handleAssignClient && handleAssignClient(selectedClient.id)}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">person_add</span>
+                    Assign Client to My Caseload
                   </button>
-                </form>
-              </div>
+                </div>
+              ) : (
+                <>
+                  <div className="p-4 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-200 mb-2 flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                      Share Document with {selectedClient.name}
+                    </h5>
+                    <form
+                      onSubmit={(e) => handleConsultantUpload(e, selectedClient.uid)}
+                      className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+                    >
+                      <input type="file" name="f" multiple className={`${clsInput} py-1.5 flex-1`} required />
+                      <button className={`${clsBtnPrimary} whitespace-nowrap`}>
+                        <span className="material-symbols-outlined text-[16px]">send</span>
+                        Upload for Client
+                      </button>
+                    </form>
+                  </div>
 
-              <div className={clsCard}>
-                {clientFiles.length ? (
-                  <div className="divide-y divide-[#dde7e3] dark:divide-[#23403f]">
-                    {clientFiles.map((f) => (
-                      <div key={f.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="material-symbols-outlined text-2xl text-teal-700 dark:text-teal-400 shrink-0">
-                            {getFileIcon(f.name)}
-                          </span>
-                          <div className="min-w-0">
-                            <div className="text-sm font-semibold text-[#14302c] dark:text-[#e3efec] truncate">{f.name}</div>
-                            <div className="text-xs text-[#5f7571] dark:text-[#8fa8a3] flex items-center gap-2 mt-0.5">
-                              <span>{Math.max(1, Math.round(f.size / 1024))} KB</span>
-                              <span>•</span>
-                              <span>{f.date || 'Recent'}</span>
-                              <span>•</span>
-                              <span
-                                className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
-                                  f.uploadedBy === 'consultant'
-                                    ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
-                                    : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
-                                }`}
-                              >
-                                {f.uploadedBy === 'consultant' ? 'Shared by You' : 'Uploaded by Client'}
+                  <div className={clsCard}>
+                    {clientFiles.length > 2 && (
+                      <div className="mb-3 relative">
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#5f7571] dark:text-[#8fa8a3]">
+                          search
+                        </span>
+                        <input
+                          className={`${clsInput} py-1.5 pl-9 text-xs`}
+                          placeholder="Search this client's documents by name..."
+                          value={dossierFileSearch}
+                          onChange={(e) => setDossierFileSearch(e.target.value)}
+                        />
+                      </div>
+                    )}
+                    {displayedClientFiles.length ? (
+                      <div className="divide-y divide-[#dde7e3] dark:divide-[#23403f]">
+                        {displayedClientFiles.map((f) => (
+                          <div key={f.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="material-symbols-outlined text-2xl text-teal-700 dark:text-teal-400 shrink-0">
+                                {getFileIcon(f.name)}
                               </span>
+                              <div className="min-w-0">
+                                <div className="text-sm font-semibold text-[#14302c] dark:text-[#e3efec] truncate">{f.name}</div>
+                                <div className="text-xs text-[#5f7571] dark:text-[#8fa8a3] flex items-center gap-2 mt-0.5">
+                                  <span>{Math.max(1, Math.round(f.size / 1024))} KB</span>
+                                  <span>•</span>
+                                  <span>{f.date || 'Recent'}</span>
+                                  <span>•</span>
+                                  <span
+                                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
+                                      f.uploadedBy === 'consultant'
+                                        ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                                        : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                                    }`}
+                                  >
+                                    {f.uploadedBy === 'consultant' ? 'Shared by You' : 'Uploaded by Client'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                                onClick={() => setPreviewFile(f)}
+                                title="Preview document"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">visibility</span>
+                                Preview
+                              </button>
+                              <button
+                                className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
+                                onClick={() => handleDownloadFile(f, () => {}, U)}
+                              >
+                                <span className="material-symbols-outlined text-[16px]">download</span>
+                                Download
+                              </button>
+                              <button
+                                className={`${clsBtnDanger} text-xs py-1 px-2.5`}
+                                onClick={() => handleDeleteItem('fl', f.id)}
+                              >
+                                <span className="material-symbols-outlined text-[14px]">delete</span>
+                              </button>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
-                            onClick={() => setPreviewFile(f)}
-                            title="Preview document"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">visibility</span>
-                            Preview
-                          </button>
-                          <button
-                            className={`${clsBtnSecondary} text-xs py-1 px-2.5`}
-                            onClick={() => handleDownloadFile(f)}
-                          >
-                            <span className="material-symbols-outlined text-[16px]">download</span>
-                            Download
-                          </button>
-                          <button
-                            className={`${clsBtnDanger} text-xs py-1 px-2.5`}
-                            onClick={() => handleDeleteItem('fl', f.id)}
-                          >
-                            <span className="material-symbols-outlined text-[14px]">delete</span>
-                          </button>
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <EmptyState msg="No documents uploaded for this client yet." />
+                    )}
                   </div>
-                ) : (
-                  <EmptyState msg="No documents uploaded for this client yet." />
-                )}
-              </div>
+                </>
+              )}
             </div>
           )}
 
@@ -431,55 +492,76 @@ export default function ClientDossierModal({
                 Clinical Documentation Notes ({clientNotes.length})
               </h4>
 
-              <div className="p-4 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-200 mb-2 flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px]">note_add</span>
-                  Compose Note for {selectedClient.name}
-                </h5>
-                <form onSubmit={handleAddNote} className="space-y-3">
-                  <input type="hidden" name="cid" value={selectedClient.id} />
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="sm:col-span-2">
-                      <input name="title" className={clsInput} placeholder="Subject / Title (e.g. CBT Grounding review)" required />
-                    </div>
-                    <div>
-                      <select name="tag" className={clsInput}>
-                        <option>Session summary</option>
-                        <option>Observation</option>
-                        <option>Follow-up</option>
-                        <option>Therapeutic Plan</option>
-                      </select>
-                    </div>
-                  </div>
-                  <textarea name="body" className={`${clsTextarea} min-h-[70px]`} placeholder="Record clinical observations and therapeutic progress..." required />
-                  <button className={`${clsBtnPrimary} text-xs py-1.5 px-3`}>
-                    Save Clinical Note
+              {!isAssignedToMe ? (
+                <div className="p-8 text-center bg-[#f2f5f3] dark:bg-[#0d1b1a] rounded-2xl border border-amber-300 dark:border-amber-900/50">
+                  <span className="material-symbols-outlined text-4xl text-amber-600 mb-2">lock</span>
+                  <h4 className="font-serif font-bold text-base text-[#14302c] dark:text-[#e3efec] mb-1">
+                    Clinical Notes Restricted
+                  </h4>
+                  <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] max-w-sm mx-auto mb-4">
+                    Confidential therapeutic observations and private clinical notes are restricted to the assigned clinician.
+                  </p>
+                  <button
+                    className={`${clsBtnPrimary} text-xs py-1.5 px-3 cursor-pointer`}
+                    onClick={() => handleAssignClient && handleAssignClient(selectedClient.id)}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">person_add</span>
+                    Assign Client to My Caseload
                   </button>
-                </form>
-              </div>
-
-              <div className={clsCard}>
-                {clientNotes.length ? (
-                  clientNotes.map((n) => (
-                    <div className={clsRow} key={n.id}>
-                      <div className={clsRowHeader}>
-                        <div>
-                          <b className="text-sm">{n.title}</b>
-                          <div className={clsMuted}>{n.date}</div>
+                </div>
+              ) : (
+                <>
+                  <div className="p-4 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-200 mb-2 flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px]">note_add</span>
+                      Compose Note for {selectedClient.name}
+                    </h5>
+                    <form onSubmit={handleAddNote} className="space-y-3">
+                      <input type="hidden" name="cid" value={selectedClient.id} />
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="sm:col-span-2">
+                          <input name="title" className={clsInput} placeholder="Subject / Title (e.g. CBT Grounding review)" required />
                         </div>
-                        <Chip status={n.tag} />
+                        <div>
+                          <select name="tag" className={clsInput}>
+                            <option>Session summary</option>
+                            <option>Observation</option>
+                            <option>Follow-up</option>
+                            <option>Therapeutic Plan</option>
+                          </select>
+                        </div>
                       </div>
-                      <p className="text-sm my-2 text-[#14302c] dark:text-[#e3efec] whitespace-pre-wrap">{n.body}</p>
-                      <button className={`${clsBtnDanger} text-xs py-1 px-2.5 mt-1`} onClick={() => handleDeleteItem('nt', n.id)}>
-                        <span className="material-symbols-outlined text-[14px]">delete</span>
-                        Delete Note
+                      <textarea name="body" className={`${clsTextarea} min-h-[70px]`} placeholder="Record clinical observations and therapeutic progress..." required />
+                      <button className={`${clsBtnPrimary} text-xs py-1.5 px-3`}>
+                        Save Clinical Note
                       </button>
-                    </div>
-                  ))
-                ) : (
-                  <EmptyState msg="No clinical notes recorded for this client yet." />
-                )}
-              </div>
+                    </form>
+                  </div>
+
+                  <div className={clsCard}>
+                    {clientNotes.length ? (
+                      clientNotes.map((n) => (
+                        <div className={clsRow} key={n.id}>
+                          <div className={clsRowHeader}>
+                            <div>
+                              <b className="text-sm">{n.title}</b>
+                              <div className={clsMuted}>{n.date}</div>
+                            </div>
+                            <Chip status={n.tag} />
+                          </div>
+                          <p className="text-sm my-2 text-[#14302c] dark:text-[#e3efec] whitespace-pre-wrap">{n.body}</p>
+                          <button className={`${clsBtnDanger} text-xs py-1 px-2.5 mt-1`} onClick={() => handleDeleteItem('nt', n.id)}>
+                            <span className="material-symbols-outlined text-[14px]">delete</span>
+                            Delete Note
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <EmptyState msg="No clinical notes recorded for this client yet." />
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
 

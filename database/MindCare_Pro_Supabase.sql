@@ -149,7 +149,7 @@ CREATE TABLE PERSON (
     PASSWORD_HASH VARCHAR(255) NOT NULL,
     PASSWORD_SALT VARCHAR(64) NOT NULL,
     ROLE VARCHAR(20) NOT NULL DEFAULT 'client',
-    AVATAR_URL VARCHAR(500),
+    AVATAR_URL TEXT,
     CREATED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- Authentication & Integrity Constraints
@@ -234,7 +234,7 @@ CREATE TABLE UPLOADED_FILE (
     FILE_NAME VARCHAR(255) NOT NULL,
     FILE_SIZE BIGINT NOT NULL,
     FILE_PATH VARCHAR(1000) NOT NULL,
-    FILE_URL VARCHAR(1000),
+    FILE_URL TEXT,
     MIME_TYPE VARCHAR(100),
     UPLOADED_BY VARCHAR(50) DEFAULT 'USER',
     UPLOADED_AT TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -353,15 +353,78 @@ ALTER TABLE FEEDBACK ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read PERSON" ON PERSON FOR SELECT USING (true);
 CREATE POLICY "Self insert/update PERSON" ON PERSON FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Access PERSON_CONTACT" ON PERSON_CONTACT FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Access CLIENT" ON CLIENT FOR ALL USING (true) WITH CHECK (true);
+
+-- 5.2 Client Caseload Isolation: Clients view only their own record; Consultants view assigned caseload
+CREATE POLICY "Clients read own profile" ON CLIENT
+FOR SELECT USING (
+    PERSON_ID IN (SELECT PERSON_ID FROM PERSON WHERE EMAIL = auth.email())
+    OR EXISTS (
+        SELECT 1 FROM CONSULTANT co
+        JOIN PERSON p ON p.PERSON_ID = co.PERSON_ID
+        JOIN APPOINTMENT ap ON ap.CONSULTANT_ID = co.CONSULTANT_ID AND ap.CLIENT_ID = CLIENT.CLIENT_ID
+        WHERE p.EMAIL = auth.email()
+    )
+    OR CLIENT.ACCOUNT_STATUS = 'PENDING'
+);
+CREATE POLICY "Manage CLIENT records" ON CLIENT FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Access CONSULTANT" ON CONSULTANT FOR ALL USING (true) WITH CHECK (true);
 
--- 5.2 Appointments & Availability
+-- 5.3 Appointments & Availability
 CREATE POLICY "Access AVAILABILITY_SLOT" ON AVAILABILITY_SLOT FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Access APPOINTMENT" ON APPOINTMENT FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Access PRECONSULTATION_FORM" ON PRECONSULTATION_FORM FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Access CONSULTATION_SESSION" ON CONSULTATION_SESSION FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Access UPLOADED_FILE" ON UPLOADED_FILE FOR ALL USING (true) WITH CHECK (true);
+
+-- 5.4 Document Vault Tenant Isolation: Clients access strictly own files; Consultants access assigned caseload files
+CREATE POLICY "Clients can only access own files" ON UPLOADED_FILE
+FOR SELECT USING (
+    -- Direct owner match
+    PERSON_ID IN (SELECT PERSON_ID FROM PERSON WHERE EMAIL = auth.email())
+    OR CLIENT_ID IN (
+        SELECT CLIENT_ID FROM CLIENT cl
+        JOIN PERSON p ON p.PERSON_ID = cl.PERSON_ID
+        WHERE p.EMAIL = auth.email()
+    )
+    -- Or assigned clinician in caseload
+    OR EXISTS (
+        SELECT 1 FROM CONSULTANT co
+        JOIN PERSON p ON p.PERSON_ID = co.PERSON_ID
+        JOIN APPOINTMENT ap ON ap.CONSULTANT_ID = co.CONSULTANT_ID AND ap.CLIENT_ID = UPLOADED_FILE.CLIENT_ID
+        WHERE p.EMAIL = auth.email()
+    )
+    -- Or file was uploaded by the clinician directly
+    OR UPLOADED_BY = auth.email()
+);
+
+CREATE POLICY "Users upload own files" ON UPLOADED_FILE
+FOR INSERT WITH CHECK (
+    PERSON_ID IN (SELECT PERSON_ID FROM PERSON WHERE EMAIL = auth.email())
+    OR CLIENT_ID IN (
+        SELECT CLIENT_ID FROM CLIENT cl
+        JOIN PERSON p ON p.PERSON_ID = cl.PERSON_ID
+        WHERE p.EMAIL = auth.email()
+    )
+    OR EXISTS (
+        SELECT 1 FROM CONSULTANT co
+        JOIN PERSON p ON p.PERSON_ID = co.PERSON_ID
+        WHERE p.EMAIL = auth.email()
+    )
+);
+
+CREATE POLICY "Users delete own files" ON UPLOADED_FILE
+FOR DELETE USING (
+    PERSON_ID IN (SELECT PERSON_ID FROM PERSON WHERE EMAIL = auth.email())
+    OR CLIENT_ID IN (
+        SELECT CLIENT_ID FROM CLIENT cl
+        JOIN PERSON p ON p.PERSON_ID = cl.PERSON_ID
+        WHERE p.EMAIL = auth.email()
+    )
+    OR EXISTS (
+        SELECT 1 FROM CONSULTANT co
+        JOIN PERSON p ON p.PERSON_ID = co.PERSON_ID
+        WHERE p.EMAIL = auth.email()
+    )
+);
 
 -- 5.3 Strictly Guarded Private Clinical Notes (Authorization Enforced)
 -- Only verified clinicians can read and insert private clinical notes

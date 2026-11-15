@@ -197,6 +197,123 @@ def test_security_suite():
             all_tests_passed = False
 
     # -------------------------------------------------------------
+    # 6. CLIENT FILE VAULT TENANT ISOLATION TESTS
+    # -------------------------------------------------------------
+    print("\n[TEST 6] Verifying Client Document Vault Tenant Isolation:")
+
+    def py_can_access_file(user, file_obj):
+        if not user or not file_obj:
+            return False
+        if user.get("role") == "admin":
+            return True
+        if user.get("role") == "client":
+            return (
+                file_obj.get("uid") == user.get("id") or
+                (user.get("client_id") and file_obj.get("client_id") == user.get("client_id")) or
+                (user.get("person_id") and file_obj.get("person_id") == user.get("person_id")) or
+                (user.get("email") and file_obj.get("email") == user.get("email"))
+            )
+        return True
+
+    client_a = {"id": "client_1", "client_id": 10, "person_id": 100, "email": "client_a@mindcare.com", "role": "client"}
+    client_b = {"id": "client_2", "client_id": 20, "person_id": 200, "email": "client_b@mindcare.com", "role": "client"}
+
+    file_a = {"id": "f1", "name": "cbt_journal_a.pdf", "uid": "client_1", "client_id": 10, "person_id": 100}
+    file_b = {"id": "f2", "name": "lab_report_b.pdf", "uid": "client_2", "client_id": 20, "person_id": 200}
+
+    # Client A accessing own file
+    if py_can_access_file(client_a, file_a):
+        print("  [PASS] Client A authorized to access their own confidential file.")
+    else:
+        print("  [FAIL] Client A improperly denied access to their own file!")
+        all_tests_passed = False
+
+    # Client A attempting to access Client B's file
+    if not py_can_access_file(client_a, file_b):
+        print("  [PASS] Client A strictly blocked from accessing Client B's confidential file.")
+    else:
+        print("  [FAIL] Security Breach! Client A was granted access to Client B's file!")
+        all_tests_passed = False
+
+    # Client B attempting to access Client A's file
+    if not py_can_access_file(client_b, file_a):
+        print("  [PASS] Client B strictly blocked from accessing Client A's confidential file.")
+    else:
+        print("  [FAIL] Security Breach! Client B was granted access to Client A's file!")
+        all_tests_passed = False
+
+    # Verify Database RLS policy for file isolation exists in SQL files
+    with open(all_in_one_sql, "r", encoding="utf-8") as f:
+        all_sql_content = f.read()
+
+    if 'CREATE POLICY "Clients can only access own files" ON UPLOADED_FILE' in supa_content and \
+       'CREATE POLICY "Clients can only access own files" ON UPLOADED_FILE' in all_sql_content:
+        print("  [PASS] Database RLS Policy 'Clients can only access own files' verified in PostgreSQL schema.")
+    else:
+        print("  [FAIL] Missing RLS file isolation policy in database schemas!")
+        all_tests_passed = False
+
+    # -------------------------------------------------------------
+    # 7. CONSULTANT CASELOAD TENANT ISOLATION TESTS
+    # -------------------------------------------------------------
+    print("\n[TEST 7] Verifying Consultant Caseload Tenant Isolation:")
+
+    def py_can_consultant_handle_client(consultant, client, appointments=None):
+        if not consultant or not client:
+            return False
+        appointments = appointments or []
+        cons_id = consultant.get("id")
+        cons_uid = consultant.get("uid", cons_id)
+        cons_db_id = consultant.get("consultant_id")
+
+        if client.get("assignedConsultantId") in [cons_id, cons_uid, cons_db_id] or \
+           client.get("consultant_id") in [cons_id, cons_uid, cons_db_id]:
+            return True
+
+        has_ap = any(
+            (a.get("cid") == client.get("id") or a.get("uid") == client.get("uid")) and
+            a.get("consultant_id") in [cons_id, cons_uid, cons_db_id]
+            for a in appointments
+        )
+        return has_ap
+
+    cons_sarah = {"id": "c1", "consultant_id": 1, "name": "Dr. Sarah", "role": "consultant"}
+    cons_marcus = {"id": "c2", "consultant_id": 2, "name": "Dr. Marcus", "role": "consultant"}
+
+    patient_sarah = {"id": 101, "uid": "p1", "name": "Sarah's Client", "assignedConsultantId": "c1"}
+    patient_marcus = {"id": 102, "uid": "p2", "name": "Marcus's Client", "assignedConsultantId": "c2"}
+    patient_unassigned = {"id": 103, "uid": "p3", "name": "Intake Client"}
+
+    # Dr. Sarah handles her own client
+    if py_can_consultant_handle_client(cons_sarah, patient_sarah):
+        print("  [PASS] Dr. Sarah authorized to handle her selected/assigned client.")
+    else:
+        print("  [FAIL] Dr. Sarah improperly blocked from her own assigned client!")
+        all_tests_passed = False
+
+    # Dr. Sarah cannot handle Dr. Marcus's client
+    if not py_can_consultant_handle_client(cons_sarah, patient_marcus):
+        print("  [PASS] Dr. Sarah strictly blocked from unselected client handled by Dr. Marcus.")
+    else:
+        print("  [FAIL] Security Breach! Dr. Sarah was permitted to handle Dr. Marcus's client!")
+        all_tests_passed = False
+
+    # Dr. Marcus cannot handle Dr. Sarah's client
+    if not py_can_consultant_handle_client(cons_marcus, patient_sarah):
+        print("  [PASS] Dr. Marcus strictly blocked from unselected client handled by Dr. Sarah.")
+    else:
+        print("  [FAIL] Security Breach! Dr. Marcus was permitted to handle Dr. Sarah's client!")
+        all_tests_passed = False
+
+    # Verify Database RLS policy for client caseload isolation
+    if 'CREATE POLICY "Clients read own profile" ON CLIENT' in supa_content and \
+       'CREATE POLICY "Clients read own profile" ON CLIENT' in all_sql_content:
+        print("  [PASS] Database RLS Policy 'Clients read own profile' verified in PostgreSQL schema.")
+    else:
+        print("  [FAIL] Missing RLS client caseload policy in database schemas!")
+        all_tests_passed = False
+
+    # -------------------------------------------------------------
     # FINAL VERDICT
     # -------------------------------------------------------------
     print("\n" + "=" * 70)

@@ -21,7 +21,14 @@ export default function ClientDocuments({
   showToast
 }) {
   const c = myC();
-  const myFiles = S.fl.filter((f) => f.uid === U.id);
+  // Tenant Isolation: strictly filter vault documents to only files owned by or explicitly directed to this client
+  const isOwnFile = (f) =>
+    f.uid === U.id ||
+    (U.client_id && f.client_id === U.client_id) ||
+    (U.person_id && f.person_id === U.person_id) ||
+    (c?.id && f.cid === c.id);
+
+  const myFiles = S.fl.filter(isOwnFile);
   const isPending = c?.status === 'Pending';
 
   return (
@@ -98,14 +105,21 @@ export default function ClientDocuments({
                       </button>
                       <button
                         className={`${clsBtnSecondary} text-xs py-1 px-2.5 cursor-pointer`}
-                        onClick={() => handleDownloadFile(f, showToast)}
+                        onClick={() => handleDownloadFile(f, showToast, U)}
                       >
                         <span className="material-symbols-outlined text-[16px]">download</span>
                         Download
                       </button>
                       <button
                         className={`${clsBtnDanger} text-xs py-1 px-2.5 cursor-pointer`}
-                        onClick={() => handleDeleteItem('fl', f.id)}
+                        onClick={() => {
+                          if (f.uploadedBy === 'consultant') {
+                            showToast('Permission notice: Documents shared by your clinician cannot be deleted by client.');
+                            return;
+                          }
+                          handleDeleteItem('fl', f.id);
+                        }}
+                        title="Delete your uploaded document"
                       >
                         <span className="material-symbols-outlined text-[14px]">delete</span>
                       </button>

@@ -15,17 +15,32 @@ import Chip from '../../components/common/Chip.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 
 export default function CarePlans({
+  U,
   S,
   T,
   cn,
   handleAddPlan,
-  handleDeleteItem
+  handleDeleteItem,
+  isClientAssignedToConsultant
 }) {
+  // Tenant Isolation: only show clients and care plans assigned to this consultant's caseload
+  const myClients = S.cl.filter(
+    (c) =>
+      (c.status === 'Accepted' || c.status === 'ACTIVE') &&
+      (isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : true)
+  );
+
+  const myPlans = S.pl.filter((p) => {
+    if (p.consultant_id === U?.id || p.consultant_id === U?.consultant_id || p.consultant_id === U?.uid) return true;
+    const client = S.cl.find((c) => c.id === p.cid || c.uid === p.uid);
+    return isClientAssignedToConsultant ? isClientAssignedToConsultant(client, U) : true;
+  });
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-serif text-[28px] font-bold m-0 text-[#14302c] dark:text-[#e3efec]">Care Plans</h1>
-        <p className={`${clsMuted} mt-1`}>Holistic, supportive action steps tailored to each client.</p>
+        <p className={`${clsMuted} mt-1`}>Holistic, supportive action steps tailored to your assigned clients.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -34,14 +49,22 @@ export default function CarePlans({
             <h3 className={clsCardTitle}>Assign Action Step</h3>
             <form onSubmit={handleAddPlan} className="space-y-3">
               <div>
-                <label className={clsLabel}>Client</label>
+                <label className={clsLabel}>Client (Assigned Caseload)</label>
                 <select name="cid" className={clsInput} required>
-                  <option value="">Select accepted client...</option>
-                  {S.cl.filter((c) => c.status === 'Accepted').map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({c.email})
+                  {myClients.length ? (
+                    <>
+                      <option value="">Select assigned client ({myClients.length})...</option>
+                      {myClients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} ({c.email})
+                        </option>
+                      ))}
+                    </>
+                  ) : (
+                    <option value="" disabled>
+                      No assigned clients. Select clients in Client Registry first.
                     </option>
-                  ))}
+                  )}
                 </select>
               </div>
               <div>
@@ -66,9 +89,9 @@ export default function CarePlans({
 
         <div className="lg:col-span-7">
           <div className={clsCard}>
-            <h3 className={clsCardTitle}>Active & Completed Steps</h3>
-            {S.pl.length ? (
-              S.pl.map((p) => (
+            <h3 className={clsCardTitle}>Active & Completed Steps ({myPlans.length})</h3>
+            {myPlans.length ? (
+              myPlans.map((p) => (
                 <div className={clsRow} key={p.id}>
                   <div className={clsRowHeader}>
                     <div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   clsBtnPrimary,
   clsBtnSecondary,
@@ -11,6 +11,7 @@ import Chip from '../../components/common/Chip.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 
 export default function ClientManagement({
+  U,
   S,
   Q,
   setQ,
@@ -18,24 +19,37 @@ export default function ClientManagement({
   setClientModalTab,
   handleDecision,
   avg,
-  E
+  E,
+  isClientAssignedToConsultant,
+  handleAssignClient
 }) {
+  const [viewScope, setViewScope] = useState('my'); // 'my' = My Selected Clients, 'all' = All Practice Clients
   const q = Q.q.toLowerCase();
-  const rows = S.cl.filter(
-    (c) =>
-      (c.name + c.email).toLowerCase().includes(q) &&
-      (Q.f === 'all' ||
-        c.status === Q.f ||
-        (Q.f === 'ACTIVE' && c.status === 'Accepted') ||
-        (Q.f === 'SUSPENDED' && c.status === 'Rejected'))
+
+  const myClients = S.cl.filter((c) =>
+    isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : true
   );
+
+  const rows = S.cl.filter((c) => {
+    const isAssignedToMe = isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : false;
+    if (viewScope === 'my' && !isAssignedToMe) return false;
+
+    const matchesSearch = (c.name + c.email).toLowerCase().includes(q);
+    const matchesFilter =
+      Q.f === 'all' ||
+      c.status === Q.f ||
+      (Q.f === 'ACTIVE' && c.status === 'Accepted') ||
+      (Q.f === 'SUSPENDED' && c.status === 'Rejected');
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-[28px] font-bold m-0 text-[#14302c] dark:text-[#e3efec]">Client Registry</h1>
-          <p className={`${clsMuted} mt-1`}>Manage all intake registrations, client files, and therapeutic statuses.</p>
+          <p className={`${clsMuted} mt-1`}>Manage intake registrations, client files, and caseload assignments.</p>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -58,6 +72,32 @@ export default function ClientManagement({
         </div>
       </div>
 
+      {/* Caseload Scope Selector */}
+      <div className="flex items-center gap-2 border-b border-[#dde7e3] dark:border-[#23403f] pb-3">
+        <button
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 ${
+            viewScope === 'my'
+              ? 'bg-teal-700 text-white dark:bg-teal-400 dark:text-[#052321] shadow-xs'
+              : 'bg-[#e3f1ee] dark:bg-[#173b3a] text-[#0b5a54] dark:text-teal-300 hover:opacity-90'
+          }`}
+          onClick={() => setViewScope('my')}
+        >
+          <span className="material-symbols-outlined text-[16px]">person_pin</span>
+          My Selected Clients ({myClients.length})
+        </button>
+        <button
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 ${
+            viewScope === 'all'
+              ? 'bg-teal-700 text-white dark:bg-teal-400 dark:text-[#052321] shadow-xs'
+              : 'bg-[#e3f1ee] dark:bg-[#173b3a] text-[#0b5a54] dark:text-teal-300 hover:opacity-90'
+          }`}
+          onClick={() => setViewScope('all')}
+        >
+          <span className="material-symbols-outlined text-[16px]">groups</span>
+          All Practice Registrations ({S.cl.length})
+        </button>
+      </div>
+
       <div className={clsCard}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
@@ -66,6 +106,7 @@ export default function ClientManagement({
                 <th className="p-3.5">Client Profile</th>
                 <th className="p-3.5">Contact Email</th>
                 <th className="p-3.5">Status</th>
+                <th className="p-3.5">Caseload</th>
                 <th className="p-3.5">7-Day Mood</th>
                 <th className="p-3.5">Consultations</th>
                 <th className="p-3.5">Files</th>
@@ -75,6 +116,14 @@ export default function ClientManagement({
             <tbody className="divide-y divide-[#dde7e3] dark:divide-[#23403f]">
               {rows.length ? (
                 rows.map((c) => {
+                  const isAssignedToMe = isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : false;
+                  const assignedCons = (S.consultants || []).find(
+                    (p) =>
+                      p.uid === c.assignedConsultantId ||
+                      p.id === c.assignedConsultantId ||
+                      p.uid === c.consultant_id ||
+                      p.id === c.consultant_id
+                  );
                   const mAvg = avg(c.uid);
                   const filesCount = S.fl.filter((f) => f.uid === c.uid).length;
                   const sessionsCount = S.ap.filter((a) => a.cid === c.id || a.uid === c.uid).length;
@@ -87,7 +136,7 @@ export default function ClientManagement({
                         setSelectedClientId(c.id);
                         setClientModalTab('overview');
                       }}
-                      title="Click row to open full client profile"
+                      title="Click row to open client dossier"
                     >
                       <td className="p-3.5 font-semibold text-[#14302c] dark:text-[#e3efec] whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
@@ -104,6 +153,22 @@ export default function ClientManagement({
                       <td className="p-3.5 text-[#5f7571] dark:text-[#8fa8a3] whitespace-nowrap">{c.email}</td>
                       <td className="p-3.5 whitespace-nowrap"><Chip status={c.status} /></td>
                       <td className="p-3.5 whitespace-nowrap">
+                        {isAssignedToMe ? (
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Selected / Handled by You
+                          </span>
+                        ) : assignedCons ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                            Dr. {assignedCons.name.split(' ').slice(-1)[0]}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">
+                            Unassigned Intake
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3.5 whitespace-nowrap">
                         {mAvg ? (
                           <span className="font-semibold inline-flex items-center gap-1.5">
                             <span className="material-symbols-outlined text-[18px] text-teal-700 dark:text-teal-400">
@@ -119,32 +184,45 @@ export default function ClientManagement({
                       <td className="p-3.5 text-[#5f7571] dark:text-[#8fa8a3] whitespace-nowrap">{filesCount} files</td>
                       <td className="p-3.5 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            className={`${clsBtnSecondary} text-xs py-1 px-2.5 cursor-pointer`}
-                            onClick={() => {
-                              setSelectedClientId(c.id);
-                              setClientModalTab('overview');
-                            }}
-                          >
-                            <span className="material-symbols-outlined text-[16px]">visibility</span>
-                            Profile
-                          </button>
-                          {c.status !== 'ACTIVE' && c.status !== 'Accepted' && (
+                          {isAssignedToMe ? (
+                            <>
+                              <button
+                                className={`${clsBtnSecondary} text-xs py-1 px-2.5 cursor-pointer`}
+                                onClick={() => {
+                                  setSelectedClientId(c.id);
+                                  setClientModalTab('overview');
+                                }}
+                              >
+                                <span className="material-symbols-outlined text-[16px]">visibility</span>
+                                Profile
+                              </button>
+                              {c.status !== 'ACTIVE' && c.status !== 'Accepted' && (
+                                <button
+                                  className={`${clsBtnPrimary} text-xs py-1 px-2 cursor-pointer`}
+                                  onClick={() => handleDecision(c.id, 'ACTIVE')}
+                                  title="Activate Client"
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">check</span>
+                                </button>
+                              )}
+                              {c.status !== 'SUSPENDED' && c.status !== 'Rejected' && (
+                                <button
+                                  className={`${clsBtnDanger} text-xs py-1 px-2 cursor-pointer`}
+                                  onClick={() => handleDecision(c.id, 'SUSPENDED')}
+                                  title="Suspend Client"
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">block</span>
+                                </button>
+                              )}
+                            </>
+                          ) : (
                             <button
-                              className={`${clsBtnPrimary} text-xs py-1 px-2 cursor-pointer`}
-                              onClick={() => handleDecision(c.id, 'ACTIVE')}
-                              title="Activate Client"
+                              className={`${clsBtnPrimary} text-xs py-1 px-2.5 cursor-pointer`}
+                              onClick={() => handleAssignClient && handleAssignClient(c.id)}
+                              title="Select and assign this client to your caseload"
                             >
-                              <span className="material-symbols-outlined text-[16px]">check</span>
-                            </button>
-                          )}
-                          {c.status !== 'SUSPENDED' && c.status !== 'Rejected' && (
-                            <button
-                              className={`${clsBtnDanger} text-xs py-1 px-2 cursor-pointer`}
-                              onClick={() => handleDecision(c.id, 'SUSPENDED')}
-                              title="Suspend Client"
-                            >
-                              <span className="material-symbols-outlined text-[16px]">block</span>
+                              <span className="material-symbols-outlined text-[16px]">person_add</span>
+                              Handle Client
                             </button>
                           )}
                         </div>
@@ -154,8 +232,14 @@ export default function ClientManagement({
                 })
               ) : (
                 <tr>
-                  <td colSpan="7" className="text-center py-8">
-                    <EmptyState msg="No matching client records found." />
+                  <td colSpan="8" className="text-center py-8">
+                    <EmptyState
+                      msg={
+                        viewScope === 'my'
+                          ? 'No clients currently selected in your caseload. Switch to "All Practice Registrations" to select and handle clients.'
+                          : 'No matching client records found.'
+                      }
+                    />
                   </td>
                 </tr>
               )}

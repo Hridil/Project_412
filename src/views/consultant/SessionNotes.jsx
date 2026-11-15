@@ -15,11 +15,26 @@ import Chip from '../../components/common/Chip.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 
 export default function SessionNotes({
+  U,
   S,
   cn,
   handleAddNote,
-  handleDeleteItem
+  handleDeleteItem,
+  isClientAssignedToConsultant
 }) {
+  // Tenant Isolation: strictly filter compose clients and documentation to this consultant's caseload
+  const myClients = S.cl.filter(
+    (c) =>
+      (c.status === 'Accepted' || c.status === 'ACTIVE') &&
+      (isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : true)
+  );
+
+  const myNotes = S.nt.filter((n) => {
+    if (n.consultant_id === U?.id || n.consultant_id === U?.consultant_id || n.consultant_id === U?.uid) return true;
+    const client = S.cl.find((c) => c.id === n.cid);
+    return isClientAssignedToConsultant ? isClientAssignedToConsultant(client, U) : true;
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -33,14 +48,22 @@ export default function SessionNotes({
             <h3 className={clsCardTitle}>Compose Note</h3>
             <form onSubmit={handleAddNote} className="space-y-3">
               <div>
-                <label className={clsLabel}>Client</label>
+                <label className={clsLabel}>Client (Assigned Caseload)</label>
                 <select name="cid" className={clsInput} required>
-                  <option value="">Select accepted client...</option>
-                  {S.cl.filter((c) => c.status === 'Accepted').map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({c.email})
+                  {myClients.length ? (
+                    <>
+                      <option value="">Select assigned client ({myClients.length})...</option>
+                      {myClients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} ({c.email})
+                        </option>
+                      ))}
+                    </>
+                  ) : (
+                    <option value="" disabled>
+                      No assigned clients. Select clients in Client Registry first.
                     </option>
-                  ))}
+                  )}
                 </select>
               </div>
               <div>
@@ -70,9 +93,9 @@ export default function SessionNotes({
 
         <div className="lg:col-span-7">
           <div className={clsCard}>
-            <h3 className={clsCardTitle}>Saved Documentation</h3>
-            {S.nt.length ? (
-              S.nt.map((n) => (
+            <h3 className={clsCardTitle}>Saved Documentation ({myNotes.length})</h3>
+            {myNotes.length ? (
+              myNotes.map((n) => (
                 <div className={clsRow} key={n.id}>
                   <div className={clsRowHeader}>
                     <div>

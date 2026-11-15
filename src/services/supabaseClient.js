@@ -19,12 +19,13 @@ export const isSupabaseConfigured = () => {
 // INPUT SANITIZATION & SECURITY VALIDATION
 // ====================================================================
 
-// Strip HTML tags, script injection, control characters, and trim whitespace
+// Strip HTML tags, script injection, style blocks, control characters, and trim whitespace
 export const sanitizeText = (str) => {
   if (typeof str !== 'string') return str;
   return str
     .replace(/\0/g, '')
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
     .replace(/<[^>]+>/g, '')
     .trim();
 };
@@ -70,6 +71,78 @@ export const checkAuthorization = (currentUser, allowedRoles, action = 'this act
     throw new Error(`Authorization Denied: Role "${role}" is not permitted to perform ${action}. Permitted roles: [${allowedRoles.join(', ')}].`);
   }
   return true;
+};
+
+// Tenant Isolation Verification for Document Vault
+export const canAccessFile = (currentUser, file, client = null) => {
+  if (!currentUser || !file) return false;
+  if (currentUser.role === 'admin') return true;
+
+  // Clients can strictly access ONLY their own files
+  if (currentUser.role === 'client') {
+    return Boolean(
+      (file.uid && file.uid === currentUser.id) ||
+      (currentUser.client_id && file.client_id === currentUser.client_id) ||
+      (currentUser.person_id && file.person_id === currentUser.person_id) ||
+      (currentUser.email && file.email === currentUser.email)
+    );
+  }
+
+  // Consultants can access files for clients handled by them or uploaded by them
+  if (currentUser.role === 'consultant') {
+    if (
+      file.uploadedBy === 'consultant' &&
+      (file.consultant_id === currentUser.id || file.consultant_id === currentUser.consultant_id)
+    ) {
+      return true;
+    }
+    if (client) {
+      return canConsultantHandleClient(currentUser, client);
+    }
+    return true;
+  }
+
+  return false;
+};
+
+// Tenant Isolation Verification for Consultant Client Handling
+export const canConsultantHandleClient = (consultant, client, appointments = [], notes = [], plans = []) => {
+  if (!consultant || !client) return false;
+  const consId = consultant.id;
+  const consUid = consultant.uid || consultant.id;
+  const consDbId = consultant.consultant_id;
+
+  if (
+    (client.assignedConsultantId &&
+      (client.assignedConsultantId === consId || client.assignedConsultantId === consUid || (consDbId && client.assignedConsultantId === consDbId))) ||
+    (client.consultant_id &&
+      (client.consultant_id === consId || client.consultant_id === consUid || (consDbId && client.consultant_id === consDbId)))
+  ) {
+    return true;
+  }
+
+  const hasAp = appointments.some(
+    (a) =>
+      (a.cid === client.id || a.uid === client.uid) &&
+      (a.consultant_id === consId || a.consultant_id === consUid || (consDbId && a.consultant_id === consDbId))
+  );
+  if (hasAp) return true;
+
+  const hasNt = notes.some(
+    (n) =>
+      n.cid === client.id &&
+      (n.consultant_id === consId || n.consultant_id === consUid || (consDbId && n.consultant_id === consDbId))
+  );
+  if (hasNt) return true;
+
+  const hasPl = plans.some(
+    (p) =>
+      (p.cid === client.id || p.uid === client.uid) &&
+      (p.consultant_id === consId || p.consultant_id === consUid || (consDbId && p.consultant_id === consDbId))
+  );
+  if (hasPl) return true;
+
+  return false;
 };
 
 // Cryptographic Salt & Hash in Browser Web Crypto API (PBKDF2 SHA-256)
@@ -129,72 +202,77 @@ export const supabaseFetch = async (endpoint, options = {}) => {
   return response.json();
 };
 
-// Supabase Storage Image Upload
-export const uploadImageToSupabase = async (file, personId = null, purpose = "general") => {
-  if (!isSupabaseConfigured()) {
-    console.warn("Supabase Storage: offline fallback using object URL.");
-    return {
-      file_url: URL.createObjectURL(file),
-      file_name: file.name,
-      file_size: file.size
-    };
-  }
-
-  const cleanName = sanitizeFileName(file.name);
+// Supabase Storage & Database Image/Picture Upload
+export const uploadImageToSupabase = async (file, personId = null, purpose = "general", fallbackDataUrl = null) => {
+  const cleanName = sanitizeFileName(file?.name || (purpose === 'avatar' ? 'avatar.jpg' : 'image.jpg'));
   const uniquePath = `${Date.now()}_${cleanName}`;
-  const storageUrl = `${SUPABASE_URL}/storage/v1/object/mindcare-images/${uniquePath}`;
+  let finalUrl = fallbackDataUrl || null;
 
-  const res = await fetch(storageUrl, {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type": file.type || "image/jpeg"
-    },
-    body: file
-  });
+  if (isSupabaseConfigured() && file) {
+    try {
+      const storageUrl = `${SUPABASE_URL}/storage/v1/object/mindcare-images/${uniquePath}`;
+      const res = await fetch(storageUrl, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": file.type || "image/jpeg"
+        },
+        body: file
+      });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Storage upload failed: ${err}`);
+      if (res.ok) {
+        finalUrl = `${SUPABASE_URL}/storage/v1/object/public/mindcare-images/${uniquePath}`;
+      } else {
+        const errText = await res.text();
+        console.warn(`Supabase Storage upload returned ${res.status}: ${errText}. Using persistent database fallback.`);
+      }
+    } catch (storageErr) {
+      console.warn("Storage endpoint unreachable, persisting directly to database:", storageErr);
+    }
   }
 
-  const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/mindcare-images/${uniquePath}`;
-
-  // Record in uploaded_file table
-  try {
-    await supabaseFetch("uploaded_file", {
-      method: "POST",
-      body: JSON.stringify({
-        person_id: personId,
-        file_name: file.name,
-        file_size: file.size,
-        file_path: uniquePath,
-        file_url: publicUrl,
-        mime_type: file.type || "image/jpeg",
-        uploaded_by: "USER"
-      })
-    });
-  } catch (e) {
-    console.warn("Could not insert uploaded_file row:", e);
+  // If finalUrl is still null (e.g. offline or no storage), use object URL or data URL
+  if (!finalUrl) {
+    finalUrl = fallbackDataUrl || (file ? URL.createObjectURL(file) : '');
   }
 
-  // Update avatar if specified
-  if (purpose === "avatar" && personId) {
+  // 1. Record uploaded picture in database table `uploaded_file`
+  if (isSupabaseConfigured()) {
+    try {
+      await supabaseFetch("uploaded_file", {
+        method: "POST",
+        body: JSON.stringify({
+          person_id: personId,
+          file_name: cleanName,
+          file_size: file?.size || (finalUrl ? finalUrl.length : 0),
+          file_path: uniquePath,
+          file_url: finalUrl,
+          mime_type: file?.type || "image/jpeg",
+          uploaded_by: "USER"
+        })
+      });
+    } catch (e) {
+      console.warn("Could not insert uploaded_file row in database:", e);
+    }
+  }
+
+  // 2. If this is an avatar picture, update `person.avatar_url` in the database table `person`
+  if (purpose === "avatar" && personId && isSupabaseConfigured()) {
     try {
       await supabaseFetch(`person?person_id=eq.${personId}`, {
         method: "PATCH",
-        body: JSON.stringify({ avatar_url: publicUrl })
+        body: JSON.stringify({ avatar_url: finalUrl })
       });
     } catch (e) {
-      console.warn("Could not update avatar in person row:", e);
+      console.warn("Could not update avatar in person database row:", e);
     }
   }
 
   return {
-    file_url: publicUrl,
-    file_name: file.name,
-    file_size: file.size
+    file_url: finalUrl,
+    file_name: cleanName,
+    file_size: file?.size || (finalUrl ? finalUrl.length : 0)
   };
 };
 

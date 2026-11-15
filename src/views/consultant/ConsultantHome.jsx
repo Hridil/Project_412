@@ -21,7 +21,6 @@ export default function ConsultantHome({
   U,
   S,
   T,
-  acc,
   avg,
   cn,
   srt,
@@ -38,14 +37,36 @@ export default function ConsultantHome({
   handleDeleteDashboardImage,
   setPreviewFile,
   go,
-  showToast
+  showToast,
+  isClientAssignedToConsultant
 }) {
-  const up = S.ap.filter((a) => a.date >= T()).sort(srt);
+  // Caseload tenant isolation: filter active clients, sessions, and files to this consultant's caseload
+  const myAssignedClients = S.cl.filter((c) =>
+    isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : true
+  );
+  const myActiveClients = myAssignedClients.filter(
+    (c) => c.status === 'Accepted' || c.status === 'ACTIVE'
+  );
+
+  const up = S.ap
+    .filter((a) => {
+      if (a.consultant_id === U?.id || a.consultant_id === U?.consultant_id || a.consultant_id === U?.uid) {
+        return a.date >= T();
+      }
+      const client = S.cl.find((c) => c.id === a.cid || c.uid === a.uid);
+      return (isClientAssignedToConsultant ? isClientAssignedToConsultant(client, U) : true) && a.date >= T();
+    })
+    .sort(srt);
+
   const pn = S.cl.filter((c) => c.status === 'Pending');
-  const activeClients = acc();
   const consImages = S.dashImages?.[U.id] || [];
   const activeConsImg = consImages[0] || null;
-  const clientVaultUploads = S.fl.filter((f) => f.uploadedBy === 'client');
+
+  const clientVaultUploads = S.fl.filter((f) => {
+    if (f.uploadedBy !== 'client') return false;
+    const clientOwner = S.cl.find((c) => c.uid === f.uid);
+    return isClientAssignedToConsultant ? isClientAssignedToConsultant(clientOwner, U) : true;
+  });
 
   return (
     <div className="space-y-6">
@@ -68,10 +89,10 @@ export default function ConsultantHome({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total clients" value={S.cl.length} sub="All intake records" borderColorClass="bg-teal-700 dark:bg-teal-400" iconName="group" />
-        <StatCard label="Active clients" value={activeClients.length} sub="In active care plan" borderColorClass="bg-[#e07a5f]" iconName="how_to_reg" />
-        <StatCard label="Pending triage" value={pn.length} sub="Requires practitioner decision" borderColorClass="bg-[#e9b44c]" iconName="hourglass_top" />
-        <StatCard label="Upcoming sessions" value={up.length} sub="Confirmed bookings" borderColorClass="bg-[#6c8ebf]" iconName="event_available" />
+        <StatCard label="Your Caseload" value={myAssignedClients.length} sub="Handled by you" borderColorClass="bg-teal-700 dark:bg-teal-400" iconName="group" />
+        <StatCard label="Active in Care" value={myActiveClients.length} sub="In active care plan" borderColorClass="bg-[#e07a5f]" iconName="how_to_reg" />
+        <StatCard label="Pending Triage" value={pn.length} sub="Intake applications" borderColorClass="bg-[#e9b44c]" iconName="hourglass_top" />
+        <StatCard label="Upcoming Sessions" value={up.length} sub="Booked with you" borderColorClass="bg-[#6c8ebf]" iconName="event_available" />
       </div>
 
       {/* Practice Visual Overview & Image Showcase */}
@@ -298,8 +319,8 @@ export default function ConsultantHome({
             <h3 className={clsCardTitle}>Client Wellbeing (7-Day Mood Average)</h3>
             <span className="text-xs text-[#5f7571] dark:text-[#8fa8a3]">Click client for profile</span>
           </div>
-          {activeClients.length ? (
-            activeClients.map((c) => {
+          {myActiveClients.length ? (
+            myActiveClients.map((c) => {
               const a = avg(c.uid);
               return (
                 <div

@@ -14,15 +14,33 @@ import Chip from '../../components/common/Chip.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 
 export default function ConsultantSchedule({
+  U,
   S,
   T,
   srt,
   cn,
   handleSchedule,
   handleConfirmAp,
-  handleCancelAp
+  handleCancelAp,
+  isClientAssignedToConsultant
 }) {
-  const appointments = [...S.ap].sort(srt);
+  // Tenant Isolation: strictly show appointments for this consultant or their handled clients
+  const appointments = S.ap
+    .filter((a) => {
+      if (a.consultant_id === U?.id || a.consultant_id === U?.consultant_id || a.consultant_id === U?.uid) {
+        return true;
+      }
+      const client = S.cl.find((c) => c.id === a.cid || c.uid === a.uid);
+      return isClientAssignedToConsultant ? isClientAssignedToConsultant(client, U) : true;
+    })
+    .sort(srt);
+
+  // Clinician can only schedule sessions with clients assigned to their caseload
+  const myAssignedClients = S.cl.filter(
+    (c) =>
+      (c.status === 'Accepted' || c.status === 'ACTIVE') &&
+      (isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : true)
+  );
 
   return (
     <div className="space-y-6">
@@ -31,7 +49,7 @@ export default function ConsultantSchedule({
           Appointment Scheduling
         </h1>
         <p className={`${clsMuted} mt-1`}>
-          Schedule and manage telehealth and in-person consultations with enrolled clients.
+          Schedule and manage telehealth and in-person consultations with your assigned clients.
         </p>
       </div>
 
@@ -41,14 +59,22 @@ export default function ConsultantSchedule({
             <h3 className={clsCardTitle}>Book New Session</h3>
             <form onSubmit={handleSchedule} className="space-y-3">
               <div>
-                <label className={clsLabel}>Select Client</label>
+                <label className={clsLabel}>Select Assigned Client</label>
                 <select name="cid" className={clsInput} required>
-                  <option value="">Select active client...</option>
-                  {S.cl.filter((c) => c.status === 'Accepted' || c.status === 'ACTIVE').map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({c.email})
+                  {myAssignedClients.length ? (
+                    <>
+                      <option value="">Select handled client ({myAssignedClients.length})...</option>
+                      {myAssignedClients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} ({c.email})
+                        </option>
+                      ))}
+                    </>
+                  ) : (
+                    <option value="" disabled>
+                      No assigned clients. Claim or select clients from Client Registry first.
                     </option>
-                  ))}
+                  )}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
