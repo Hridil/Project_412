@@ -401,15 +401,6 @@ export default function App() {
     setDark((prev) => !prev);
   };
 
-  const exportData = () => {
-    const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `mindcare-data-${T()}.json`;
-    a.click();
-    showToast('Data exported successfully');
-  };
-
   const setRole = (r) => {
     setRoleState(r);
     setIsSignup(false);
@@ -1711,7 +1702,6 @@ export default function App() {
               setSideOpen={setSideOpen}
               userAvatar={userAvatar}
               setProfileMenuOpen={setProfileMenuOpen}
-              exportData={exportData}
               logout={logout}
               go={go}
             />

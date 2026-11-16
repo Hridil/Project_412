@@ -9,7 +9,6 @@ export default function Sidebar({
   setSideOpen,
   userAvatar,
   setProfileMenuOpen,
-  exportData,
   logout,
   go
 }) {
@@ -84,13 +83,6 @@ export default function Sidebar({
           </div>
 
           <div className="space-y-1">
-            <button
-              className="flex items-center gap-3 w-full text-left rounded-xl px-3.5 py-2 text-sm text-[#b7d3ce] hover:bg-white/10 transition cursor-pointer"
-              onClick={exportData}
-            >
-              <span className="material-symbols-outlined text-[18px]">download</span>
-              <span>Export Data</span>
-            </button>
             <button
               className="flex items-center gap-3 w-full text-left rounded-xl px-3.5 py-2 text-sm text-[#f4a496] hover:bg-[#3b1f1b]/50 transition cursor-pointer"
               onClick={logout}
