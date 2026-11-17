@@ -1579,6 +1579,8 @@ export default function App() {
             handleConfirmAp={handleConfirmAp}
             handleCancelAp={handleCancelAp}
             isClientAssignedToConsultant={isClientAssignedToConsultant}
+            setSelectedClientId={setSelectedClientId}
+            setClientModalTab={setClientModalTab}
           />
         );
 
