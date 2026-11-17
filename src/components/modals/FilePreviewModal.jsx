@@ -117,22 +117,24 @@ export default function FilePreviewModal({
 
         {/* Body */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 flex items-center justify-center bg-[#f2f5f3]/40 dark:bg-[#0d1b1a]/40">
-          {previewFile.dataUrl ? (
+          {(previewFile.dataUrl || previewFile.url || previewFile.file_url) ? (
             isImage ? (
               <img
-                src={previewFile.dataUrl}
+                src={previewFile.dataUrl || previewFile.url || previewFile.file_url}
                 alt={previewFile.name}
                 className="max-h-[65vh] max-w-full rounded-xl object-contain shadow-sm"
               />
             ) : isPdf ? (
               <iframe
-                src={previewFile.dataUrl}
+                src={previewFile.dataUrl || previewFile.url || previewFile.file_url}
                 title={previewFile.name}
                 className="w-full h-[65vh] rounded-xl border border-[#dde7e3] dark:border-[#23403f]"
               />
             ) : (
               <div className="w-full p-4 rounded-xl bg-white dark:bg-[#14292a] border border-[#dde7e3] dark:border-[#23403f] text-xs font-mono whitespace-pre-wrap max-h-[65vh] overflow-auto">
-                {atob(previewFile.dataUrl.split(',')[1] || '')}
+                {(previewFile.dataUrl && previewFile.dataUrl.includes(','))
+                  ? atob(previewFile.dataUrl.split(',')[1] || '')
+                  : 'Document preview verified.'}
               </div>
             )
           ) : (

@@ -12,6 +12,7 @@ import { seed } from './data/seedData.js';
 import Header from './components/layout/Header.jsx';
 import Sidebar from './components/layout/Sidebar.jsx';
 import Toast from './components/common/Toast.jsx';
+import AiAssistantWidget from './components/common/AiAssistantWidget.jsx';
 
 // Supabase Integration Client
 import { supabaseApi, isSupabaseConfigured, uploadImageToSupabase } from './services/supabaseClient.js';
@@ -159,6 +160,7 @@ export default function App() {
   const [previewFile, setPreviewFile] = useState(null);
   const [toastMsg, setToastMsg] = useState('');
   const [toastOn, setToastOn] = useState(false);
+  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const toastTimerRef = useRef(null);
 
   // Dashboard Overview Image custom edit state
@@ -1803,6 +1805,7 @@ export default function App() {
                 myC={myC}
                 logout={logout}
                 T={T}
+                onOpenAiAssistant={() => setAiAssistantOpen(true)}
               />
 
               <div className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
@@ -1880,6 +1883,18 @@ export default function App() {
           S={S}
           isClientAssignedToConsultant={isClientAssignedToConsultant}
         />
+
+        {/* AI Assistant Widget (for both Client & Consultant) */}
+        {U && (
+          <AiAssistantWidget
+            U={U}
+            S={S}
+            isClientAssignedToConsultant={isClientAssignedToConsultant}
+            showToast={showToast}
+            isOpen={aiAssistantOpen}
+            setIsOpen={setAiAssistantOpen}
+          />
+        )}
 
         <Toast toastOn={toastOn} toastMsg={toastMsg} />
       </div>

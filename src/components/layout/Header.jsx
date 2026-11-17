@@ -23,7 +23,8 @@ export default function Header({
   streak,
   myC,
   logout,
-  T
+  T,
+  onOpenAiAssistant
 }) {
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-8 py-3 bg-white/90 dark:bg-[#14292a]/90 backdrop-blur-md border-b border-[#dde7e3] dark:border-[#23403f]">
@@ -54,6 +55,21 @@ export default function Header({
       </div>
 
       <div className="flex items-center gap-2.5 sm:gap-4">
+        {/* AI Assistant Quick Trigger */}
+        {onOpenAiAssistant && (
+          <button
+            type="button"
+            onClick={onOpenAiAssistant}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-200 text-xs font-semibold hover:bg-teal-100 dark:hover:bg-teal-900/80 transition cursor-pointer shadow-2xs"
+            title="Open MindCare AI Assistant"
+          >
+            <span className="material-symbols-outlined text-[16px] text-teal-700 dark:text-teal-300">
+              {U?.role === 'consultant' ? 'neurology' : 'psychology'}
+            </span>
+            <span>{U?.role === 'consultant' ? 'Clinical AI' : 'Sanctuary AI'}</span>
+          </button>
+        )}
+
         {/* Crisis Support Pill linked to dedicated crisis.html */}
         <a
           href="/crisis.html"
