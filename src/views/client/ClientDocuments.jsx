@@ -113,14 +113,8 @@ export default function ClientDocuments({
                       </button>
                       <button
                         className={`${clsBtnDanger} text-xs py-1 px-2.5 cursor-pointer`}
-                        onClick={() => {
-                          if (f.uploadedBy === 'consultant') {
-                            showToast('Permission notice: Documents shared by your clinician cannot be deleted by client.');
-                            return;
-                          }
-                          handleDeleteItem('fl', f.id);
-                        }}
-                        title="Delete your uploaded document"
+                        onClick={() => handleDeleteItem('fl', f.id)}
+                        title="Delete document"
                       >
                         <span className="material-symbols-outlined text-[14px]">delete</span>
                       </button>

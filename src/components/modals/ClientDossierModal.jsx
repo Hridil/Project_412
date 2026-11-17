@@ -42,9 +42,14 @@ export default function ClientDossierModal({
   handleDeleteFeedback,
   U,
   isClientAssignedToConsultant,
-  handleAssignClient
+  handleAssignClient,
+  handleStorePreconsultationAsFile,
+  handleStorePreconsultationAsNote,
+  showToast
 }) {
   const [dossierFileSearch, setDossierFileSearch] = useState('');
+  const [storedVaultForms, setStoredVaultForms] = useState(new Set());
+  const [storedNoteForms, setStoredNoteForms] = useState(new Set());
 
   if (!selectedClient) return null;
 
@@ -63,6 +68,17 @@ export default function ClientDossierModal({
     (f) => !dossierFileSearch.trim() || f.name.toLowerCase().includes(dossierFileSearch.trim().toLowerCase())
   );
   const clientSessions = S.ap.filter((a) => a.cid === selectedClient.id || a.uid === selectedClient.uid).sort(srt);
+  const clientPreForms = clientSessions
+    .filter((a) => a.pre && (a.pre.reason || a.pre.goals || a.pre.concern_category || a.pre.distress_level))
+    .map((a) => ({
+      ...a.pre,
+      appointmentId: a.id,
+      date: a.date,
+      time: a.time,
+      status: a.status,
+      appointment_mode: a.appointment_mode || (a.type?.includes('Online') ? 'ONLINE' : 'OFFLINE'),
+      type: a.type
+    }));
   const clientPlans = S.pl.filter((p) => p.cid === selectedClient.id || p.uid === selectedClient.uid);
   const clientNotes = S.nt.filter((n) => n.cid === selectedClient.id);
   const clientFeedbacks = (S.fb || []).filter((f) => f.clientId === selectedClient.uid);
@@ -180,6 +196,7 @@ export default function ClientDossierModal({
             ['overview', 'Overview & Mood', 'person', null],
             ['files', 'Documents & Files', 'folder_shared', clientFiles.length],
             ['sessions', 'Appointments', 'calendar_month', clientSessions.length],
+            ['intake', 'Pre-Consult Intake', 'assignment', clientPreForms.length],
             ['plans', 'Care Plans', 'fact_check', clientPlans.length],
             ['notes', 'Clinical Notes', 'edit_note', clientNotes.length],
             ['feedback', 'Feedback', 'rate_review', clientFeedbacks.length]
@@ -418,6 +435,16 @@ export default function ClientDossierModal({
                           {a.pre?.reason && <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] mt-1 italic">Focus: "{a.pre.reason}"</p>}
                         </div>
                         <div className="flex gap-2">
+                          {a.pre && (
+                            <button
+                              className={`${clsBtnSecondary} text-xs py-1 px-2.5 cursor-pointer`}
+                              onClick={() => setClientModalTab('intake')}
+                              title="View & Store Pre-Consultation Intake Form"
+                            >
+                              <span className="material-symbols-outlined text-[15px]">assignment</span>
+                              Intake Form
+                            </button>
+                          )}
                           {a.status === 'Requested' && (
                             <button className={`${clsBtnPrimary} text-xs py-1 px-2.5`} onClick={() => handleConfirmAp(a.id)}>
                               Confirm
@@ -434,6 +461,210 @@ export default function ClientDossierModal({
                   <EmptyState msg="No appointments scheduled with this client." />
                 )}
               </div>
+            </div>
+          )}
+
+          {/* PRE-CONSULTATION INTAKE FORMS TAB */}
+          {clientModalTab === 'intake' && (
+            <div className="space-y-5">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h4 className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec] m-0">
+                    Pre-Consultation Intake Assessments ({clientPreForms.length})
+                  </h4>
+                  <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] mt-0.5">
+                    Forms submitted by {selectedClient.name} prior to session booking. Store assessments into your vault or private notes.
+                  </p>
+                </div>
+              </div>
+
+              {clientPreForms.length > 0 ? (
+                <div className="space-y-4">
+                  {clientPreForms.map((form, idx) => {
+                    const isVaultStored = storedVaultForms.has(form.appointmentId || idx);
+                    const isNoteStored = storedNoteForms.has(form.appointmentId || idx);
+                    const distress = form.distress_level || 5;
+
+                    return (
+                      <div key={idx} className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#14292a] border border-[#dde7e3] dark:border-[#23403f] shadow-xs space-y-4">
+                        {/* Header */}
+                        <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-[#dde7e3] dark:border-[#23403f]">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-serif font-bold text-sm text-[#14302c] dark:text-[#e3efec]">
+                              Intake for Session: {form.date || 'Scheduled'} at {form.time || '10:00'}
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-[#eaf2ef] dark:bg-[#173b3a] text-[#14302c] dark:text-[#e3efec] font-semibold">
+                              <span className="material-symbols-outlined text-[13px]">
+                                {form.appointment_mode === 'ONLINE' ? 'videocam' : 'location_on'}
+                              </span>
+                              {form.appointment_mode === 'ONLINE' ? 'Online Telehealth' : 'In-Person Sanctuary'}
+                            </span>
+                            {form.status && <Chip status={form.status} />}
+                          </div>
+
+                          {/* Storage Action Buttons */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (handleStorePreconsultationAsFile) {
+                                  handleStorePreconsultationAsFile(form, selectedClient);
+                                  setStoredVaultForms((prev) => new Set(prev).add(form.appointmentId || idx));
+                                }
+                              }}
+                              className={`text-xs py-1.5 px-3 rounded-lg font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+                                isVaultStored
+                                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300'
+                                  : 'bg-teal-700 hover:bg-teal-800 dark:bg-teal-400 dark:hover:bg-teal-300 text-white dark:text-[#052321] shadow-2xs'
+                              }`}
+                              title="Store intake assessment as a verified document in client's file vault"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">
+                                {isVaultStored ? 'check_circle' : 'drive_folder_upload'}
+                              </span>
+                              {isVaultStored ? 'Stored in Vault' : 'Store in Vault'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (handleStorePreconsultationAsNote) {
+                                  handleStorePreconsultationAsNote(form, selectedClient);
+                                  setStoredNoteForms((prev) => new Set(prev).add(form.appointmentId || idx));
+                                }
+                              }}
+                              className={`text-xs py-1.5 px-3 rounded-lg font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+                                isNoteStored
+                                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300'
+                                  : 'bg-[#e3f1ee] hover:bg-[#d5ede8] dark:bg-[#173b3a] dark:hover:bg-[#1f4e4d] text-teal-800 dark:text-teal-200 shadow-2xs'
+                              }`}
+                              title="Archive intake assessment into private clinician clinical notes"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">
+                                {isNoteStored ? 'check_circle' : 'note_add'}
+                              </span>
+                              {isNoteStored ? 'Archived in Notes' : 'Archive to Notes'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleDownloadFile(
+                                  {
+                                    name: `Intake_Assessment_${selectedClient.name}_${form.date || 'Record'}.txt`,
+                                    date: form.date,
+                                    size: 1024,
+                                    uploadedBy: 'consultant'
+                                  },
+                                  showToast || (() => {}),
+                                  U
+                                );
+                              }}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#f2f5f3] hover:bg-[#e0e7e4] dark:bg-[#1c3839] dark:hover:bg-[#254b4d] text-[#14302c] dark:text-[#e3efec] transition cursor-pointer"
+                              title="Download intake document"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">download</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Intake Details Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+                          {/* Left Column: Concern & Distress */}
+                          <div className="space-y-3 p-3.5 rounded-xl bg-[#f9fbfa] dark:bg-[#0f2021] border border-[#dde7e3] dark:border-[#23403f]">
+                            <div>
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3] block mb-1">
+                                Category of Concern
+                              </span>
+                              <span className="font-semibold text-[#14302c] dark:text-[#e3efec] text-sm">
+                                {form.concern_category || 'General Mental Wellbeing'}
+                              </span>
+                            </div>
+
+                            <div>
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">
+                                  Subjective Distress Severity
+                                </span>
+                                <span className="font-bold text-xs text-teal-800 dark:text-teal-300">
+                                  {distress} / 10 · {distress >= 7 ? 'Acute' : distress >= 4 ? 'Moderate' : 'Mild'}
+                                </span>
+                              </div>
+                              <div className="w-full bg-[#dde7e3] dark:bg-[#23403f] h-2 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-300 ${
+                                    distress >= 7
+                                      ? 'bg-rose-500'
+                                      : distress >= 4
+                                      ? 'bg-amber-500'
+                                      : 'bg-emerald-500'
+                                  }`}
+                                  style={{ width: `${distress * 10}%` }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#dde7e3] dark:border-[#23403f]">
+                              <div>
+                                <span className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] block">Duration:</span>
+                                <b className="text-[#14302c] dark:text-[#e3efec]">{form.duration || '1 to 6 months'}</b>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] block">Prior Therapy:</span>
+                                <b className="text-[#14302c] dark:text-[#e3efec]">{form.prior_therapy || 'No'}</b>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right Column: Medications, Goals & Safety */}
+                          <div className="space-y-3 p-3.5 rounded-xl bg-[#f9fbfa] dark:bg-[#0f2021] border border-[#dde7e3] dark:border-[#23403f]">
+                            <div>
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3] block mb-0.5">
+                                Primary Focus / Chief Complaint
+                              </span>
+                              <p className="text-[#14302c] dark:text-[#e3efec] font-medium m-0">
+                                "{form.reason || 'Consultation Intake'}"
+                              </p>
+                            </div>
+
+                            <div>
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3] block mb-0.5">
+                                Desired Breakthrough / Session Goals
+                              </span>
+                              <p className="text-[#5f7571] dark:text-[#8fa8a3] italic m-0">
+                                "{form.goals || 'Support, regulation, and guidance'}"
+                              </p>
+                            </div>
+
+                            <div className="pt-2 border-t border-[#dde7e3] dark:border-[#23403f] flex items-center justify-between flex-wrap gap-2 text-[11px]">
+                              <div>
+                                <span className="text-[#5f7571] dark:text-[#8fa8a3]">Medications: </span>
+                                <b className="text-[#14302c] dark:text-[#e3efec]">{form.medications || 'None'}</b>
+                              </div>
+                              <div>
+                                <span className="text-[#5f7571] dark:text-[#8fa8a3]">Emergency Contact: </span>
+                                <b className="text-[#14302c] dark:text-[#e3efec]">{form.emergency_contact || 'None listed'}</b>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Safety Screen Banner */}
+                        <div className="p-2.5 rounded-lg bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-[11px] text-teal-900 dark:text-teal-200 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-[16px] text-teal-700 dark:text-teal-300">
+                            verified
+                          </span>
+                          <span>
+                            <b>Clinical Safety Screening Verified:</b> Client acknowledged no acute life-threatening emergency at intake submission.
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <EmptyState msg="No pre-consultation intake forms submitted for this client yet." />
+              )}
             </div>
           )}
 

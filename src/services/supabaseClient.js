@@ -638,27 +638,34 @@ export const supabaseApi = {
     }
   },
 
-  // Fetch all Appointments
+  // Fetch all Appointments (with Pre-Consultation Intake Forms)
   getAppointments: async () => {
     const data = await supabaseFetch(
-      "appointment?select=*,client(client_id,person_id,person(name,email)),consultant(consultant_id,person_id,person(name,email))&order=appointment_date.desc"
+      "appointment?select=*,preconsultation_form(*),client(client_id,person_id,person(name,email)),consultant(consultant_id,person_id,person(name,email))&order=appointment_date.desc"
     );
-    return (data || []).map((a) => ({
-      id: a.appointment_id,
-      uid: a.client?.person_id ? 'u' + a.client.person_id : 'u' + a.client_id,
-      cid: a.client_id,
-      consultant_id: a.consultant?.person_id
-        ? 'u' + a.consultant.person_id
-        : a.consultant_id
-        ? 'u' + a.consultant_id
-        : 'cons',
-      date: a.appointment_date,
-      time: a.appointment_time,
-      type: a.appointment_mode === 'ONLINE' ? 'Online Telehealth Consultation' : 'In-Person Sanctuary Consultation',
-      appointment_mode: a.appointment_mode || 'ONLINE',
-      status: a.status,
-      reason: a.reason || ''
-    }));
+    return (data || []).map((a) => {
+      const preForm = Array.isArray(a.preconsultation_form)
+        ? a.preconsultation_form[0]?.responses
+        : a.preconsultation_form?.responses;
+
+      return {
+        id: a.appointment_id,
+        uid: a.client?.person_id ? 'u' + a.client.person_id : 'u' + a.client_id,
+        cid: a.client_id,
+        consultant_id: a.consultant?.person_id
+          ? 'u' + a.consultant.person_id
+          : a.consultant_id
+          ? 'u' + a.consultant_id
+          : 'cons',
+        date: a.appointment_date,
+        time: a.appointment_time,
+        type: a.appointment_mode === 'ONLINE' ? 'Online Telehealth Consultation' : 'In-Person Sanctuary Consultation',
+        appointment_mode: a.appointment_mode || 'ONLINE',
+        status: a.status,
+        reason: a.reason || '',
+        pre: preForm || (a.reason ? { reason: a.reason } : null)
+      };
+    });
   },
 
   createAppointment: async (appointmentData, currentUser = null) => {
@@ -673,6 +680,27 @@ export const supabaseApi = {
         reason: cleanReason
       })
     });
+  },
+
+  // Pre-Consultation Form Management
+  createPreconsultationForm: async (formData, currentUser = null) => {
+    if (currentUser) {
+      checkAuthorization(currentUser, ['client', 'consultant', 'admin'], 'submit pre-consultation intake form');
+    }
+    return supabaseFetch("preconsultation_form", {
+      method: "POST",
+      body: JSON.stringify(formData)
+    });
+  },
+
+  getPreconsultationForms: async () => {
+    const data = await supabaseFetch("preconsultation_form?select=*,appointment(*,client(*,person(*)),consultant(*,person(*)))&order=submitted_at.desc").catch(() => []);
+    return (data || []).map((p) => ({
+      form_id: p.form_id,
+      appointment_id: p.appointment_id,
+      responses: p.responses,
+      submitted_at: p.submitted_at
+    }));
   },
 
   // Feedback with Authorization & Input Sanitization
@@ -757,6 +785,34 @@ export const supabaseApi = {
         tag: cleanTag,
         note_text: cleanText
       })
+    });
+  },
+
+  // Insert verified clinical file record into database table uploaded_file
+  uploadFileRecord: async (fileRecord) => {
+    return supabaseFetch("uploaded_file", {
+      method: "POST",
+      body: JSON.stringify(fileRecord)
+    });
+  },
+
+  // Delete uploaded file record from database table uploaded_file
+  deleteFile: async (fileId) => {
+    if (!fileId) return false;
+    const cleanId = typeof fileId === 'string' && fileId.startsWith('u') ? fileId.replace('u', '') : fileId;
+    if (isNaN(Number(cleanId))) return true;
+    return supabaseFetch(`uploaded_file?file_id=eq.${cleanId}`, {
+      method: "DELETE"
+    });
+  },
+
+  // Delete private clinical note from database table private_note
+  deletePrivateNote: async (noteId) => {
+    if (!noteId) return false;
+    const cleanId = typeof noteId === 'string' && noteId.startsWith('u') ? noteId.replace('u', '') : noteId;
+    if (isNaN(Number(cleanId))) return true;
+    return supabaseFetch(`private_note?note_id=eq.${cleanId}`, {
+      method: "DELETE"
     });
   },
 
