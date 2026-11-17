@@ -68,6 +68,14 @@ export default function ClientDossierModal({
   const clientFeedbacks = (S.fb || []).filter((f) => f.clientId === selectedClient.uid);
   const completedPlans = clientPlans.filter((p) => p.done).length;
 
+  const clientAvatar =
+    selectedClient.avatar ||
+    selectedClient.avatar_url ||
+    S.avatars?.[selectedClient.uid] ||
+    S.avatars?.[selectedClient.id] ||
+    (selectedClient.person_id && S.avatars?.['u' + selectedClient.person_id]) ||
+    null;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs"
@@ -81,9 +89,16 @@ export default function ClientDossierModal({
         <div className="p-5 sm:p-6 border-b border-[#dde7e3] dark:border-[#23403f] bg-gradient-to-r from-[#e3f1ee]/50 to-transparent dark:from-[#173b3a]/40">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-xl shadow-xs overflow-hidden">
-                {S.avatars?.[selectedClient.uid] ? (
-                  <img src={S.avatars[selectedClient.uid]} alt={selectedClient.name} className="w-full h-full object-cover" />
+              <div className="w-12 h-12 rounded-2xl bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-xl shadow-xs overflow-hidden shrink-0">
+                {clientAvatar ? (
+                  <img
+                    src={clientAvatar}
+                    alt={selectedClient.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
                 ) : (
                   <span>{selectedClient.name[0]}</span>
                 )}

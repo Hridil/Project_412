@@ -48,8 +48,15 @@ export default function App() {
       if (saved) {
         const parsed = JSON.parse(saved);
         // Clean out legacy dummy records
-        const dummyUserIds = new Set(['cons', 'cdemo', 'jamie']);
-        const dummyEmails = new Set(['demo@mindcare.com', 'client@mindcare.com', 'jamie@example.com']);
+        const dummyUserIds = new Set(['cons', 'cdemo', 'jamie', 'u1', 'u2']);
+        const dummyEmails = new Set([
+          'demo@mindcare.com',
+          'client@mindcare.com',
+          'jamie@example.com',
+          'sarah.mitchell@mindcare.com',
+          'marcus.vance@mindcare.com',
+          'alex.chen@mindcare.com'
+        ]);
 
         parsed.acc = (parsed.acc || []).filter(
           (a) => !dummyUserIds.has(a.id) && !dummyEmails.has(a.email)
@@ -233,18 +240,22 @@ export default function App() {
           const localOnlyFb = (prev.fb || []).filter((f) => !dbFbIds.has(f.id));
           const finalFeedback = [...(data.feedback || []), ...localOnlyFb];
 
-          // 6. Consultants
-          const existingConsMap = new Map((prev.consultants || []).map((c) => [c.id, c]));
-          const mergedCons = (data.consultants || []).map((dbC) => ({
-            ...(existingConsMap.get(dbC.id) || {}),
-            ...dbC
-          }));
-          const dbConsIds = new Set((data.consultants || []).map((c) => c.id));
-          const localOnlyCons = (prev.consultants || []).filter((c) => !dbConsIds.has(c.id));
-          const finalCons = [...mergedCons, ...localOnlyCons];
+          // 6. Consultants: Authoritative from database CONSULTANT table
+          const finalCons = (data.consultants && data.consultants.length > 0)
+            ? data.consultants
+            : (prev.consultants || []);
+
+          // Purge removed consultants from acc list
+          const activeConsEmails = new Set((finalCons || []).map((c) => (c.email || '').toLowerCase()));
+          const cleanedPrevAcc = (prev.acc || []).filter((a) => {
+            if (a.role === 'consultant') {
+              return activeConsEmails.has((a.email || '').toLowerCase());
+            }
+            return true;
+          });
 
           // 7. Accounts for auth
-          const existingAccMap = new Map((prev.acc || []).map((a) => [a.email.toLowerCase(), a]));
+          const existingAccMap = new Map(cleanedPrevAcc.map((a) => [a.email.toLowerCase(), a]));
           const newAccs = [
             ...finalClients.map((c) => ({
               id: c.uid,
@@ -268,8 +279,26 @@ export default function App() {
             }))
           ];
           newAccs.forEach((acc) => {
-            if (!existingAccMap.has(acc.email.toLowerCase())) {
-              existingAccMap.set(acc.email.toLowerCase(), acc);
+            existingAccMap.set(acc.email.toLowerCase(), {
+              ...(existingAccMap.get(acc.email.toLowerCase()) || {}),
+              ...acc
+            });
+          });
+
+          // 8. Synchronize avatars dictionary for all clients and consultants
+          const syncedAvatars = { ...(prev.avatars || {}) };
+          finalClients.forEach((c) => {
+            if (c.avatar) {
+              syncedAvatars[c.uid] = c.avatar;
+              syncedAvatars[c.id] = c.avatar;
+              if (c.person_id) syncedAvatars['u' + c.person_id] = c.avatar;
+            }
+          });
+          finalCons.forEach((co) => {
+            if (co.avatar) {
+              syncedAvatars[co.uid] = co.avatar;
+              syncedAvatars[co.id] = co.avatar;
+              if (co.person_id) syncedAvatars['u' + co.person_id] = co.avatar;
             }
           });
 
@@ -281,7 +310,8 @@ export default function App() {
             nt: finalNotes,
             fb: finalFeedback,
             consultants: finalCons,
-            acc: Array.from(existingAccMap.values())
+            acc: Array.from(existingAccMap.values()),
+            avatars: syncedAvatars
           };
         });
       })
@@ -1005,18 +1035,25 @@ export default function App() {
     showToast('Mood recorded');
   };
 
-  const handleBookSession = (e) => {
+  const handleBookSession = async (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
     const clientRecord = myC();
     const dateStr = getNowDateString();
     const mode = d.appointment_mode || 'ONLINE';
-    const targetConsultant = d.consultant_id || (S.consultants?.[0]?.uid || 'cons');
+    const targetConsultantVal = d.consultant_id || (S.consultants?.[0]?.uid || 'cons');
+
+    const matchedCons = (S.consultants || []).find(
+      (c) => c.uid === targetConsultantVal || String(c.id) === String(targetConsultantVal) || ('u' + c.person_id) === targetConsultantVal
+    );
+    const targetConsultantUid = matchedCons?.uid || targetConsultantVal;
+    const targetConsultantDbId = matchedCons?.id || matchedCons?.consultant_id || 7;
+
     const newAp = {
       id: uid(),
       uid: U.id,
-      cid: clientRecord?.id || U.id,
-      consultant_id: targetConsultant,
+      cid: clientRecord?.id || U.client_id || U.id,
+      consultant_id: targetConsultantUid,
       date: d.date,
       time: d.time,
       type: mode === 'ONLINE' ? 'Online Telehealth Consultation' : 'In-Person Sanctuary Consultation',
@@ -1030,12 +1067,36 @@ export default function App() {
       ap: [newAp, ...prev.ap],
       nf: [
         { id: uid() + 1, to: U.id, msg: `Consultation (${mode}) requested for ${d.date} at ${d.time}.`, date: dateStr, read: false },
-        { id: uid(), to: targetConsultant, msg: `${U.name} requested an ${mode} session on ${d.date} at ${d.time}.`, date: dateStr, read: false },
+        { id: uid(), to: targetConsultantUid, msg: `${U.name} requested an ${mode} session on ${d.date} at ${d.time}.`, date: dateStr, read: false },
         ...prev.nf
       ]
     }));
     showToast('Session request submitted');
     go('cl-sessions');
+
+    // Persist to Supabase if configured
+    if (isSupabaseConfigured() && U) {
+      try {
+        const clientDbId =
+          clientRecord?.id ||
+          U.client_id ||
+          (U.id && !isNaN(String(U.id).replace('u', '')) ? parseInt(String(U.id).replace('u', ''), 10) : 1);
+        await supabaseApi.createAppointment(
+          {
+            client_id: clientDbId,
+            consultant_id: targetConsultantDbId,
+            appointment_date: d.date,
+            appointment_time: d.time?.length === 5 ? `${d.time}:00` : d.time,
+            appointment_mode: mode,
+            status: 'REQUESTED',
+            reason: d.reason || 'Consultation Intake'
+          },
+          U
+        );
+      } catch (err) {
+        console.warn('Could not persist booked session to Supabase:', err);
+      }
+    }
   };
 
   const handleFileAdd = async (e) => {
