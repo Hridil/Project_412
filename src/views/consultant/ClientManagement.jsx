@@ -146,9 +146,16 @@ export default function ClientManagement({
                     >
                       <td className="p-3.5 font-semibold text-[#14302c] dark:text-[#e3efec] whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full overflow-hidden bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform">
-                            {S.avatars?.[c.uid] ? (
-                              <img src={S.avatars[c.uid]} alt={c.name} className="w-full h-full object-cover" />
+                          <div className="w-8 h-8 rounded-full overflow-hidden bg-teal-700/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform shrink-0">
+                            {c.avatar || c.avatar_url || S.avatars?.[c.uid] || S.avatars?.[c.id] || (c.person_id && S.avatars?.['u' + c.person_id]) ? (
+                              <img
+                                src={c.avatar || c.avatar_url || S.avatars?.[c.uid] || S.avatars?.[c.id] || (c.person_id && S.avatars?.['u' + c.person_id])}
+                                alt={c.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
                             ) : (
                               c.name[0]
                             )}

@@ -272,15 +272,22 @@ export default function ConsultantFeedback({
                       </div>
                     ) : (
                       <div className="w-10 h-10 rounded-xl bg-teal-700 dark:bg-teal-400 text-white dark:text-[#052321] flex items-center justify-center font-bold text-sm overflow-hidden shrink-0">
-                        {S.avatars?.[item.clientId] ? (
-                          <img
-                            src={S.avatars[item.clientId]}
-                            alt={item.clientName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span>{(item.clientName || 'C')[0]}</span>
-                        )}
+                        {(() => {
+                          const clientObj = (S.cl || []).find((c) => c.uid === item.clientId || c.id === item.clientId || c.id === item.cid);
+                          const fAvatar = clientObj?.avatar || clientObj?.avatar_url || S.avatars?.[item.clientId] || (clientObj?.person_id && S.avatars?.['u' + clientObj.person_id]);
+                          return fAvatar ? (
+                            <img
+                              src={fAvatar}
+                              alt={item.clientName}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <span>{(item.clientName || 'C')[0]}</span>
+                          );
+                        })()}
                       </div>
                     )}
 

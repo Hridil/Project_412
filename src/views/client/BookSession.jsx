@@ -15,7 +15,10 @@ export default function BookSession({
   T,
   handleBookSession
 }) {
-  const consultants = (S?.acc || []).filter((a) => a.role === 'consultant');
+  // Exclusively display active practitioners synchronized from database table CONSULTANT
+  const activeConsultants = (S?.consultants && S.consultants.length > 0)
+    ? S.consultants
+    : (S?.acc || []).filter((a) => a.role === 'consultant');
 
   return (
     <div className="space-y-6">
@@ -33,15 +36,16 @@ export default function BookSession({
           <h3 className={clsCardTitle}>Consultation Intake & Modality</h3>
           <form onSubmit={handleBookSession} className="space-y-4">
             {/* Consultant Selection */}
-            {consultants.length > 0 && (
+            {activeConsultants.length > 0 && (
               <div>
                 <label className={clsLabel}>Select Practitioner</label>
                 <select name="consultant_id" className={clsInput}>
-                  {consultants.map((c) => {
-                    const profile = (S?.consultants || []).find((p) => p.uid === c.id);
+                  {activeConsultants.map((c) => {
+                    const consVal = c.uid || (c.id ? `u${c.id}` : 'cons');
+                    const spec = c.specialization ? ` · ${c.specialization}` : '';
                     return (
-                      <option key={c.id} value={c.id}>
-                        {c.name} {profile?.specialization ? `· ${profile.specialization}` : ''}
+                      <option key={consVal} value={consVal}>
+                        {c.name}{spec}
                       </option>
                     );
                   })}

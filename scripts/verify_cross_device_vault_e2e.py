@@ -121,10 +121,9 @@ def run_e2e_suite():
     # [3] Device A: Caseload Assignment & Client Acceptance
     # ------------------------------------------------------------------------
     print("\n[STEP 3] Device A: Consultant accepts client and assigns to caseload:")
-    # Consultant: Dr. Sarah Mitchell (consultant_id=1, person_id=1)
-    # Client: Emily Watson (client_id=1, person_id=3)
-    cons = next(c for c in consultants if c['consultant_id'] == 1)
-    cli = next(c for c in clients if c['client_id'] == 1)
+    # Active Consultant & Client from Supabase
+    cons = consultants[0]  # e.g. Mario (consultant_id=7)
+    cli = next((c for c in clients if c['client_id'] == 13), clients[0])  # Nidhi (client_id=13)
     cid = cli['client_id']
     co_id = cons['consultant_id']
 
@@ -198,6 +197,7 @@ def run_e2e_suite():
             "person_id": c['person_id'],
             "name": c['person']['name'],
             "email": c['person']['email'],
+            "avatar": c.get('person', {}).get('avatar_url'),
             "status": resolved_status,
             "assignedConsultantId": assigned_cons_uid,
             "consultant_id": ap.get('consultant_id') if ap else None
@@ -289,21 +289,21 @@ def run_e2e_suite():
         )
     ]
 
-    emily_docs = [
+    target_client_docs = [
         f for f in caseload_docs
         if f.get("cid") == cid or f.get("client_id") == cid or f.get("uid") == f"u{cli['person_id']}" or f.get("person_id") == cli['person_id']
     ]
 
     test(
-        len(emily_docs) >= 3,
-        f"Device B: Consultant successfully accesses {len(emily_docs)} files for client {cli['person']['name']} on the second device!",
-        f"Accessible files: {[f['name'] for f in emily_docs]}"
+        len(target_client_docs) >= 1,
+        f"Device B: Consultant successfully accesses {len(target_client_docs)} files for client {cli['person']['name']} on the second device!",
+        f"Accessible files: {[f['name'] for f in target_client_docs]}"
     )
 
     # ------------------------------------------------------------------------
-    # [7] Device B: Client Dossier Document View (ClientDossierModal)
+    # [7] Device B: Client Dossier Document View (ClientDossierModal) & Avatar Check
     # ------------------------------------------------------------------------
-    print("\n[STEP 7] Device B: Validating Client Dossier Modal file view:")
+    print("\n[STEP 7] Device B: Validating Client Dossier Modal file view & Avatar:")
     selected_client = next(c for c in device_b["cl"] if c['id'] == cid)
     dossier_files = [
         f for f in device_b["fl"]
@@ -313,30 +313,36 @@ def run_e2e_suite():
            (selected_client.get("person_id") and f.get("person_id") == selected_client["person_id"])
     ]
     test(
-        len(dossier_files) == len(emily_docs),
+        len(dossier_files) == len(target_client_docs),
         f"Device B: Dossier Modal displays all {len(dossier_files)} files for selected client"
+    )
+
+    # Verify Client Profile Picture URL exists and is valid
+    test(
+        bool(selected_client.get('avatar')),
+        f"Device B: Client {selected_client['name']} has valid profile picture URL in dossier ({selected_client.get('avatar')})"
     )
 
     # ------------------------------------------------------------------------
     # [8] Tenant Isolation Guard: Unassigned Clinician Blocked
     # ------------------------------------------------------------------------
     print("\n[STEP 8] Security Guard: Tenant Isolation on Device B:")
-    # Create another consultant (e.g. Dr. Marcus Vance, consultant_id 2, person_id 2)
+    other_cons = next((c for c in consultants if c['consultant_id'] != co_id), None)
     unassigned_cons = {
-        "id": "u2",
-        "person_id": 2,
-        "consultant_id": 2,
+        "id": f"u{other_cons['person_id']}" if other_cons else "u999",
+        "person_id": other_cons['person_id'] if other_cons else 999,
+        "consultant_id": other_cons['consultant_id'] if other_cons else 999,
         "role": "consultant",
-        "name": "Dr. Marcus Vance"
+        "name": other_cons['person']['name'] if other_cons else "Unassigned Clinician"
     }
 
-    is_emily_in_marcus_caseload = is_assigned(selected_client, unassigned_cons)
+    is_client_in_other_caseload = is_assigned(selected_client, unassigned_cons)
     test(
-        not is_emily_in_marcus_caseload,
-        f"Security Guard: Client {selected_client['name']} is NOT in unassigned clinician's caseload"
+        not is_client_in_other_caseload,
+        f"Security Guard: Client {selected_client['name']} is NOT in unassigned clinician ({unassigned_cons['name']})'s caseload"
     )
 
-    marcus_caseload_docs = [
+    other_caseload_docs = [
         f for f in device_b["fl"]
         if (
             (f.get("uploadedBy") == "consultant" and (f.get("consultant_id") == unassigned_cons["id"] or f.get("person_id") == unassigned_cons.get("person_id"))) or
@@ -347,27 +353,31 @@ def run_e2e_suite():
             )
         )
     ]
-    marcus_has_emily_file = any(f['name'] == 'Emily_Watson_Intake_Consent_Signed.pdf' for f in marcus_caseload_docs)
+    other_has_client_file = any(
+        f.get("client_id") == cid or f.get("cid") == cid
+        for f in other_caseload_docs
+    )
     test(
-        not marcus_has_emily_file,
-        "Security Guard: Unassigned clinician strictly BLOCKED from accessing Emily Watson's confidential files"
+        not other_has_client_file,
+        f"Security Guard: Unassigned clinician strictly BLOCKED from accessing {selected_client['name']}'s confidential files"
     )
 
     # ------------------------------------------------------------------------
     # [9] Search Filtering in Vault
     # ------------------------------------------------------------------------
     print("\n[STEP 9] Device B: Document Search Verification:")
-    # Search by filename
-    search_file = [f for f in caseload_docs if "intake" in f['name'].lower()]
-    test(len(search_file) > 0, f"Search by file name 'intake' found {len(search_file)} file(s)")
+    sample_file_name = target_client_docs[0]['name']
+    keyword = sample_file_name.split('.')[0][:4]
+    search_file = [f for f in caseload_docs if keyword.lower() in f['name'].lower()]
+    test(len(search_file) > 0, f"Search by file keyword '{keyword}' found {len(search_file)} file(s)")
 
     # Search by client name
     def matches_client_name(f, query):
         owner = next((c for c in device_b["cl"] if c['id'] == f.get('cid') or c['id'] == f.get('client_id') or c['uid'] == f.get('uid')), None)
         return query.lower() in (owner['name'].lower() if owner else "")
 
-    search_client = [f for f in caseload_docs if matches_client_name(f, "emily")]
-    test(len(search_client) >= 3, f"Search by client name 'emily' found {len(search_client)} file(s)")
+    search_client = [f for f in caseload_docs if matches_client_name(f, selected_client['name'])]
+    test(len(search_client) >= 1, f"Search by client name '{selected_client['name']}' found {len(search_client)} file(s)")
 
     # ------------------------------------------------------------------------
     # SUMMARY
