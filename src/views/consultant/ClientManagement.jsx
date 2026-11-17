@@ -23,17 +23,13 @@ export default function ClientManagement({
   isClientAssignedToConsultant,
   handleAssignClient
 }) {
-  const [viewScope, setViewScope] = useState('my'); // 'my' = My Selected Clients, 'all' = All Practice Clients
   const q = Q.q.toLowerCase();
 
   const myClients = S.cl.filter((c) =>
     isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : true
   );
 
-  const rows = S.cl.filter((c) => {
-    const isAssignedToMe = isClientAssignedToConsultant ? isClientAssignedToConsultant(c, U) : false;
-    if (viewScope === 'my' && !isAssignedToMe) return false;
-
+  const rows = myClients.filter((c) => {
     const matchesSearch = (c.name + c.email).toLowerCase().includes(q);
     const matchesFilter =
       Q.f === 'all' ||
@@ -72,30 +68,12 @@ export default function ClientManagement({
         </div>
       </div>
 
-      {/* Caseload Scope Selector */}
+      {/* Caseload Scope Indicator */}
       <div className="flex items-center gap-2 border-b border-[#dde7e3] dark:border-[#23403f] pb-3">
-        <button
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 ${
-            viewScope === 'my'
-              ? 'bg-teal-700 text-white dark:bg-teal-400 dark:text-[#052321] shadow-xs'
-              : 'bg-[#e3f1ee] dark:bg-[#173b3a] text-[#0b5a54] dark:text-teal-300 hover:opacity-90'
-          }`}
-          onClick={() => setViewScope('my')}
-        >
+        <div className="px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 bg-teal-700 text-white dark:bg-teal-400 dark:text-[#052321] shadow-xs">
           <span className="material-symbols-outlined text-[16px]">person_pin</span>
           My Selected Clients ({myClients.length})
-        </button>
-        <button
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 ${
-            viewScope === 'all'
-              ? 'bg-teal-700 text-white dark:bg-teal-400 dark:text-[#052321] shadow-xs'
-              : 'bg-[#e3f1ee] dark:bg-[#173b3a] text-[#0b5a54] dark:text-teal-300 hover:opacity-90'
-          }`}
-          onClick={() => setViewScope('all')}
-        >
-          <span className="material-symbols-outlined text-[16px]">groups</span>
-          All Practice Registrations ({S.cl.length})
-        </button>
+        </div>
       </div>
 
       <div className={clsCard}>
@@ -247,11 +225,7 @@ export default function ClientManagement({
                 <tr>
                   <td colSpan="8" className="text-center py-8">
                     <EmptyState
-                      msg={
-                        viewScope === 'my'
-                          ? 'No clients currently selected in your caseload. Switch to "All Practice Registrations" to select and handle clients.'
-                          : 'No matching client records found.'
-                      }
+                      msg="No clients currently found in your caseload matching the filter."
                     />
                   </td>
                 </tr>

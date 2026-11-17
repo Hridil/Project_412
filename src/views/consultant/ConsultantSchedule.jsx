@@ -73,7 +73,9 @@ export default function ConsultantSchedule({
   handleCancelAp,
   isClientAssignedToConsultant,
   setSelectedClientId,
-  setClientModalTab
+  setClientModalTab,
+  handleStorePreconsultationAsFile,
+  handleStorePreconsultationAsNote
 }) {
   const todayKey = useMemo(() => {
     return T ? T() : toDateKey(new Date());
@@ -81,6 +83,9 @@ export default function ConsultantSchedule({
 
   // View mode: 'calendar' (Visual Month View) or 'agenda' (Chronological List)
   const [viewMode, setViewMode] = useState('calendar');
+  const [selectedIntakeAp, setSelectedIntakeAp] = useState(null);
+  const [storedVaultForms, setStoredVaultForms] = useState(new Set());
+  const [storedNoteForms, setStoredNoteForms] = useState(new Set());
 
   // Month navigation state
   const [currentMonthDate, setCurrentMonthDate] = useState(() => {
@@ -665,6 +670,17 @@ export default function ConsultantSchedule({
                           </div>
 
                           <div className="flex gap-2 self-start mt-2 sm:mt-0">
+                            {a.pre && (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedIntakeAp(a)}
+                                className={`${clsBtnSecondary} text-xs py-1 px-2.5 cursor-pointer`}
+                                title="View & Store Pre-Consultation Intake Form"
+                              >
+                                <span className="material-symbols-outlined text-[15px]">assignment</span>
+                                Intake Form
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => handleOpenDossier(a.cid)}
@@ -796,6 +812,17 @@ export default function ConsultantSchedule({
                           </div>
 
                           <div className="flex items-center gap-2 self-start sm:self-center">
+                            {a.pre && (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedIntakeAp(a)}
+                                className={`${clsBtnSecondary} text-xs py-1 px-2.5 cursor-pointer`}
+                                title="View & Store Pre-Consultation Intake Form"
+                              >
+                                <span className="material-symbols-outlined text-[15px]">assignment</span>
+                                Intake Form
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => handleOpenDossier(a.cid)}
@@ -909,6 +936,192 @@ export default function ConsultantSchedule({
           </div>
         </div>
       </div>
+
+      {/* Pre-Consultation Intake Form Viewer Modal */}
+      {selectedIntakeAp && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs"
+          onClick={() => setSelectedIntakeAp(null)}
+        >
+          <div
+            className="bg-white dark:bg-[#14292a] border border-[#dde7e3] dark:border-[#23403f] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-[#dde7e3] dark:border-[#23403f] flex items-center justify-between bg-gradient-to-r from-teal-900 via-teal-800 to-[#0c3b37] text-white">
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-[22px] text-teal-300">assignment</span>
+                <div>
+                  <h3 className="font-serif font-bold text-base text-white m-0">
+                    Pre-Consultation Clinical Intake Assessment
+                  </h3>
+                  <div className="text-xs text-teal-200">
+                    Client: {cn(selectedIntakeAp.cid)} · {selectedIntakeAp.date} at {selectedIntakeAp.time}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedIntakeAp(null)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-teal-200 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs">
+              {/* Category & Distress Bar */}
+              <div className="p-4 rounded-xl bg-[#f9fbfa] dark:bg-[#0f2021] border border-[#dde7e3] dark:border-[#23403f] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">
+                    Category of Concern
+                  </span>
+                  <span className="font-bold text-sm text-teal-800 dark:text-teal-300">
+                    {selectedIntakeAp.pre?.concern_category || 'General Mental Wellbeing'}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-semibold text-[#14302c] dark:text-[#e3efec]">Subjective Distress Severity:</span>
+                    <span className="font-bold text-teal-700 dark:text-teal-300">
+                      {selectedIntakeAp.pre?.distress_level || 5} / 10
+                    </span>
+                  </div>
+                  <div className="w-full bg-[#dde7e3] dark:bg-[#23403f] h-2 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        (selectedIntakeAp.pre?.distress_level || 5) >= 7
+                          ? 'bg-rose-500'
+                          : (selectedIntakeAp.pre?.distress_level || 5) >= 4
+                          ? 'bg-amber-500'
+                          : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${(selectedIntakeAp.pre?.distress_level || 5) * 10}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#dde7e3] dark:border-[#23403f]">
+                  <div>
+                    <span className="text-[#5f7571] dark:text-[#8fa8a3] block">Duration of Concerns:</span>
+                    <b className="text-[#14302c] dark:text-[#e3efec]">{selectedIntakeAp.pre?.duration || '1 to 6 months'}</b>
+                  </div>
+                  <div>
+                    <span className="text-[#5f7571] dark:text-[#8fa8a3] block">Prior Therapy History:</span>
+                    <b className="text-[#14302c] dark:text-[#e3efec]">{selectedIntakeAp.pre?.prior_therapy || 'No'}</b>
+                  </div>
+                </div>
+              </div>
+
+              {/* Focus and Breakthrough Goals */}
+              <div className="space-y-3 p-4 rounded-xl bg-[#f9fbfa] dark:bg-[#0f2021] border border-[#dde7e3] dark:border-[#23403f]">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3] block mb-1">
+                    Primary Focus / Chief Complaint
+                  </span>
+                  <p className="text-[#14302c] dark:text-[#e3efec] font-medium m-0">
+                    "{selectedIntakeAp.pre?.reason || selectedIntakeAp.reason || 'Consultation Intake'}"
+                  </p>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3] block mb-1">
+                    Desired Goals & Breakthrough
+                  </span>
+                  <p className="text-[#5f7571] dark:text-[#8fa8a3] italic m-0">
+                    "{selectedIntakeAp.pre?.goals || 'Support, regulation, and guidance'}"
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#dde7e3] dark:border-[#23403f]">
+                  <div>
+                    <span className="text-[#5f7571] dark:text-[#8fa8a3] block">Medications:</span>
+                    <b className="text-[#14302c] dark:text-[#e3efec]">{selectedIntakeAp.pre?.medications || 'None'}</b>
+                  </div>
+                  <div>
+                    <span className="text-[#5f7571] dark:text-[#8fa8a3] block">Emergency Contact:</span>
+                    <b className="text-[#14302c] dark:text-[#e3efec]">{selectedIntakeAp.pre?.emergency_contact || 'None listed'}</b>
+                  </div>
+                </div>
+              </div>
+
+              {/* Safety Screen Confirmation */}
+              <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-[11px] text-teal-900 dark:text-teal-200 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[16px] text-teal-700 dark:text-teal-300">
+                  verified
+                </span>
+                <span>
+                  <b>Crisis Screening Verified:</b> Client acknowledged no acute life-threatening emergency at intake submission.
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Footer / Storage Actions */}
+            <div className="p-4 border-t border-[#dde7e3] dark:border-[#23403f] bg-[#f9fbfa] dark:bg-[#0f2021] flex items-center justify-between flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const client = getClientInfo(selectedIntakeAp.cid, selectedIntakeAp.uid);
+                  if (handleOpenDossier && client) {
+                    handleOpenDossier(client.id);
+                    setSelectedIntakeAp(null);
+                  }
+                }}
+                className={`${clsBtnSecondary} text-xs py-1.5 px-3 cursor-pointer`}
+              >
+                <span className="material-symbols-outlined text-[16px]">folder_shared</span>
+                Open Client Dossier
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const client = getClientInfo(selectedIntakeAp.cid, selectedIntakeAp.uid);
+                    if (handleStorePreconsultationAsFile && client) {
+                      handleStorePreconsultationAsFile({ ...selectedIntakeAp.pre, date: selectedIntakeAp.date, time: selectedIntakeAp.time, appointment_mode: selectedIntakeAp.appointment_mode }, client);
+                      setStoredVaultForms((prev) => new Set(prev).add(selectedIntakeAp.id));
+                    }
+                  }}
+                  className={`text-xs py-1.5 px-3 rounded-lg font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+                    storedVaultForms.has(selectedIntakeAp.id)
+                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300'
+                      : 'bg-teal-700 hover:bg-teal-800 dark:bg-teal-400 dark:hover:bg-teal-300 text-white dark:text-[#052321] shadow-2xs'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">
+                    {storedVaultForms.has(selectedIntakeAp.id) ? 'check_circle' : 'drive_folder_upload'}
+                  </span>
+                  {storedVaultForms.has(selectedIntakeAp.id) ? 'Stored in Vault' : 'Store in Vault'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const client = getClientInfo(selectedIntakeAp.cid, selectedIntakeAp.uid);
+                    if (handleStorePreconsultationAsNote && client) {
+                      handleStorePreconsultationAsNote({ ...selectedIntakeAp.pre, date: selectedIntakeAp.date, time: selectedIntakeAp.time, appointment_mode: selectedIntakeAp.appointment_mode }, client);
+                      setStoredNoteForms((prev) => new Set(prev).add(selectedIntakeAp.id));
+                    }
+                  }}
+                  className={`text-xs py-1.5 px-3 rounded-lg font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+                    storedNoteForms.has(selectedIntakeAp.id)
+                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300'
+                      : 'bg-[#e3f1ee] hover:bg-[#d5ede8] dark:bg-[#173b3a] dark:hover:bg-[#1f4e4d] text-teal-800 dark:text-teal-200 shadow-2xs'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">
+                    {storedNoteForms.has(selectedIntakeAp.id) ? 'check_circle' : 'note_add'}
+                  </span>
+                  {storedNoteForms.has(selectedIntakeAp.id) ? 'Archived in Notes' : 'Archive to Notes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

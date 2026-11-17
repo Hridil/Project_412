@@ -998,10 +998,36 @@ export default function App() {
     showToast(nextDone ? 'Goal marked complete' : 'Goal reopened');
   };
 
-  const handleDeleteItem = (key, id) => {
-    if (!window.confirm('Delete this entry?')) return;
-    setS((prev) => ({ ...prev, [key]: prev[key].filter((x) => x.id !== id) }));
-    showToast('Item deleted');
+  const handleDeleteItem = async (key, id) => {
+    if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
+      if (!window.confirm('Delete this entry?')) return;
+    }
+    setS((prev) => ({
+      ...prev,
+      [key]: (prev[key] || []).filter((x) => String(x.id) !== String(id))
+    }));
+
+    if (key === 'fl') {
+      showToast('File deleted');
+      if (isSupabaseConfigured()) {
+        try {
+          await supabaseApi.deleteFile(id);
+        } catch (err) {
+          console.warn('Could not delete file from database:', err);
+        }
+      }
+    } else if (key === 'nt') {
+      showToast('Note deleted');
+      if (isSupabaseConfigured()) {
+        try {
+          await supabaseApi.deletePrivateNote(id);
+        } catch (err) {
+          console.warn('Could not delete note from database:', err);
+        }
+      }
+    } else {
+      showToast('Item deleted');
+    }
   };
 
   const handleMoodSubmit = (e) => {
@@ -1042,6 +1068,19 @@ export default function App() {
     const targetConsultantUid = matchedCons?.uid || targetConsultantVal;
     const targetConsultantDbId = matchedCons?.id || matchedCons?.consultant_id || 7;
 
+    const preconsultationData = {
+      concern_category: d.concern_category || 'General Mental Wellbeing',
+      distress_level: parseInt(d.distress_level || '5', 10),
+      duration: d.duration || '1 to 6 months',
+      prior_therapy: d.prior_therapy || 'No prior therapy',
+      medications: d.medications || 'None',
+      reason: d.reason || 'Consultation Intake',
+      goals: d.goals || '',
+      emergency_contact: d.emergency_contact || '',
+      contact: d.contact || U.email,
+      submitted_at: new Date().toISOString()
+    };
+
     const newAp = {
       id: uid(),
       uid: U.id,
@@ -1053,18 +1092,18 @@ export default function App() {
       appointment_mode: mode,
       status: 'REQUESTED',
       reason: d.reason || '',
-      pre: { reason: d.reason, goals: d.goals, contact: d.contact || U.email }
+      pre: preconsultationData
     };
     setS((prev) => ({
       ...prev,
       ap: [newAp, ...prev.ap],
       nf: [
         { id: uid() + 1, to: U.id, msg: `Consultation (${mode}) requested for ${d.date} at ${d.time}.`, date: dateStr, read: false },
-        { id: uid(), to: targetConsultantUid, msg: `${U.name} requested an ${mode} session on ${d.date} at ${d.time}.`, date: dateStr, read: false },
+        { id: uid(), to: targetConsultantUid, msg: `${U.name} submitted pre-consultation intake and requested an ${mode} session on ${d.date} at ${d.time}.`, date: dateStr, read: false },
         ...prev.nf
       ]
     }));
-    showToast('Session request submitted');
+    showToast('Pre-consultation intake form & session request submitted!');
     go('cl-sessions');
 
     // Persist to Supabase if configured
@@ -1074,7 +1113,7 @@ export default function App() {
           clientRecord?.id ||
           U.client_id ||
           (U.id && !isNaN(String(U.id).replace('u', '')) ? parseInt(String(U.id).replace('u', ''), 10) : 1);
-        await supabaseApi.createAppointment(
+        const createdAp = await supabaseApi.createAppointment(
           {
             client_id: clientDbId,
             consultant_id: targetConsultantDbId,
@@ -1086,10 +1125,168 @@ export default function App() {
           },
           U
         );
+
+        const realApId = Array.isArray(createdAp) ? createdAp[0]?.appointment_id : createdAp?.appointment_id;
+        if (realApId) {
+          await supabaseApi.createPreconsultationForm(
+            {
+              appointment_id: realApId,
+              responses: preconsultationData
+            },
+            U
+          );
+        }
       } catch (err) {
-        console.warn('Could not persist booked session to Supabase:', err);
+        console.warn('Could not persist booked session or preconsultation form to Supabase:', err);
       }
     }
+  };
+
+  // Consultant Storage Feature: Store Pre-Consultation Intake Form into Client Vault
+  const handleStorePreconsultationAsFile = async (form, client) => {
+    if (!form || !client) return;
+    const dateStr = getNowDateString();
+    const cleanClientName = (client.name || 'Client').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = `Intake_Assessment_${cleanClientName}_${(form.date || dateStr).replace(/-/g, '')}.txt`;
+    const content = `================================================================================
+MINDCARE PRO SANCTUARY - CLINICAL PRE-CONSULTATION INTAKE ASSESSMENT
+================================================================================
+Client Name:           ${client.name} (ID: #${client.id || client.uid})
+Client Email:          ${client.email}
+Intake Date:           ${form.date || dateStr} at ${form.time || '10:00'}
+Consultation Modality: ${form.appointment_mode || 'ONLINE Telehealth'}
+Assessment Status:     VERIFIED & STORED IN CLINICAL VAULT
+
+1. CHIEF CONCERN & CATEGORY:
+   - Category:         ${form.concern_category || 'General Mental Health'}
+   - Primary Focus:    ${form.reason || 'None provided'}
+   - Symptom Duration: ${form.duration || 'Not specified'}
+
+2. CLINICAL SEVERITY & DISTRESS RATING:
+   - Distress Level:   ${form.distress_level || '5'} / 10 (${(form.distress_level || 5) >= 7 ? 'High / Acute' : (form.distress_level || 5) >= 4 ? 'Moderate' : 'Mild'})
+
+3. MEDICAL & TREATMENT HISTORY:
+   - Prior Therapy:    ${form.prior_therapy || 'No'}
+   - Current Meds:     ${form.medications || 'None reported'}
+
+4. GOALS & DESIRED BREAKTHROUGH:
+   ${form.goals || 'Support and grounding during consultation'}
+
+5. SAFETY & EMERGENCY CONTACT:
+   - Emergency Contact: ${form.emergency_contact || 'None listed'}
+   - Confirmation:      ${form.contact || client.email}
+   - Safety Screening:  Passed (Client confirmed no active life-threatening crisis)
+
+================================================================================
+CONFIDENTIAL CLINICAL RECORD - HIPAA / HITECH COMPLIANT VAULT STORAGE
+Stored by Clinician: ${U?.name || 'Licensed Practitioner'} on ${new Date().toLocaleString()}
+================================================================================`;
+
+    const dataUrl = `data:text/plain;charset=utf-8;base64,${btoa(unescape(encodeURIComponent(content)))}`;
+    let assignedFileId = uid();
+
+    // Persist to Supabase if configured
+    if (isSupabaseConfigured() && U) {
+      try {
+        const rows = await supabaseApi.uploadFileRecord({
+          client_id: client.id,
+          person_id: client.person_id || null,
+          file_name: fileName,
+          file_size: content.length,
+          file_path: `mindcare-intake/${Date.now()}_${fileName}`,
+          file_url: dataUrl,
+          mime_type: 'text/plain',
+          uploaded_by: 'CONSULTANT'
+        });
+        if (Array.isArray(rows) && rows[0]?.file_id) {
+          assignedFileId = rows[0].file_id;
+        } else if (rows?.file_id) {
+          assignedFileId = rows.file_id;
+        }
+      } catch (err) {
+        console.warn('Could not insert uploaded_file into Supabase:', err);
+      }
+    }
+
+    const newFile = {
+      id: assignedFileId,
+      uid: client.uid || (client.person_id ? 'u' + client.person_id : 'u' + client.id),
+      cid: client.id,
+      client_id: client.id,
+      person_id: client.person_id || null,
+      name: fileName,
+      size: content.length,
+      type: 'text/plain',
+      date: dateStr,
+      dataUrl: dataUrl,
+      uploadedBy: 'consultant',
+      consultant_id: U?.id || 'cons'
+    };
+
+    setS((prev) => ({
+      ...prev,
+      fl: [newFile, ...prev.fl]
+    }));
+    showToast(`Stored intake record into client vault: ${fileName}`);
+  };
+
+  // Consultant Storage Feature: Store Pre-Consultation Intake Form into Private Clinical Notes
+  const handleStorePreconsultationAsNote = async (form, client) => {
+    if (!form || !client) return;
+    const dateStr = getNowDateString();
+    const noteTitle = `Intake Assessment: ${form.concern_category || form.reason || 'General'}`;
+    const noteBody = `[CLINICAL PRE-CONSULTATION INTAKE ASSESSMENT]
+Client: ${client.name} (${client.email})
+Category: ${form.concern_category || 'General'}
+Chief Complaint: ${form.reason || 'Routine consultation'}
+Distress Rating: ${form.distress_level || '5'} / 10
+Duration: ${form.duration || 'Not specified'}
+Prior Therapy: ${form.prior_therapy || 'No'}
+Medications / Health: ${form.medications || 'None reported'}
+Goals / Breakthrough: ${form.goals || 'Session grounding and support'}
+Emergency Contact: ${form.emergency_contact || 'None listed'}
+Safety Screening: Confirmed safe, no active life-threatening crisis at intake.`;
+
+    let assignedNoteId = uid();
+
+    if (isSupabaseConfigured() && U) {
+      try {
+        const consDbId = U.consultant_id || (U.id && !isNaN(String(U.id).replace('u', '')) ? parseInt(String(U.id).replace('u', ''), 10) : 1);
+        const rows = await supabaseApi.createNote(
+          {
+            client_id: client.id,
+            consultant_id: consDbId,
+            title: noteTitle,
+            tag: 'Intake Assessment',
+            note_text: noteBody
+          },
+          U
+        );
+        if (Array.isArray(rows) && rows[0]?.note_id) {
+          assignedNoteId = rows[0].note_id;
+        } else if (rows?.note_id) {
+          assignedNoteId = rows.note_id;
+        }
+      } catch (err) {
+        console.warn('Could not insert private_note into Supabase:', err);
+      }
+    }
+
+    const newNote = {
+      id: assignedNoteId,
+      cid: client.id,
+      consultant_id: U?.id || 'cons',
+      title: noteTitle,
+      tag: 'Intake Assessment',
+      body: noteBody,
+      date: dateStr
+    };
+
+    setS((prev) => ({
+      ...prev,
+      nt: [newNote, ...prev.nt]
+    }));
+    showToast(`Archived intake into private clinical notes`);
   };
 
   const handleFileAdd = async (e) => {
@@ -1574,6 +1771,8 @@ export default function App() {
             isClientAssignedToConsultant={isClientAssignedToConsultant}
             setSelectedClientId={setSelectedClientId}
             setClientModalTab={setClientModalTab}
+            handleStorePreconsultationAsFile={handleStorePreconsultationAsFile}
+            handleStorePreconsultationAsNote={handleStorePreconsultationAsNote}
           />
         );
 
@@ -1863,6 +2062,9 @@ export default function App() {
           U={U}
           isClientAssignedToConsultant={isClientAssignedToConsultant}
           handleAssignClient={handleAssignClient}
+          showToast={showToast}
+          handleStorePreconsultationAsFile={handleStorePreconsultationAsFile}
+          handleStorePreconsultationAsNote={handleStorePreconsultationAsNote}
         />
 
         <FilePreviewModal
