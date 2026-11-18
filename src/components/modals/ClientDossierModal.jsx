@@ -45,11 +45,16 @@ export default function ClientDossierModal({
   handleAssignClient,
   handleStorePreconsultationAsFile,
   handleStorePreconsultationAsNote,
+  handleStoreFeedbackAsFile,
+  handleStoreFeedbackAsNote,
+  handleDownloadFeedback,
   showToast
 }) {
   const [dossierFileSearch, setDossierFileSearch] = useState('');
   const [storedVaultForms, setStoredVaultForms] = useState(new Set());
   const [storedNoteForms, setStoredNoteForms] = useState(new Set());
+  const [storedVaultFeedback, setStoredVaultFeedback] = useState(new Set());
+  const [storedNoteFeedback, setStoredNoteFeedback] = useState(new Set());
 
   if (!selectedClient) return null;
 
@@ -903,6 +908,69 @@ export default function ClientDossierModal({
                           </p>
                         </div>
                       )}
+
+                      {/* Feedback Storage Actions for Consultant */}
+                      <div className="flex items-center justify-between gap-2 p-2 mt-2 bg-[#f4f8f6] dark:bg-[#0f1f1e] rounded-lg border border-[#dde7e3] dark:border-[#23403f] flex-wrap">
+                        <div className="flex items-center gap-1 text-[11px] font-semibold text-[#5f7571] dark:text-[#8fa8a3]">
+                          <span className="material-symbols-outlined text-[14px] text-teal-600 dark:text-teal-400">archive</span>
+                          <span>Store Feedback:</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {handleStoreFeedbackAsFile && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleStoreFeedbackAsFile(f, selectedClient);
+                                setStoredVaultFeedback((prev) => new Set(prev).add(f.id));
+                              }}
+                              className={`text-[11px] py-1 px-2 rounded-md font-semibold flex items-center gap-1 transition cursor-pointer ${
+                                storedVaultFeedback.has(f.id)
+                                  ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                                  : 'bg-white dark:bg-[#1a3334] text-[#14302c] dark:text-[#e3efec] border border-[#dde7e3] dark:border-[#23403f] hover:border-teal-500'
+                              }`}
+                              title="Store feedback details into client vault"
+                            >
+                              <span className="material-symbols-outlined text-[13px]">
+                                {storedVaultFeedback.has(f.id) ? 'check_circle' : 'drive_folder_upload'}
+                              </span>
+                              <span>{storedVaultFeedback.has(f.id) ? 'Stored in Vault' : 'Store in Vault'}</span>
+                            </button>
+                          )}
+
+                          {handleStoreFeedbackAsNote && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleStoreFeedbackAsNote(f, selectedClient);
+                                setStoredNoteFeedback((prev) => new Set(prev).add(f.id));
+                              }}
+                              className={`text-[11px] py-1 px-2 rounded-md font-semibold flex items-center gap-1 transition cursor-pointer ${
+                                storedNoteFeedback.has(f.id)
+                                  ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                                  : 'bg-white dark:bg-[#1a3334] text-[#14302c] dark:text-[#e3efec] border border-[#dde7e3] dark:border-[#23403f] hover:border-teal-500'
+                              }`}
+                              title="Archive feedback details into private notes"
+                            >
+                              <span className="material-symbols-outlined text-[13px]">
+                                {storedNoteFeedback.has(f.id) ? 'check_circle' : 'note_add'}
+                              </span>
+                              <span>{storedNoteFeedback.has(f.id) ? 'Archived in Notes' : 'Archive to Notes'}</span>
+                            </button>
+                          )}
+
+                          {handleDownloadFeedback && (
+                            <button
+                              type="button"
+                              onClick={() => handleDownloadFeedback(f, selectedClient)}
+                              className="text-[11px] py-1 px-2 rounded-md bg-white dark:bg-[#1a3334] text-[#14302c] dark:text-[#e3efec] border border-[#dde7e3] dark:border-[#23403f] hover:border-teal-500 flex items-center gap-1 cursor-pointer"
+                              title="Download feedback details report (.txt)"
+                            >
+                              <span className="material-symbols-outlined text-[13px]">download</span>
+                              <span>Download</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
 
                       <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#dde7e3]/60 dark:border-[#23403f]/60 flex-wrap">
                         {handleToggleFeedbackRead && (

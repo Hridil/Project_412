@@ -13,14 +13,21 @@ import StatCard from '../../components/common/StatCard.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 
 export default function ConsultantFeedback({
+  U,
   S,
   handleToggleFeedbackRead,
   handleReplyFeedback,
   handleDeleteFeedback,
   setSelectedClientId,
   setClientModalTab,
+  handleStoreFeedbackAsFile,
+  handleStoreFeedbackAsNote,
+  handleDownloadFeedback,
   showToast
 }) {
+  const [viewMode, setViewMode] = useState('reviews'); // 'reviews' or 'stored'
+  const [storedVaultIds, setStoredVaultIds] = useState(() => new Set());
+  const [storedNoteIds, setStoredNoteIds] = useState(() => new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterRating, setFilterRating] = useState('all');
@@ -32,6 +39,19 @@ export default function ConsultantFeedback({
   const [replyInput, setReplyInput] = useState('');
 
   const allFeedbacks = S.fb || [];
+
+  // Stored Feedback Records in Client Vault & Clinical Private Notes
+  const storedVaultFiles = useMemo(() => {
+    return (S.fl || []).filter(
+      (f) => f.tag === 'Client Feedback' || (f.name && f.name.startsWith('Feedback_Record_'))
+    );
+  }, [S.fl]);
+
+  const storedNotes = useMemo(() => {
+    return (S.nt || []).filter(
+      (n) => n.tag === 'Client Feedback' || (n.title && n.title.startsWith('Care Feedback:'))
+    );
+  }, [S.nt]);
 
   // Metrics
   const totalCount = allFeedbacks.length;
@@ -99,6 +119,26 @@ export default function ConsultantFeedback({
     }
   };
 
+  const handleStoreVault = (item, clientRecord) => {
+    if (handleStoreFeedbackAsFile) {
+      handleStoreFeedbackAsFile(item, clientRecord);
+      setStoredVaultIds((prev) => new Set(prev).add(item.id));
+    }
+  };
+
+  const handleStoreNote = (item, clientRecord) => {
+    if (handleStoreFeedbackAsNote) {
+      handleStoreFeedbackAsNote(item, clientRecord);
+      setStoredNoteIds((prev) => new Set(prev).add(item.id));
+    }
+  };
+
+  const handleDownload = (item, clientRecord) => {
+    if (handleDownloadFeedback) {
+      handleDownloadFeedback(item, clientRecord);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -135,16 +175,171 @@ export default function ConsultantFeedback({
           iconName="mark_chat_unread"
         />
         <StatCard
-          label="Therapeutic Alliance"
-          value={`${positiveRatio}%`}
-          sub="4-star & 5-star positive ratings"
-          borderColorClass="bg-emerald-500"
-          iconName="sentiment_very_satisfied"
+          label="Stored Records"
+          value={storedVaultFiles.length + storedNotes.length}
+          sub={`${storedVaultFiles.length} in Vault · ${storedNotes.length} in Notes`}
+          borderColorClass="bg-indigo-600"
+          iconName="inventory_2"
         />
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className={clsCard}>
+      {/* View Switcher: Active Reviews vs Stored Archives */}
+      <div className="flex items-center gap-2 p-1.5 bg-[#eaf2ef] dark:bg-[#14292a] border border-[#dde7e3] dark:border-[#23403f] rounded-xl self-start shadow-xs">
+        <button
+          type="button"
+          onClick={() => setViewMode('reviews')}
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
+            viewMode === 'reviews'
+              ? 'bg-teal-700 text-white shadow-xs'
+              : 'text-[#5f7571] dark:text-[#8fa8a3] hover:text-[#14302c] dark:hover:text-[#e3efec]'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px]">rate_review</span>
+          <span>Active Client Reviews ({totalCount})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setViewMode('stored')}
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
+            viewMode === 'stored'
+              ? 'bg-teal-700 text-white shadow-xs'
+              : 'text-[#5f7571] dark:text-[#8fa8a3] hover:text-[#14302c] dark:hover:text-[#e3efec]'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px]">archive</span>
+          <span>Stored Feedback & Details Archive ({storedVaultFiles.length + storedNotes.length})</span>
+        </button>
+      </div>
+
+      {viewMode === 'stored' ? (
+        /* STORED FEEDBACK & DETAILS ARCHIVE VIEW */
+        <div className="space-y-6">
+          <div className="flex items-center justify-between pb-2 border-b border-[#dde7e3] dark:border-[#23403f] flex-wrap gap-2">
+            <div>
+              <h3 className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec] m-0">
+                Stored Feedback & Evaluation Records
+              </h3>
+              <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3] m-0">
+                Confidential clinical feedback files preserved in client vaults and private clinical notes.
+              </p>
+            </div>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300">
+              {storedVaultFiles.length} Vault Files · {storedNotes.length} Archived Notes
+            </span>
+          </div>
+
+          {/* Section 1: Vault Documents */}
+          <div className={clsCard}>
+            <div className="flex items-center gap-2 pb-3 mb-3 border-b border-[#dde7e3] dark:border-[#23403f]">
+              <span className="material-symbols-outlined text-teal-700 dark:text-teal-400 text-[20px]">folder_special</span>
+              <h4 className="font-serif text-base font-bold text-[#14302c] dark:text-[#e3efec] m-0">
+                Client Vault Feedback Records ({storedVaultFiles.length})
+              </h4>
+            </div>
+
+            {storedVaultFiles.length ? (
+              <div className="space-y-2.5">
+                {storedVaultFiles.map((file) => {
+                  const client = S.cl.find((c) => c.id === file.cid || c.uid === file.uid);
+                  return (
+                    <div
+                      key={file.id}
+                      className="p-3 rounded-xl border border-[#dde7e3] dark:border-[#23403f] bg-[#f9fbfa] dark:bg-[#0f2021] flex items-center justify-between gap-3 flex-wrap"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 flex items-center justify-center shrink-0">
+                          <span className="material-symbols-outlined text-[19px]">description</span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-xs text-[#14302c] dark:text-[#e3efec]">
+                            {file.name}
+                          </div>
+                          <div className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3] flex items-center gap-2">
+                            <span>Client: <b>{client?.name || 'Assigned Client'}</b></span>
+                            <span>·</span>
+                            <span>Stored on {file.date}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {file.dataUrl && (
+                          <a
+                            href={file.dataUrl}
+                            download={file.name}
+                            className={`${clsBtnSecondary} text-xs py-1 px-2.5 flex items-center gap-1 cursor-pointer`}
+                          >
+                            <span className="material-symbols-outlined text-[14px]">download</span>
+                            <span>Download</span>
+                          </a>
+                        )}
+                        {client && (
+                          <button
+                            type="button"
+                            onClick={() => openClientDossier(client.uid)}
+                            className="text-xs text-teal-700 dark:text-teal-400 hover:underline font-medium cursor-pointer"
+                          >
+                            View Client Dossier
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <EmptyState msg="No feedback records have been stored in the client vault yet. Click 'Store in Vault' on any active review." />
+            )}
+          </div>
+
+          {/* Section 2: Clinical Private Notes */}
+          <div className={clsCard}>
+            <div className="flex items-center gap-2 pb-3 mb-3 border-b border-[#dde7e3] dark:border-[#23403f]">
+              <span className="material-symbols-outlined text-teal-700 dark:text-teal-400 text-[20px]">sticky_note_2</span>
+              <h4 className="font-serif text-base font-bold text-[#14302c] dark:text-[#e3efec] m-0">
+                Archived Private Clinical Notes ({storedNotes.length})
+              </h4>
+            </div>
+
+            {storedNotes.length ? (
+              <div className="space-y-3">
+                {storedNotes.map((note) => {
+                  const client = S.cl.find((c) => c.id === note.cid);
+                  return (
+                    <div
+                      key={note.id}
+                      className="p-3.5 rounded-xl border border-[#dde7e3] dark:border-[#23403f] bg-white dark:bg-[#14292a] space-y-2"
+                    >
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-teal-800 dark:text-teal-300">
+                            {note.title}
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 font-semibold">
+                            {note.tag || 'Client Feedback'}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-[#5f7571] dark:text-[#8fa8a3]">
+                          Archived on {note.date} · Client: <b>{client?.name || 'Client'}</b>
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#2c4743] dark:text-[#d3e4e0] whitespace-pre-line bg-[#f9fbfa] dark:bg-[#0f1f1e] p-2.5 rounded-lg border border-[#dde7e3]/60 dark:border-[#23403f]/60 font-mono text-[11px]">
+                        {note.body}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <EmptyState msg="No feedback records archived into clinical private notes yet. Click 'Archive to Notes' on any active review." />
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Filter and Search Bar */}
+          <div className={clsCard}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
           {/* Search Box */}
           <div className="lg:col-span-4 relative">
@@ -403,6 +598,59 @@ export default function ConsultantFeedback({
                   </div>
                 )}
 
+                {/* Storage & Archive Action Bar */}
+                <div className="my-3 p-2.5 rounded-xl bg-[#f0f5f3] dark:bg-[#122424] border border-[#d2e2de] dark:border-[#1d3d3a] flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 text-xs text-[#385550] dark:text-[#9fc1bb] font-semibold">
+                    <span className="material-symbols-outlined text-[16px] text-teal-700 dark:text-teal-400">inventory_2</span>
+                    <span>Store Feedback & Details:</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => handleStoreVault(item, clientRecord)}
+                      disabled={storedVaultIds.has(item.id)}
+                      className={`text-xs px-2.5 py-1 rounded-lg font-medium flex items-center gap-1 cursor-pointer transition ${
+                        storedVaultIds.has(item.id)
+                          ? 'bg-teal-200 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200 cursor-default'
+                          : 'bg-white dark:bg-[#1a3536] border border-[#c4dbd6] dark:border-[#284f4c] text-teal-800 dark:text-teal-200 hover:bg-teal-50 dark:hover:bg-[#1f4240]'
+                      }`}
+                      title="Store feedback details as confidential record in Client Vault"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">
+                        {storedVaultIds.has(item.id) ? 'check' : 'folder_special'}
+                      </span>
+                      <span>{storedVaultIds.has(item.id) ? 'Stored in Vault' : 'Store in Vault'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleStoreNote(item, clientRecord)}
+                      disabled={storedNoteIds.has(item.id)}
+                      className={`text-xs px-2.5 py-1 rounded-lg font-medium flex items-center gap-1 cursor-pointer transition ${
+                        storedNoteIds.has(item.id)
+                          ? 'bg-teal-200 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200 cursor-default'
+                          : 'bg-white dark:bg-[#1a3536] border border-[#c4dbd6] dark:border-[#284f4c] text-teal-800 dark:text-teal-200 hover:bg-teal-50 dark:hover:bg-[#1f4240]'
+                      }`}
+                      title="Archive feedback details into Private Clinical Notes"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">
+                        {storedNoteIds.has(item.id) ? 'check' : 'sticky_note_2'}
+                      </span>
+                      <span>{storedNoteIds.has(item.id) ? 'Archived to Notes' : 'Archive to Notes'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(item, clientRecord)}
+                      className="text-xs px-2.5 py-1 rounded-lg font-medium bg-white dark:bg-[#1a3536] border border-[#c4dbd6] dark:border-[#284f4c] text-[#2c4743] dark:text-[#d3e4e0] hover:bg-teal-50 dark:hover:bg-[#1f4240] flex items-center gap-1 cursor-pointer transition"
+                      title="Download feedback and full details as a formatted text document"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">download</span>
+                      <span>Export</span>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Card Actions Footer */}
                 <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#dde7e3] dark:border-[#23403f] flex-wrap">
                   <div className="flex items-center gap-2">
@@ -453,6 +701,8 @@ export default function ConsultantFeedback({
           <EmptyState msg="No client feedback records match your active search or filters." />
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }

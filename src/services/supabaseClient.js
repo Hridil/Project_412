@@ -846,6 +846,20 @@ export const supabaseApi = {
     });
   },
 
+  // Clinician Reply & Acknowledgment to Feedback
+  updateFeedbackReply: async (feedbackId, replyText) => {
+    if (!feedbackId) return false;
+    const cleanId = typeof feedbackId === 'string' && feedbackId.startsWith('u') ? feedbackId.replace('u', '') : feedbackId;
+    if (isNaN(Number(cleanId))) return true;
+    return supabaseFetch(`feedback?feedback_id=eq.${cleanId}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        clinician_reply: sanitizeText(replyText || ''),
+        read_status: 1
+      })
+    });
+  },
+
   // Private Clinical Notes with Strict Clinician Authorization & Sanitization
   getNotes: async (currentUser = null) => {
     if (currentUser) {
