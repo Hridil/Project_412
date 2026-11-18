@@ -1338,6 +1338,205 @@ Safety Screening: Confirmed safe, no active life-threatening crisis at intake.`;
     showToast(`Archived intake into private clinical notes`);
   };
 
+  // Consultant Storage Feature: Store Client Feedback & Details into Client Vault
+  const handleStoreFeedbackAsFile = async (feedback, client) => {
+    if (!feedback) return;
+    const dateStr = getNowDateString();
+    const resolvedClient = client || (feedback.clientId ? S.cl.find((c) => c.uid === feedback.clientId || c.id === feedback.clientId) : null) || {
+      id: feedback.clientId || feedback.client_id || 'client',
+      uid: feedback.clientId || 'client',
+      name: feedback.clientName || feedback.client_name || 'Anonymous Client',
+      email: 'client@sanctuary.care'
+    };
+
+    const cleanClientName = (resolvedClient.name || 'Client').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = `Feedback_Record_${cleanClientName}_${(feedback.date || dateStr).replace(/-/g, '')}_${Date.now().toString().slice(-4)}.txt`;
+    const stars = '★'.repeat(feedback.rating || 5) + '☆'.repeat(5 - (feedback.rating || 5));
+
+    const content = `================================================================================
+MINDCARE PRO SANCTUARY - CLIENT CARE FEEDBACK & EVALUATION RECORD
+================================================================================
+Client Name:           ${feedback.isAnonymous ? 'Anonymous Client' : (resolvedClient.name || 'Client')} (ID: #${resolvedClient.id || resolvedClient.uid})
+Client Email:          ${feedback.isAnonymous ? 'Protected / Anonymous' : (resolvedClient.email || 'N/A')}
+Submission Date:       ${feedback.date || dateStr}
+Clinician / Reviewer:  ${U?.name || 'Licensed Practitioner'}
+Storage Status:        CONFIDENTIAL CLINICAL RECORD - STORED IN VAULT
+
+--- 1. FEEDBACK EVALUATION & METRICS ---
+Category of Care:      ${feedback.category || 'Session Experience'}
+Clinical Rating:       ${feedback.rating || 5} / 5.0 (${stars})
+Review Status:         ${feedback.read ? 'Reviewed by Clinician' : 'Pending Review'}
+Identity Anonymity:    ${feedback.isAnonymous ? 'ANONYMOUS (Protected Identity)' : 'VERIFIED IDENTIFIED CLIENT'}
+
+--- 2. CLIENT REFLECTION & FEEDBACK TEXT ---
+"${feedback.message || feedback.comment || 'No written reflection provided'}"
+
+--- 3. CLINICIAN ACKNOWLEDGMENT & THERAPEUTIC RESPONSE ---
+${feedback.reply ? feedback.reply : 'No direct reply logged yet. Reviewed for ongoing therapeutic treatment alignment.'}
+
+--- 4. CLINICAL INTEGRATION ---
+This feedback record is securely preserved in the client's clinical vault to support longitudinal treatment efficacy, therapeutic alliance pacing, and quality of care monitoring.
+================================================================================
+CONFIDENTIAL HEALTHCARE RECORD - HIPAA / HITECH COMPLIANT VAULT STORAGE
+Stored by Clinician: ${U?.name || 'Licensed Practitioner'} on ${new Date().toLocaleString()}
+================================================================================`;
+
+    const dataUrl = `data:text/plain;charset=utf-8;base64,${btoa(unescape(encodeURIComponent(content)))}`;
+    let assignedFileId = uid();
+
+    // Persist to Supabase if configured
+    if (isSupabaseConfigured() && U) {
+      try {
+        const rows = await supabaseApi.uploadFileRecord({
+          client_id: resolvedClient.id && !isNaN(Number(resolvedClient.id)) ? Number(resolvedClient.id) : null,
+          person_id: resolvedClient.person_id || null,
+          file_name: fileName,
+          file_size: content.length,
+          file_path: `mindcare-feedback/${Date.now()}_${fileName}`,
+          file_url: dataUrl,
+          mime_type: 'text/plain',
+          uploaded_by: 'CONSULTANT'
+        });
+        if (Array.isArray(rows) && rows[0]?.file_id) {
+          assignedFileId = rows[0].file_id;
+        } else if (rows?.file_id) {
+          assignedFileId = rows.file_id;
+        }
+      } catch (err) {
+        console.warn('Could not insert feedback uploaded_file into Supabase:', err);
+      }
+    }
+
+    const newFile = {
+      id: assignedFileId,
+      uid: resolvedClient.uid || (resolvedClient.person_id ? 'u' + resolvedClient.person_id : 'u' + resolvedClient.id),
+      cid: resolvedClient.id,
+      client_id: resolvedClient.id,
+      person_id: resolvedClient.person_id || null,
+      name: fileName,
+      size: content.length,
+      type: 'text/plain',
+      date: dateStr,
+      dataUrl: dataUrl,
+      uploadedBy: 'consultant',
+      consultant_id: U?.id || 'cons',
+      tag: 'Client Feedback'
+    };
+
+    setS((prev) => ({
+      ...prev,
+      fl: [newFile, ...prev.fl]
+    }));
+    showToast(`Stored feedback details into client vault: ${fileName}`);
+  };
+
+  // Consultant Storage Feature: Store Client Feedback & Details into Private Clinical Notes
+  const handleStoreFeedbackAsNote = async (feedback, client) => {
+    if (!feedback) return;
+    const dateStr = getNowDateString();
+    const resolvedClient = client || (feedback.clientId ? S.cl.find((c) => c.uid === feedback.clientId || c.id === feedback.clientId) : null) || {
+      id: feedback.clientId || feedback.client_id || 'client',
+      uid: feedback.clientId || 'client',
+      name: feedback.clientName || feedback.client_name || 'Anonymous Client'
+    };
+
+    const noteTitle = `Care Feedback: ${feedback.category || 'Session'} (${feedback.rating || 5}★)`;
+    const noteBody = `[CONFIDENTIAL CLIENT CARE FEEDBACK & EVALUATION]
+Client: ${feedback.isAnonymous ? 'Anonymous Client' : (resolvedClient.name || 'Client')} (ID: #${resolvedClient.id || resolvedClient.uid})
+Category: ${feedback.category || 'Session Experience'}
+Clinical Rating: ${feedback.rating || 5} / 5.0
+Submission Date: ${feedback.date || dateStr}
+Anonymity Status: ${feedback.isAnonymous ? 'Protected Anonymous' : 'Identified Client'}
+
+Client Reflection:
+"${feedback.message || feedback.comment || 'No written reflection provided'}"
+
+Clinician Acknowledgment & Therapeutic Action:
+"${feedback.reply || 'No direct reply logged yet. Evaluated for treatment pacing and care plan alignment.'}"
+
+Therapeutic Alliance Notes:
+Client feedback reviewed and preserved in clinical session notes for treatment planning, emotional pacing, and continuous quality assurance.`;
+
+    let assignedNoteId = uid();
+    if (isSupabaseConfigured() && U) {
+      try {
+        const consDbId = U.consultant_id || (U.id && !isNaN(String(U.id).replace('u', '')) ? parseInt(String(U.id).replace('u', ''), 10) : 1);
+        const clientDbId = resolvedClient.id && !isNaN(Number(resolvedClient.id)) ? Number(resolvedClient.id) : 1;
+        const rows = await supabaseApi.createNote(
+          {
+            client_id: clientDbId,
+            consultant_id: consDbId,
+            title: noteTitle,
+            tag: 'Client Feedback',
+            note_text: noteBody
+          },
+          U
+        );
+        if (Array.isArray(rows) && rows[0]?.note_id) {
+          assignedNoteId = rows[0].note_id;
+        } else if (rows?.note_id) {
+          assignedNoteId = rows.note_id;
+        }
+      } catch (err) {
+        console.warn('Could not insert feedback note into Supabase:', err);
+      }
+    }
+
+    const newNote = {
+      id: assignedNoteId,
+      cid: resolvedClient.id,
+      consultant_id: U?.id || 'cons',
+      title: noteTitle,
+      tag: 'Client Feedback',
+      body: noteBody,
+      date: dateStr
+    };
+
+    setS((prev) => ({
+      ...prev,
+      nt: [newNote, ...prev.nt]
+    }));
+    showToast(`Archived feedback & details into private clinical notes`);
+  };
+
+  // Direct Download of Feedback Details Record (.txt)
+  const handleDownloadFeedback = (feedback, client) => {
+    if (!feedback) return;
+    const dateStr = getNowDateString();
+    const resolvedClient = client || (feedback.clientId ? S.cl.find((c) => c.uid === feedback.clientId || c.id === feedback.clientId) : null) || {
+      name: feedback.clientName || feedback.client_name || 'Client'
+    };
+    const cleanClientName = (resolvedClient.name || 'Client').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = `Feedback_Record_${cleanClientName}_${(feedback.date || dateStr).replace(/-/g, '')}.txt`;
+    const stars = '★'.repeat(feedback.rating || 5) + '☆'.repeat(5 - (feedback.rating || 5));
+
+    const content = `================================================================================
+MINDCARE PRO SANCTUARY - CLIENT CARE FEEDBACK & EVALUATION RECORD
+================================================================================
+Client:                ${feedback.isAnonymous ? 'Anonymous Client' : (resolvedClient.name || 'Client')}
+Date:                  ${feedback.date || dateStr}
+Category:              ${feedback.category || 'Session Experience'}
+Rating:                ${feedback.rating || 5} / 5.0 (${stars})
+
+Client Reflection:
+"${feedback.message || feedback.comment || 'No written reflection provided'}"
+
+Clinician Reply:
+${feedback.reply || 'None logged yet.'}
+================================================================================`;
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast(`Downloaded feedback record: ${fileName}`);
+  };
+
   const handleFileAdd = async (e) => {
     e.preventDefault();
     const rawFiles = Array.from(e.target.f.files || []);
@@ -1722,6 +1921,17 @@ Safety Screening: Confirmed safe, no active life-threatening crisis at intake.`;
           read: false
         });
       }
+
+      if (isSupabaseConfigured()) {
+        try {
+          supabaseApi.updateFeedbackReply(id, replyText).catch((err) => {
+            console.warn('Could not update feedback reply in Supabase:', err);
+          });
+        } catch (err) {
+          console.warn('Supabase feedback reply error:', err);
+        }
+      }
+
       return {
         ...prev,
         fb: updatedFb,
@@ -1860,6 +2070,9 @@ Safety Screening: Confirmed safe, no active life-threatening crisis at intake.`;
             handleDeleteFeedback={handleDeleteFeedback}
             setSelectedClientId={setSelectedClientId}
             setClientModalTab={setClientModalTab}
+            handleStoreFeedbackAsFile={handleStoreFeedbackAsFile}
+            handleStoreFeedbackAsNote={handleStoreFeedbackAsNote}
+            handleDownloadFeedback={handleDownloadFeedback}
             showToast={showToast}
           />
         );
@@ -2116,6 +2329,9 @@ Safety Screening: Confirmed safe, no active life-threatening crisis at intake.`;
           showToast={showToast}
           handleStorePreconsultationAsFile={handleStorePreconsultationAsFile}
           handleStorePreconsultationAsNote={handleStorePreconsultationAsNote}
+          handleStoreFeedbackAsFile={handleStoreFeedbackAsFile}
+          handleStoreFeedbackAsNote={handleStoreFeedbackAsNote}
+          handleDownloadFeedback={handleDownloadFeedback}
         />
 
         <FilePreviewModal
