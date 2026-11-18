@@ -13,6 +13,7 @@ import {
 } from '../../data/constants.js';
 import Chip from '../../components/common/Chip.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
+import { isAppointmentSlotOccupied } from '../../services/supabaseClient.js';
 
 // Date utility functions
 const toDateKey = (date) => {
@@ -96,8 +97,18 @@ export default function ConsultantSchedule({
   // Selected date for detailed daily schedule inspector
   const [selectedDate, setSelectedDate] = useState(() => todayKey);
 
-  // Form pre-filled booking date
+  // Form pre-filled booking date and time
   const [bookingDate, setBookingDate] = useState(() => todayKey);
+  const [bookingTime, setBookingTime] = useState('10:00');
+
+  // Verify whether the clinician already has a session at bookingDate & bookingTime
+  const isConsultantSlotOccupied = useMemo(() => {
+    return isAppointmentSlotOccupied(S?.ap || [], {
+      consultantId: U?.id || U?.consultant_id,
+      date: bookingDate,
+      time: bookingTime
+    });
+  }, [S?.ap, U, bookingDate, bookingTime]);
 
   // Filters
   const [filterStatus, setFilterStatus] = useState('ALL');
@@ -909,16 +920,36 @@ export default function ConsultantSchedule({
                   />
                 </div>
                 <div>
-                  <label className={clsLabel}>Time</label>
+                  <div className="flex items-center justify-between">
+                    <label className={clsLabel}>Time</label>
+                    {isConsultantSlotOccupied && (
+                      <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[13px]">event_busy</span> Occupied
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="time"
                     name="time"
-                    className={clsInput}
-                    defaultValue="10:00"
+                    value={bookingTime}
+                    onChange={(e) => setBookingTime(e.target.value)}
+                    className={`${clsInput} ${isConsultantSlotOccupied ? 'border-rose-400 bg-rose-50/20' : ''}`}
                     required
                   />
                 </div>
               </div>
+
+              {/* Occupied Warning for Clinician */}
+              {isConsultantSlotOccupied && (
+                <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-rose-600 dark:text-rose-400 shrink-0">
+                    event_busy
+                  </span>
+                  <span>
+                    <b>This time is occupied.</b> You already have a session booked at {bookingTime} on {bookingDate}.
+                  </span>
+                </div>
+              )}
 
               <div>
                 <label className={clsLabel}>Consultation Modality (Mode)</label>
@@ -928,9 +959,18 @@ export default function ConsultantSchedule({
                 </select>
               </div>
 
-              <button className={`${clsBtnPrimary} w-full mt-4 cursor-pointer`}>
-                <span className="material-symbols-outlined text-[18px]">calendar_add_on</span>
-                Confirm & Schedule Session
+              <button
+                disabled={isConsultantSlotOccupied}
+                className={`${
+                  isConsultantSlotOccupied
+                    ? 'bg-rose-600 text-white opacity-80 cursor-not-allowed'
+                    : clsBtnPrimary
+                } w-full mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  {isConsultantSlotOccupied ? 'event_busy' : 'calendar_add_on'}
+                </span>
+                {isConsultantSlotOccupied ? 'This time is occupied — Select another slot' : 'Confirm & Schedule Session'}
               </button>
             </form>
           </div>
