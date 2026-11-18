@@ -154,6 +154,92 @@ export const canConsultantHandleClient = (consultant, client, appointments = [],
   return false;
 };
 
+// Normalizes time into HH:MM (24-hour)
+export const normalizeTime = (t) => {
+  if (!t) return '';
+  const s = String(t).trim();
+  const parts = s.split(':');
+  if (parts.length >= 2) {
+    return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+  }
+  return s;
+};
+
+// Normalizes date into YYYY-MM-DD
+export const normalizeDate = (d) => {
+  if (!d) return '';
+  return String(d).split('T')[0].trim();
+};
+
+// Authoritative Slot Occupancy Checker
+export const isAppointmentSlotOccupied = (
+  appointments = [],
+  { consultantId, clientId, date, time, excludeAppointmentId = null }
+) => {
+  if (!date || !time) return false;
+  const targetDate = normalizeDate(date);
+  const targetTime = normalizeTime(time);
+
+  // Normalize consultant identifiers
+  const consIdStr = consultantId != null ? String(consultantId).toLowerCase() : null;
+  const consIdClean = consIdStr ? consIdStr.replace(/^u/, '') : null;
+
+  // Normalize client identifiers
+  const clientIdStr = clientId != null ? String(clientId).toLowerCase() : null;
+  const clientIdClean = clientIdStr ? clientIdStr.replace(/^u/, '') : null;
+
+  return (appointments || []).some((a) => {
+    // Optionally exclude an appointment (e.g. when editing or rescheduling)
+    if (excludeAppointmentId && (String(a.id) === String(excludeAppointmentId) || String(a.appointment_id) === String(excludeAppointmentId))) {
+      return false;
+    }
+
+    // Ignore cancelled or declined sessions
+    const status = String(a.status || '').toUpperCase();
+    if (status === 'CANCELLED' || status === 'DECLINED') return false;
+
+    // Check date
+    const aDate = normalizeDate(a.date || a.appointment_date);
+    if (aDate !== targetDate) return false;
+
+    // Check time
+    const aTime = normalizeTime(a.time || a.appointment_time);
+    if (aTime !== targetTime) return false;
+
+    // Check consultant conflict
+    if (consIdStr) {
+      const aConsId = String(
+        a.consultant_id || a.consultant?.consultant_id || a.consultant?.person_id || ''
+      ).toLowerCase();
+      const aConsClean = aConsId.replace(/^u/, '');
+      if (
+        aConsId === consIdStr ||
+        aConsClean === consIdClean ||
+        aConsId === `u${consIdClean}` ||
+        aConsClean === consIdStr
+      ) {
+        return true;
+      }
+    }
+
+    // Check client conflict (client cannot be double-booked)
+    if (clientIdStr) {
+      const aClientId = String(a.cid || a.client_id || a.uid || '').toLowerCase();
+      const aClientClean = aClientId.replace(/^u/, '');
+      if (
+        aClientId === clientIdStr ||
+        aClientClean === clientIdClean ||
+        aClientId === `u${clientIdClean}` ||
+        aClientClean === clientIdStr
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+};
+
 // Cryptographic Salt & Hash in Browser Web Crypto API (PBKDF2 SHA-256)
 export const generateSalt = () => {
   const arr = new Uint8Array(16);
@@ -666,6 +752,24 @@ export const supabaseApi = {
         pre: preForm || (a.reason ? { reason: a.reason } : null)
       };
     });
+  },
+
+  // Verify slot availability in database table appointment
+  checkSlotAvailability: async (consultantId, date, time) => {
+    if (!consultantId || !date || !time) return true;
+    const cleanConsId = typeof consultantId === 'string' && consultantId.startsWith('u') ? consultantId.replace('u', '') : consultantId;
+    if (isNaN(Number(cleanConsId))) return true;
+    const cleanTime = time.length === 5 ? `${time}:00` : time;
+    const cleanDate = date.split('T')[0];
+    try {
+      const data = await supabaseFetch(
+        `appointment?consultant_id=eq.${cleanConsId}&appointment_date=eq.${cleanDate}&appointment_time=eq.${cleanTime}&status=neq.CANCELLED`
+      );
+      return !data || data.length === 0;
+    } catch (e) {
+      console.warn("Could not check slot availability in Supabase:", e);
+      return true;
+    }
   },
 
   createAppointment: async (appointmentData, currentUser = null) => {

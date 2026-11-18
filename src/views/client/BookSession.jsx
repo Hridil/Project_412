@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   clsBtnPrimary,
   clsCard,
@@ -8,6 +8,7 @@ import {
   clsTextarea,
   clsLabel
 } from '../../data/constants.js';
+import { isAppointmentSlotOccupied, normalizeTime } from '../../services/supabaseClient.js';
 
 const CONCERN_CATEGORIES = [
   'Anxiety & Panic Regulation',
@@ -24,15 +25,59 @@ export default function BookSession({
   U,
   S,
   T,
-  handleBookSession
+  handleBookSession,
+  showToast
 }) {
   // Exclusively display active practitioners synchronized from database table CONSULTANT
   const activeConsultants = (S?.consultants && S.consultants.length > 0)
     ? S.consultants
     : (S?.acc || []).filter((a) => a.role === 'consultant');
 
+  const defaultConsVal = activeConsultants[0]?.uid || (activeConsultants[0]?.id ? `u${activeConsultants[0].id}` : 'cons');
+  const [selectedConsVal, setSelectedConsVal] = useState(defaultConsVal);
+  const [selectedDate, setSelectedDate] = useState(T ? T() : new Date().toISOString().split('T')[0]);
+  const [selectedTime, setSelectedTime] = useState('10:00');
+
   const [distressLevel, setDistressLevel] = useState(5);
   const [safetyConfirmed, setSafetyConfirmed] = useState(false);
+
+  // Authoritative Slot Occupancy Check against active appointments
+  const isOccupied = useMemo(() => {
+    return isAppointmentSlotOccupied(S?.ap || [], {
+      consultantId: selectedConsVal,
+      clientId: U?.id || U?.client_id,
+      date: selectedDate,
+      time: selectedTime
+    });
+  }, [S?.ap, selectedConsVal, selectedDate, selectedTime, U]);
+
+  const COMMON_SLOTS = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+
+  const slotStatusMap = useMemo(() => {
+    const map = {};
+    COMMON_SLOTS.forEach((slot) => {
+      map[slot] = isAppointmentSlotOccupied(S?.ap || [], {
+        consultantId: selectedConsVal,
+        clientId: U?.id || U?.client_id,
+        date: selectedDate,
+        time: slot
+      });
+    });
+    return map;
+  }, [S?.ap, selectedConsVal, selectedDate, U]);
+
+  const onSubmitForm = (e) => {
+    if (isOccupied) {
+      e.preventDefault();
+      if (showToast) {
+        showToast('This time is occupied. Please select an available slot.');
+      } else {
+        alert('This time is occupied. Please select an available slot.');
+      }
+      return;
+    }
+    handleBookSession(e);
+  };
 
   const getDistressLabel = (val) => {
     if (val <= 3) return { label: 'Mild / Functional', color: 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60' };
@@ -55,7 +100,7 @@ export default function BookSession({
       </div>
 
       <div className="max-w-3xl mx-auto">
-        <form onSubmit={handleBookSession} className="space-y-6">
+        <form onSubmit={onSubmitForm} className="space-y-6">
           {/* SECTION 1: PRE-CONSULTATION CLINICAL INTAKE FORM */}
           <div className={clsCard}>
             <div className="flex items-center gap-2.5 pb-3 mb-4 border-b border-[#dde7e3] dark:border-[#23403f]">
@@ -217,7 +262,12 @@ export default function BookSession({
               {activeConsultants.length > 0 && (
                 <div>
                   <label className={clsLabel}>Select Licensed Practitioner</label>
-                  <select name="consultant_id" className={clsInput}>
+                  <select
+                    name="consultant_id"
+                    value={selectedConsVal}
+                    onChange={(e) => setSelectedConsVal(e.target.value)}
+                    className={clsInput}
+                  >
                     {activeConsultants.map((c) => {
                       const consVal = c.uid || (c.id ? `u${c.id}` : 'cons');
                       const spec = c.specialization ? ` · ${c.specialization}` : '';
@@ -234,11 +284,101 @@ export default function BookSession({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={clsLabel}>Preferred Date</label>
-                  <input type="date" name="date" min={T()} className={clsInput} required />
+                  <input
+                    type="date"
+                    name="date"
+                    min={T ? T() : new Date().toISOString().split('T')[0]}
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className={clsInput}
+                    required
+                  />
                 </div>
                 <div>
-                  <label className={clsLabel}>Preferred Time Slot</label>
-                  <input type="time" name="time" className={clsInput} defaultValue="10:00" required />
+                  <div className="flex items-center justify-between">
+                    <label className={clsLabel}>Preferred Time Slot</label>
+                    {isOccupied && (
+                      <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[14px]">event_busy</span> Occupied
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="time"
+                    name="time"
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
+                    className={`${clsInput} ${isOccupied ? 'border-rose-400 dark:border-rose-600 focus:ring-rose-500 bg-rose-50/20' : ''}`}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Slot Availability Live Alert */}
+              {isOccupied ? (
+                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[22px] text-rose-600 dark:text-rose-400 shrink-0">
+                    event_busy
+                  </span>
+                  <div>
+                    <b className="font-semibold block text-[13px]">This time is occupied.</b>
+                    <span>The selected time slot ({selectedTime}) on {selectedDate} is already booked. Please choose another time or date.</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-emerald-600 dark:text-emerald-400 shrink-0">
+                    check_circle
+                  </span>
+                  <span>
+                    <b>Slot Available:</b> {selectedDate} at {selectedTime} is open for booking.
+                  </span>
+                </div>
+              )}
+
+              {/* Quick Select Slots */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-[#5f7571] dark:text-[#8fa8a3]">
+                  Quick Consultation Slots for {selectedDate}:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {COMMON_SLOTS.map((slot) => {
+                    const occupied = slotStatusMap[slot];
+                    const isSelected = normalizeTime(selectedTime) === normalizeTime(slot);
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => {
+                          if (occupied) {
+                            if (showToast) {
+                              showToast(`The ${slot} slot is already occupied.`);
+                            } else {
+                              alert(`The ${slot} slot is already occupied.`);
+                            }
+                          } else {
+                            setSelectedTime(slot);
+                          }
+                        }}
+                        className={`text-xs px-2.5 py-1.5 rounded-lg font-medium transition cursor-pointer flex items-center gap-1.5 ${
+                          occupied
+                            ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 line-through opacity-75'
+                            : isSelected
+                            ? 'bg-teal-700 text-white font-semibold shadow-xs'
+                            : 'bg-white dark:bg-[#14292a] text-[#14302c] dark:text-[#e3efec] border border-[#dde7e3] dark:border-[#23403f] hover:border-teal-500'
+                        }`}
+                        title={occupied ? `Slot ${slot} is occupied` : `Select ${slot}`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {occupied ? 'event_busy' : isSelected ? 'check_circle' : 'schedule'}
+                        </span>
+                        <span>{slot}</span>
+                        <span className="text-[10px] uppercase font-bold opacity-80">
+                          {occupied ? 'Occupied' : 'Free'}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -262,11 +402,18 @@ export default function BookSession({
               </div>
 
               <button
-                disabled={!safetyConfirmed}
-                className={`${clsBtnPrimary} w-full mt-4 py-3 text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+                type="submit"
+                disabled={!safetyConfirmed || isOccupied}
+                className={`${
+                  isOccupied
+                    ? 'bg-rose-600 hover:bg-rose-700 text-white cursor-not-allowed opacity-90'
+                    : clsBtnPrimary
+                } w-full mt-4 py-3 text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                <span className="material-symbols-outlined text-[19px]">verified_user</span>
-                Submit Pre-Consultation Intake & Book Session
+                <span className="material-symbols-outlined text-[19px]">
+                  {isOccupied ? 'event_busy' : 'verified_user'}
+                </span>
+                {isOccupied ? 'This time is occupied — Select another slot' : 'Submit Pre-Consultation Intake & Book Session'}
               </button>
             </div>
           </div>

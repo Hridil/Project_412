@@ -15,7 +15,7 @@ import Toast from './components/common/Toast.jsx';
 import AiAssistantWidget from './components/common/AiAssistantWidget.jsx';
 
 // Supabase Integration Client
-import { supabaseApi, isSupabaseConfigured, uploadImageToSupabase } from './services/supabaseClient.js';
+import { supabaseApi, isSupabaseConfigured, uploadImageToSupabase, isAppointmentSlotOccupied } from './services/supabaseClient.js';
 
 // Modals
 import ClientDossierModal from './components/modals/ClientDossierModal.jsx';
@@ -856,6 +856,20 @@ export default function App() {
     const d = Object.fromEntries(new FormData(e.target));
     const c = S.cl.find((x) => x.id === +d.cid || x.id === d.cid);
     if (!c) return;
+
+    // Verify slot is free before booking
+    const isOccupied = isAppointmentSlotOccupied(S.ap || [], {
+      consultantId: U.id,
+      clientId: c.id,
+      date: d.date,
+      time: d.time
+    });
+
+    if (isOccupied) {
+      showToast('This time is occupied. Please select an available slot.');
+      return;
+    }
+
     const dateStr = getNowDateString();
     const mode = d.appointment_mode || 'ONLINE';
     const newAp = {
@@ -1076,6 +1090,32 @@ export default function App() {
     );
     const targetConsultantUid = matchedCons?.uid || targetConsultantVal;
     const targetConsultantDbId = matchedCons?.id || matchedCons?.consultant_id || 7;
+
+    // Verify slot is free before booking
+    const clientIdentifier = clientRecord?.id || U?.client_id || U?.id;
+    const isOccupied = isAppointmentSlotOccupied(S.ap || [], {
+      consultantId: targetConsultantUid,
+      clientId: clientIdentifier,
+      date: d.date,
+      time: d.time
+    });
+
+    if (isOccupied) {
+      showToast('This time is occupied. Please select an available slot.');
+      return;
+    }
+
+    if (isSupabaseConfigured() && targetConsultantDbId) {
+      try {
+        const isDbFree = await supabaseApi.checkSlotAvailability(targetConsultantDbId, d.date, d.time);
+        if (!isDbFree) {
+          showToast('This time is occupied. Please select an available slot.');
+          return;
+        }
+      } catch (err) {
+        console.warn('Slot availability check warning:', err);
+      }
+    }
 
     const preconsultationData = {
       concern_category: d.concern_category || 'General Mental Wellbeing',
@@ -1874,6 +1914,7 @@ Safety Screening: Confirmed safe, no active life-threatening crisis at intake.`;
             S={S}
             T={T}
             handleBookSession={handleBookSession}
+            showToast={showToast}
           />
         );
 
