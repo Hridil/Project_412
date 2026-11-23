@@ -13,7 +13,7 @@ import {
 } from '../../data/constants.js';
 import Chip from '../../components/common/Chip.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
-import { isAppointmentSlotOccupied } from '../../services/supabaseClient.js';
+import { isAppointmentSlotOccupied, deduplicateAppointments } from '../../services/supabaseClient.js';
 
 // Date utility functions
 const toDateKey = (date) => {
@@ -115,22 +115,21 @@ export default function ConsultantSchedule({
   const [filterMode, setFilterMode] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Tenant Isolation: strictly show appointments for this consultant or their handled clients
+  // Tenant Isolation: strictly show appointments for this consultant or their handled clients, authoritative deduplication
   const allAppointments = useMemo(() => {
-    return (S.ap || [])
-      .filter((a) => {
-        if (
-          a.consultant_id === U?.id ||
-          a.consultant_id === U?.consultant_id ||
-          a.consultant_id === U?.uid ||
-          (U?.person_id && a.consultant_id === 'u' + U.person_id)
-        ) {
-          return true;
-        }
-        const client = (S.cl || []).find((c) => c.id === a.cid || c.uid === a.uid);
-        return isClientAssignedToConsultant ? isClientAssignedToConsultant(client, U) : true;
-      })
-      .sort(srt);
+    const raw = (S.ap || []).filter((a) => {
+      if (
+        a.consultant_id === U?.id ||
+        a.consultant_id === U?.consultant_id ||
+        a.consultant_id === U?.uid ||
+        (U?.person_id && a.consultant_id === 'u' + U.person_id)
+      ) {
+        return true;
+      }
+      const client = (S.cl || []).find((c) => c.id === a.cid || c.uid === a.uid);
+      return isClientAssignedToConsultant ? isClientAssignedToConsultant(client, U) : true;
+    });
+    return deduplicateAppointments(raw).sort(srt);
   }, [S.ap, S.cl, U, isClientAssignedToConsultant, srt]);
 
   // Clinician can only schedule sessions with clients assigned to their caseload

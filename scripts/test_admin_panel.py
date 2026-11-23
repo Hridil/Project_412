@@ -83,17 +83,24 @@ def test_app_jsx_wiring():
     assert "role === 'admin' ? 'admin-panel'" in content, "Missing admin redirect in auth handlers"
     assert "adminAcc" in content, "Missing resilient admin account provisioning in handleLogin"
     assert "parsed?.role === 'admin') return 'admin-panel'" in content, "Missing initial page restore for admin"
+    assert "New administrator accounts cannot be registered" in content, "Missing single-admin guard in handleSignup"
+    assert "filter((a) => a.role !== 'admin'" in content, "Missing single-admin enforcement in account list"
 
-    print("  -> App.jsx routes, handlers, resilient admin login, and navigation integration verified.")
+    print("  -> App.jsx routes, handlers, single-admin enforcement, and navigation integration verified.")
 
 def test_auth_screen_no_demo_values():
-    print("[4/5] Verifying src/views/auth/AuthScreen.jsx (No Demo Values & Flexible Admin Input)...")
+    print("[4/5] Verifying src/views/auth/AuthScreen.jsx (No Demo Values & No Add-Admin Option)...")
     content = check_file_exists("src/views/auth/AuthScreen.jsx")
 
     assert "role === 'admin'" in content, "Missing admin role logic in AuthScreen.jsx"
     assert "setRole('admin')" in content, "Missing admin tab trigger in AuthScreen.jsx"
     assert "type={role === 'admin' ? 'text' : 'email'}" in content, "Missing flexible input type for admin"
     assert "required={role !== 'admin'}" in content, "Email should be optional for admin role"
+
+    # Ensure add admin / register admin options are completely removed
+    assert "Register as Administrator" not in content, "Register as Administrator still present - should be removed"
+    assert "Create Administrator Account" not in content, "Create Administrator Account still present - should be removed"
+    assert "Administrative Title" not in content, "Administrative Title input still present - should be removed"
     
     # Ensure demo fillup and hardcoded credentials are completely removed
     assert "fillAdminCredentials" not in content, "fillAdminCredentials still present - should be removed"
@@ -105,7 +112,7 @@ def test_auth_screen_no_demo_values():
     seed_content = check_file_exists("src/data/seedData.js")
     assert "uadmin" not in seed_content, "Hardcoded uadmin still in seedData.js - should be clean"
 
-    print("  -> Flexible admin login input and demo value removal verified.")
+    print("  -> Flexible admin login, single-admin governance, and add-admin removal verified.")
 
 def test_bracket_balance():
     print("[5/5] Verifying structural syntax & bracket balance...")

@@ -171,6 +171,57 @@ export const normalizeDate = (d) => {
   return String(d).split('T')[0].trim();
 };
 
+// Generates canonical slot key for appointment deduplication
+export const getAppointmentSlotKey = (a) => {
+  if (!a) return '';
+  const d = normalizeDate(a.date || a.appointment_date);
+  const t = normalizeTime(a.time || a.appointment_time);
+  const consId = String(a.consultant_id || a.consultant?.consultant_id || a.consultant?.person_id || '').replace(/^u/i, '');
+  const cliId = String(a.cid || a.uid || a.client_id || a.client?.client_id || a.client?.person_id || '').replace(/^u/i, '');
+  return `${d}_${t}_${consId}_${cliId}`;
+};
+
+// Authoritative Appointment Deduplicator: collapses duplicate entries into single slot
+export const deduplicateAppointments = (appointments = []) => {
+  if (!Array.isArray(appointments)) return [];
+  const slotMap = new Map();
+
+  for (const a of appointments) {
+    if (!a) continue;
+    const key = getAppointmentSlotKey(a);
+    if (!key) {
+      slotMap.set(`raw_${a.id || Math.random()}`, a);
+      continue;
+    }
+
+    if (!slotMap.has(key)) {
+      slotMap.set(key, a);
+    } else {
+      const existing = slotMap.get(key);
+      const isExistingConfirmed = (existing.status || '').toUpperCase() === 'CONFIRMED';
+      const isIncomingConfirmed = (a.status || '').toUpperCase() === 'CONFIRMED';
+      const status = (isExistingConfirmed || isIncomingConfirmed)
+        ? 'CONFIRMED'
+        : (existing.status || a.status || 'REQUESTED');
+      
+      const id = !isNaN(Number(a.id)) ? a.id : (!isNaN(Number(existing.id)) ? existing.id : (a.id || existing.id));
+      const pre = (a.pre && Object.keys(a.pre).length > 1) ? a.pre : (existing.pre || a.pre);
+      const reason = a.reason || existing.reason || (pre?.reason || '');
+
+      slotMap.set(key, {
+        ...existing,
+        ...a,
+        id,
+        status,
+        pre,
+        reason
+      });
+    }
+  }
+
+  return Array.from(slotMap.values());
+};
+
 // Authoritative Slot Occupancy Checker
 export const isAppointmentSlotOccupied = (
   appointments = [],
@@ -784,6 +835,34 @@ export const supabaseApi = {
         reason: cleanReason
       })
     });
+  },
+
+  // Update appointment status (e.g. when consultant accepts/confirms or cancels)
+  updateAppointmentStatus: async (appointmentId, status) => {
+    if (!appointmentId) return;
+    const cleanId = typeof appointmentId === 'string' && appointmentId.startsWith('u')
+      ? appointmentId.replace(/^u/i, '')
+      : appointmentId;
+    if (isNaN(Number(cleanId))) return;
+    return supabaseFetch(`appointment?appointment_id=eq.${cleanId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status })
+    });
+  },
+
+  updateAppointmentStatusBySlot: async ({ consultantId, clientId, date, time, status }) => {
+    const cleanConsId = typeof consultantId === 'string' && consultantId.startsWith('u') ? consultantId.replace(/^u/i, '') : consultantId;
+    const cleanClientId = typeof clientId === 'string' && clientId.startsWith('u') ? clientId.replace(/^u/i, '') : clientId;
+    const cleanDate = (date || '').split('T')[0];
+    const cleanTime = (time || '').length === 5 ? `${time}:00` : time;
+    if (!cleanConsId || !cleanClientId || !cleanDate || !cleanTime) return;
+    return supabaseFetch(
+      `appointment?consultant_id=eq.${cleanConsId}&client_id=eq.${cleanClientId}&appointment_date=eq.${cleanDate}&appointment_time=eq.${cleanTime}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ status })
+      }
+    );
   },
 
   // Pre-Consultation Form Management

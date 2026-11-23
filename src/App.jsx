@@ -16,7 +16,15 @@ import AiAssistantWidget from './components/common/AiAssistantWidget.jsx';
 import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 
 // Supabase Integration Client
-import { supabaseApi, isSupabaseConfigured, uploadImageToSupabase, isAppointmentSlotOccupied } from './services/supabaseClient.js';
+import {
+  supabaseApi,
+  isSupabaseConfigured,
+  uploadImageToSupabase,
+  isAppointmentSlotOccupied,
+  deduplicateAppointments,
+  normalizeDate,
+  normalizeTime
+} from './services/supabaseClient.js';
 
 // Modals
 import ClientDossierModal from './components/modals/ClientDossierModal.jsx';
@@ -70,7 +78,7 @@ export default function App() {
         parsed.consultants = (parsed.consultants || []).filter(
           (c) => !dummyUserIds.has(c.uid) && !dummyEmails.has(c.email)
         );
-        parsed.ap = (parsed.ap || []).filter((a) => !dummyUserIds.has(a.uid));
+        parsed.ap = deduplicateAppointments((parsed.ap || []).filter((a) => !dummyUserIds.has(a.uid)));
         parsed.slots = parsed.slots || [];
         parsed.nt = (parsed.nt || []).filter((n) => n.id !== 101);
         parsed.pl = (parsed.pl || []).filter((p) => !dummyUserIds.has(p.uid));
@@ -237,10 +245,9 @@ export default function App() {
           const localOnlyFiles = (prev.fl || []).filter((f) => !dbFileIds.has(f.id));
           const finalFiles = [...enrichedDbFiles, ...localOnlyFiles];
 
-          // 3. Appointments
-          const dbApIds = new Set((data.appointments || []).map((a) => a.id));
-          const localOnlyAps = (prev.ap || []).filter((a) => !dbApIds.has(a.id));
-          const finalAppointments = [...(data.appointments || []), ...localOnlyAps];
+          // 3. Appointments: authoritative deduplication by slot
+          const combinedAps = [...(data.appointments || []), ...(prev.ap || [])];
+          const finalAppointments = deduplicateAppointments(combinedAps);
 
           // 4. Clinical Notes
           const dbNoteIds = new Set((data.notes || []).map((n) => n.id));
@@ -745,9 +752,10 @@ export default function App() {
         };
         setS((prev) => ({
           ...prev,
-          acc: prev.acc.some((a) => a.id === adminAcc.id)
-            ? prev.acc.map((a) => (a.id === adminAcc.id ? { ...a, pw } : a))
-            : [...prev.acc, adminAcc]
+          acc: [
+            ...(prev.acc || []).filter((a) => a.role !== 'admin' && a.id !== 'uadmin'),
+            adminAcc
+          ]
         }));
         setU(adminAcc);
         setRoleState('admin');
@@ -766,6 +774,10 @@ export default function App() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    if (role === 'admin') {
+      showToast('New administrator accounts cannot be registered. Only one master admin is permitted.');
+      return;
+    }
     const d = Object.fromEntries(new FormData(e.target));
     const em = d.email.trim().toLowerCase();
     if (S.acc.some((a) => a.email === em)) {
@@ -872,14 +884,6 @@ export default function App() {
         id: uid(),
         to: newAcc.id,
         msg: `Welcome, ${d.name}. Your clinical practice dashboard is ready.`,
-        date: dateStr,
-        read: false
-      });
-    } else if (role === 'admin') {
-      notifs.unshift({
-        id: uid(),
-        to: newAcc.id,
-        msg: `Welcome, ${d.name}. MindCare Sanctuary Administration Portal is active.`,
         date: dateStr,
         read: false
       });
@@ -1005,7 +1009,7 @@ export default function App() {
           (U.id && !isNaN(String(U.id).replace('u', ''))
             ? parseInt(String(U.id).replace('u', ''), 10)
             : 1);
-        await supabaseApi.createAppointment({
+        const createdAp = await supabaseApi.createAppointment({
           client_id: c.id,
           consultant_id: consDbId,
           appointment_date: d.date,
@@ -1014,46 +1018,114 @@ export default function App() {
           status: 'CONFIRMED',
           reason: 'Caseload Consultation Session'
         }, U);
+
+        const realApId = Array.isArray(createdAp) ? createdAp[0]?.appointment_id : createdAp?.appointment_id;
+        if (realApId) {
+          setS((prev) => ({
+            ...prev,
+            ap: prev.ap.map((x) => (x.id === newAp.id ? { ...x, id: realApId, appointment_id: realApId } : x))
+          }));
+        }
       } catch (err) {
         console.warn('Could not persist appointment to Supabase:', err);
       }
     }
   };
 
-  const handleConfirmAp = (id) => {
+  const handleConfirmAp = async (id) => {
     const a = S.ap.find((x) => x.id === id);
     if (!a) return;
     const dateStr = getNowDateString();
-    setS((prev) => ({
-      ...prev,
-      ap: prev.ap.map((x) => (x.id === id ? { ...x, status: 'CONFIRMED' } : x)),
-      nf: [
-        { id: uid(), to: a.uid, msg: `Your session on ${a.date} at ${a.time} is now confirmed.`, date: dateStr, read: false },
-        ...prev.nf
-      ]
-    }));
-    showToast('Session confirmed');
+    setS((prev) => {
+      const updatedAp = prev.ap.map((x) => {
+        const isMatch =
+          x.id === id ||
+          (normalizeDate(x.date) === normalizeDate(a.date) &&
+            normalizeTime(x.time) === normalizeTime(a.time) &&
+            String(x.consultant_id || '').replace(/^u/i, '') === String(a.consultant_id || '').replace(/^u/i, '') &&
+            String(x.cid || x.uid || '').replace(/^u/i, '') === String(a.cid || a.uid || '').replace(/^u/i, ''));
+        return isMatch ? { ...x, status: 'CONFIRMED' } : x;
+      });
+      return {
+        ...prev,
+        ap: deduplicateAppointments(updatedAp),
+        nf: [
+          { id: uid(), to: a.uid, msg: `Your session on ${a.date} at ${a.time} is now confirmed.`, date: dateStr, read: false },
+          ...prev.nf
+        ]
+      };
+    });
+    showToast('Session confirmed by consultant');
+
+    if (isSupabaseConfigured()) {
+      try {
+        const apDbId = !isNaN(Number(id)) ? Number(id) : a.appointment_id || null;
+        if (apDbId) {
+          await supabaseApi.updateAppointmentStatus(apDbId, 'CONFIRMED');
+        } else {
+          await supabaseApi.updateAppointmentStatusBySlot({
+            consultantId: a.consultant_id,
+            clientId: a.cid || a.uid,
+            date: a.date,
+            time: a.time,
+            status: 'CONFIRMED'
+          });
+        }
+      } catch (err) {
+        console.warn('Could not update appointment status in Supabase:', err);
+      }
+    }
   };
 
-  const handleCancelAp = (id) => {
+  const handleCancelAp = async (id) => {
     const a = S.ap.find((x) => x.id === id);
     if (!a || !window.confirm('Are you sure you want to cancel this session?')) return;
     const dateStr = getNowDateString();
-    setS((prev) => ({
-      ...prev,
-      ap: prev.ap.map((x) => (x.id === id ? { ...x, status: 'CANCELLED' } : x)),
-      nf: [
-        {
-          id: uid(),
-          to: U.role === 'client' ? (a.consultant_id || 'cons') : a.uid,
-          msg: `Session on ${a.date} at ${a.time} was cancelled.`,
-          date: dateStr,
-          read: false
-        },
-        ...prev.nf
-      ]
-    }));
+    setS((prev) => {
+      const updatedAp = prev.ap.map((x) => {
+        const isMatch =
+          x.id === id ||
+          (normalizeDate(x.date) === normalizeDate(a.date) &&
+            normalizeTime(x.time) === normalizeTime(a.time) &&
+            String(x.consultant_id || '').replace(/^u/i, '') === String(a.consultant_id || '').replace(/^u/i, '') &&
+            String(x.cid || x.uid || '').replace(/^u/i, '') === String(a.cid || a.uid || '').replace(/^u/i, ''));
+        return isMatch ? { ...x, status: 'CANCELLED' } : x;
+      });
+      return {
+        ...prev,
+        ap: deduplicateAppointments(updatedAp),
+        nf: [
+          {
+            id: uid(),
+            to: U.role === 'client' ? (a.consultant_id || 'cons') : a.uid,
+            msg: `Session on ${a.date} at ${a.time} was cancelled.`,
+            date: dateStr,
+            read: false
+          },
+          ...prev.nf
+        ]
+      };
+    });
     showToast('Session cancelled');
+
+    if (isSupabaseConfigured()) {
+      try {
+        const apDbId = !isNaN(Number(id)) ? Number(id) : a.appointment_id || null;
+        if (apDbId) {
+          await supabaseApi.updateAppointmentStatus(apDbId, 'CANCELLED');
+        } else {
+          await supabaseApi.updateAppointmentStatusBySlot({
+            consultantId: a.consultant_id,
+            clientId: a.cid || a.uid,
+            date: a.date,
+            time: a.time,
+            status: 'CANCELLED'
+          });
+        }
+      } catch (err) {
+        console.warn('Could not cancel appointment in Supabase:', err);
+      }
+    }
   };
 
   const handleAddNote = (e) => {
@@ -1280,6 +1352,10 @@ export default function App() {
 
         const realApId = Array.isArray(createdAp) ? createdAp[0]?.appointment_id : createdAp?.appointment_id;
         if (realApId) {
+          setS((prev) => ({
+            ...prev,
+            ap: prev.ap.map((x) => (x.id === newAp.id ? { ...x, id: realApId, appointment_id: realApId } : x))
+          }));
           await supabaseApi.createPreconsultationForm(
             {
               appointment_id: realApId,
