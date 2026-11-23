@@ -98,6 +98,8 @@ export default function AuthScreen({
   handleLogin,
   handleSignup
 }) {
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -105,6 +107,12 @@ export default function AuthScreen({
   const passwordStrength = useMemo(() => {
     return evaluatePasswordStrength(signupPassword);
   }, [signupPassword]);
+
+  const fillAdminCredentials = () => {
+    setRole('admin');
+    setLoginEmail('admin@mindcare.com');
+    setLoginPassword('AdminPassword123!');
+  };
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
       {/* Left Brand Panel */}
@@ -177,14 +185,22 @@ export default function AuthScreen({
             {isSignup
               ? role === 'consultant'
                 ? 'Register Practitioner Profile'
+                : role === 'admin'
+                ? 'Register Administrator Account'
                 : 'Apply for Clinical Intake'
+              : role === 'admin'
+              ? 'Sanctuary Administration'
               : 'Sign in to Sanctuary'}
           </h2>
           <p className={`${clsMuted} mt-1 mb-6`}>
             {isSignup
               ? role === 'consultant'
                 ? 'Set up your clinical practice and practitioner credentials.'
+                : role === 'admin'
+                ? 'Create an administrative profile with system governance access.'
                 : 'Create your secure, confidential patient profile.'
+              : role === 'admin'
+              ? 'Access master oversight for clients, practitioners, and clinical operations.'
               : `Access your ${role === 'consultant' ? 'clinical practice' : 'healing sanctuary'} workspace.`}
           </p>
 
@@ -216,6 +232,19 @@ export default function AuthScreen({
             >
               Client
             </button>
+            <button
+              type="button"
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition cursor-pointer ${
+                role === 'admin'
+                  ? 'bg-white dark:bg-[#14292a] text-teal-800 dark:text-teal-200 shadow-xs'
+                  : 'text-[#5f7571] dark:text-[#8fa8a3]'
+              }`}
+              onClick={() => {
+                setRole('admin');
+              }}
+            >
+              Admin
+            </button>
           </div>
 
           {!isSignup ? (
@@ -225,8 +254,10 @@ export default function AuthScreen({
                 <input
                   name="email"
                   type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
                   className={clsInput}
-                  placeholder="Enter your registered email address"
+                  placeholder={role === 'admin' ? 'admin@mindcare.com' : 'Enter your registered email address'}
                   required
                 />
               </div>
@@ -236,6 +267,8 @@ export default function AuthScreen({
                   <input
                     name="pw"
                     type={showLoginPassword ? 'text' : 'password'}
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
                     className={`${clsInput} pr-10`}
                     placeholder="Enter your password"
                     required
@@ -252,8 +285,24 @@ export default function AuthScreen({
                   </button>
                 </div>
               </div>
+
+              {role === 'admin' && (
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60">
+                  <span className="text-[11px] text-[#3c5651] dark:text-[#9bc2bb]">
+                    Demo Admin: <b>admin@mindcare.com</b>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={fillAdminCredentials}
+                    className="text-[11px] font-bold text-teal-700 dark:text-teal-300 hover:underline cursor-pointer"
+                  >
+                    Auto-Fill
+                  </button>
+                </div>
+              )}
+
               <button className={`${clsBtnPrimary} w-full mt-2 py-2.5`}>
-                Sign In as {role === 'consultant' ? 'Consultant' : 'Client'}
+                Sign In as {role === 'consultant' ? 'Consultant' : role === 'admin' ? 'Administrator' : 'Client'}
               </button>
             </form>
           ) : (
@@ -304,7 +353,7 @@ export default function AuthScreen({
                     />
                   </div>
                 </>
-              ) : (
+              ) : role === 'consultant' ? (
                 <>
                   <div>
                     <label className={clsLabel}>Clinical Specialization</label>
@@ -325,6 +374,17 @@ export default function AuthScreen({
                     />
                   </div>
                 </>
+              ) : (
+                <div>
+                  <label className={clsLabel}>Administrative Title</label>
+                  <input
+                    name="specialization"
+                    className={clsInput}
+                    defaultValue="Practice Administrator"
+                    placeholder="e.g. Practice Administrator / Operations"
+                    required
+                  />
+                </div>
               )}
 
               <div>
@@ -451,7 +511,11 @@ export default function AuthScreen({
                 )}
               </div>
               <button className={`${clsBtnPrimary} w-full mt-2 py-2.5`}>
-                {role === 'consultant' ? 'Create Practitioner Account' : 'Submit Intake Application'}
+                {role === 'consultant'
+                  ? 'Create Practitioner Account'
+                  : role === 'admin'
+                  ? 'Create Administrator Account'
+                  : 'Submit Intake Application'}
               </button>
             </form>
           )}
@@ -482,7 +546,11 @@ export default function AuthScreen({
                     setSignupPassword('');
                   }}
                 >
-                  {role === 'consultant' ? 'Register as Consultant' : 'Create Client Profile'}
+                  {role === 'consultant'
+                    ? 'Register as Consultant'
+                    : role === 'admin'
+                    ? 'Register as Administrator'
+                    : 'Create Client Profile'}
                 </button>
               </p>
             )}

@@ -5,7 +5,7 @@ import { T, uid, srt, dOff, getNowDateString } from './utils/formatters.js';
 import { compressImage, readFileAsDataUrl } from './utils/mediaUtils.js';
 
 // Constants & Data Seed
-import { NS, NC, E } from './data/constants.js';
+import { NS, NC, NA, E } from './data/constants.js';
 import { seed } from './data/seedData.js';
 
 // Layout & Common Components
@@ -23,6 +23,7 @@ import FilePreviewModal from './components/modals/FilePreviewModal.jsx';
 
 // Views
 import AuthScreen from './views/auth/AuthScreen.jsx';
+import AdminPanel from './views/admin/AdminPanel.jsx';
 import ConsultantHome from './views/consultant/ConsultantHome.jsx';
 import ClientManagement from './views/consultant/ClientManagement.jsx';
 import ClientDocuments from './views/consultant/ClientDocuments.jsx';
@@ -602,6 +603,76 @@ export default function App() {
     }
   };
 
+  // Administrator Handlers: Remove Client or Consultant from System
+  const handleAdminRemoveClient = async (client) => {
+    if (!client) return;
+    const clientId = client.id;
+    const clientUid = client.uid;
+    const clientPersonId = client.person_id;
+
+    // 1. Remove from local state and clean up linked references
+    setS((prev) => ({
+      ...prev,
+      cl: (prev.cl || []).filter((c) => c.id !== clientId && c.uid !== clientUid),
+      acc: (prev.acc || []).filter(
+        (a) =>
+          a.id !== clientUid &&
+          a.client_id !== clientId &&
+          a.email?.toLowerCase() !== client.email?.toLowerCase()
+      )
+    }));
+
+    // 2. Delete from Supabase if configured
+    if (isSupabaseConfigured()) {
+      try {
+        await supabaseApi.deleteClient(clientId, clientPersonId);
+      } catch (err) {
+        console.warn('Could not delete client from Supabase:', err);
+      }
+    }
+
+    showToast(`Client ${client.name || 'Account'} has been removed from the system.`);
+  };
+
+  const handleAdminRemoveConsultant = async (consultant) => {
+    if (!consultant) return;
+    const consId = consultant.id;
+    const consUid = consultant.uid;
+    const consPersonId = consultant.person_id;
+
+    // 1. Remove from local state and unassign their caseload
+    setS((prev) => ({
+      ...prev,
+      consultants: (prev.consultants || []).filter(
+        (c) => c.id !== consId && c.uid !== consUid
+      ),
+      acc: (prev.acc || []).filter(
+        (a) =>
+          a.id !== consUid &&
+          a.consultant_id !== consId &&
+          a.email?.toLowerCase() !== consultant.email?.toLowerCase()
+      ),
+      cl: (prev.cl || []).map((c) =>
+        c.assignedConsultantId === consId ||
+        c.assignedConsultantId === consUid ||
+        c.consultant_id === consId
+          ? { ...c, assignedConsultantId: null, consultant_id: null }
+          : c
+      )
+    }));
+
+    // 2. Delete from Supabase if configured
+    if (isSupabaseConfigured()) {
+      try {
+        await supabaseApi.deleteConsultant(consId, consPersonId);
+      } catch (err) {
+        console.warn('Could not delete consultant from Supabase:', err);
+      }
+    }
+
+    showToast(`Practitioner ${consultant.name || 'Account'} has been removed from the system.`);
+  };
+
   const moodsOf = (u) => S.md.filter((m) => m.uid === u).sort((a, b) => a.date.localeCompare(b.date));
   const avg = (u) => {
     const m = moodsOf(u).slice(-7);
@@ -632,7 +703,7 @@ export default function App() {
       try {
         const dbUser = await supabaseApi.login(em, pw, role);
         setU(dbUser);
-        go(dbUser.role === 'client' ? 'cl-home' : 'c-home');
+        go(dbUser.role === 'client' ? 'cl-home' : dbUser.role === 'admin' ? 'admin-panel' : 'c-home');
         showToast(`Welcome back, ${dbUser.name}`);
         return;
       } catch (err) {
@@ -657,7 +728,7 @@ export default function App() {
       return;
     }
     setU(u);
-    go(u.role === 'client' ? 'cl-home' : 'c-home');
+    go(u.role === 'client' ? 'cl-home' : u.role === 'admin' ? 'admin-panel' : 'c-home');
     showToast(`Welcome back, ${u.name}`);
   };
 
@@ -783,10 +854,12 @@ export default function App() {
     }));
 
     setU(newAcc);
-    go(role === 'client' ? 'cl-home' : 'c-home');
+    go(role === 'client' ? 'cl-home' : role === 'admin' ? 'admin-panel' : 'c-home');
     showToast(
       role === 'consultant'
         ? `Practitioner account created for ${newAcc.name}`
+        : role === 'admin'
+        ? `Administrator account created for ${newAcc.name}`
         : `Welcome to MindCare, ${newAcc.name}!`
     );
     e.target.reset();
@@ -2187,13 +2260,32 @@ ${feedback.reply || 'None logged yet.'}
           />
         );
 
+      // ADMIN VIEWS
+      case 'admin-panel':
+      case 'admin-clients':
+      case 'admin-consultants':
+        return (
+          <AdminPanel
+            U={U}
+            S={S}
+            setSelectedClientId={setSelectedClientId}
+            setClientModalTab={setClientModalTab}
+            handleAdminRemoveClient={handleAdminRemoveClient}
+            handleAdminRemoveConsultant={handleAdminRemoveConsultant}
+            showToast={showToast}
+            go={go}
+          />
+        );
+
       default:
         return null;
     }
   };
 
-  const navItems = U?.role === 'client' ? NC : NS;
-  const currentPageTitle = navItems.find((n) => n[0] === page)?.[1] || '';
+  const navItems = U?.role === 'client' ? NC : U?.role === 'admin' ? NA : NS;
+  const currentPageTitle =
+    navItems.find((n) => n[0] === page)?.[1] ||
+    (page.startsWith('admin') ? 'Administration Center' : '');
   const unreadCount = U ? S.nf.filter((n) => n.to === (U.role === 'client' ? U.id : 'cons') && !n.read).length : 0;
 
   return (
@@ -2263,14 +2355,14 @@ ${feedback.reply || 'None logged yet.'}
                       title="Return to previous screen"
                     >
                       <span className="material-symbols-outlined text-[17px]">arrow_back</span>
-                      <span>Back to {U?.role === 'client' ? 'Dashboard' : 'Overview'}</span>
+                      <span>Back to {U?.role === 'client' ? 'Dashboard' : U?.role === 'admin' ? 'Admin Center' : 'Overview'}</span>
                     </button>
                     <div className="flex items-center gap-1.5 text-xs text-[#5f7571] dark:text-[#8fa8a3]">
                       <button
                         className="cursor-pointer hover:text-teal-700 dark:hover:text-teal-300 transition font-medium"
-                        onClick={() => go(U?.role === 'client' ? 'cl-home' : 'c-home')}
+                        onClick={() => go(U?.role === 'client' ? 'cl-home' : U?.role === 'admin' ? 'admin-panel' : 'c-home')}
                       >
-                        {U?.role === 'client' ? 'Client Sanctuary' : 'Clinical Overview'}
+                        {U?.role === 'client' ? 'Client Sanctuary' : U?.role === 'admin' ? 'Administration Center' : 'Clinical Overview'}
                       </button>
                       <span className="material-symbols-outlined text-[14px]">chevron_right</span>
                       <span className="font-semibold text-[#14302c] dark:text-[#e3efec]">{currentPageTitle}</span>

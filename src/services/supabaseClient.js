@@ -426,8 +426,8 @@ export const supabaseApi = {
 
     const cleanEmail = sanitizeEmail(email);
 
-    if (!['client', 'consultant'].includes(role)) {
-      throw new Error(`Validation Error: Unauthorized role "${role}". Allowed roles: client, consultant.`);
+    if (!['client', 'consultant', 'admin'].includes(role)) {
+      throw new Error(`Validation Error: Unauthorized role "${role}". Allowed roles: client, consultant, admin.`);
     }
 
     if (!password || password.length < 6) {
@@ -483,7 +483,7 @@ export const supabaseApi = {
         })
       });
       consultantId = cons?.consultant_id;
-    } else {
+    } else if (role === "client") {
       const [cli] = await supabaseFetch("client", {
         method: "POST",
         body: JSON.stringify({
@@ -932,6 +932,44 @@ export const supabaseApi = {
     return supabaseFetch(`private_note?note_id=eq.${cleanId}`, {
       method: "DELETE"
     });
+  },
+
+  // Admin: Delete client from database table CLIENT and optionally PERSON
+  deleteClient: async (clientId, personId = null) => {
+    if (!clientId && !personId) return false;
+    let res = true;
+    if (clientId) {
+      const cleanClientId = typeof clientId === 'string' && clientId.startsWith('u') ? clientId.replace('u', '') : clientId;
+      if (!isNaN(Number(cleanClientId))) {
+        res = await supabaseFetch(`client?client_id=eq.${cleanClientId}`, { method: "DELETE" }).catch(() => false);
+      }
+    }
+    if (personId) {
+      const cleanPersonId = typeof personId === 'string' && personId.startsWith('u') ? personId.replace('u', '') : personId;
+      if (!isNaN(Number(cleanPersonId))) {
+        await supabaseFetch(`person?person_id=eq.${cleanPersonId}`, { method: "DELETE" }).catch(() => {});
+      }
+    }
+    return res;
+  },
+
+  // Admin: Delete consultant from database table CONSULTANT and optionally PERSON
+  deleteConsultant: async (consultantId, personId = null) => {
+    if (!consultantId && !personId) return false;
+    let res = true;
+    if (consultantId) {
+      const cleanConsId = typeof consultantId === 'string' && consultantId.startsWith('u') ? consultantId.replace('u', '') : consultantId;
+      if (!isNaN(Number(cleanConsId))) {
+        res = await supabaseFetch(`consultant?consultant_id=eq.${cleanConsId}`, { method: "DELETE" }).catch(() => false);
+      }
+    }
+    if (personId) {
+      const cleanPersonId = typeof personId === 'string' && personId.startsWith('u') ? personId.replace('u', '') : personId;
+      if (!isNaN(Number(cleanPersonId))) {
+        await supabaseFetch(`person?person_id=eq.${cleanPersonId}`, { method: "DELETE" }).catch(() => {});
+      }
+    }
+    return res;
   },
 
   // Master Initial Data Synchronizer Across All Devices
