@@ -31,6 +31,15 @@ export const NC = [
   ['cl-notif', 'Notifications', 'notifications']
 ];
 
+export const NA = [
+  ['admin-panel', 'Admin Overview', 'admin_panel_settings'],
+  ['admin-clients', 'All Clients', 'groups'],
+  ['admin-consultants', 'All Practitioners', 'medical_services'],
+  ['c-docs', 'System Vault', 'folder_special'],
+  ['c-feedback', 'Care Reviews', 'rate_review'],
+  ['c-notif', 'Notifications', 'notifications']
+];
+
 // Tailwind Reusable Class Presets
 export const clsInput =
   'w-full px-3.5 py-2.5 border border-[#dde7e3] dark:border-[#23403f] rounded-[10px] bg-white dark:bg-[#14292a] text-[#14302c] dark:text-[#e3efec] focus:outline-none focus:ring-2 focus:ring-teal-700 dark:focus:ring-teal-400 transition-colors text-sm';
