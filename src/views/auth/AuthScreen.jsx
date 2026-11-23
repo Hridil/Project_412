@@ -244,15 +244,17 @@ export default function AuthScreen({
           {!isSignup ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className={clsLabel}>Email Address</label>
+                <label className={clsLabel}>
+                  {role === 'admin' ? 'Username or Email (optional)' : 'Email Address'}
+                </label>
                 <input
                   name="email"
-                  type="email"
+                  type={role === 'admin' ? 'text' : 'email'}
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   className={clsInput}
-                  placeholder={role === 'admin' ? 'Enter administrative email address' : 'Enter your registered email address'}
-                  required
+                  placeholder={role === 'admin' ? 'Username or email (optional)' : 'Enter your registered email address'}
+                  required={role !== 'admin'}
                 />
               </div>
               <div>
