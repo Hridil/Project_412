@@ -24,7 +24,9 @@ def test_admin_panel_component():
     print("[1/5] Verifying src/views/admin/AdminPanel.jsx...")
     content = check_file_exists("src/views/admin/AdminPanel.jsx")
 
-    # Exclusively Active Clients & Active Consultants Filtering
+    # Active & all data references
+    assert "allClients" in content, "Missing allClients definition in AdminPanel"
+    assert "allConsultants" in content, "Missing allConsultants definition in AdminPanel"
     assert "activeClients" in content, "Missing activeClients calculation"
     assert "activeConsultants" in content, "Missing activeConsultants calculation"
     assert "status === 'ACTIVE' || status === 'ACCEPTED'" in content, "Missing active status check"
@@ -111,6 +113,8 @@ def test_bracket_balance():
         "src/views/admin/AdminPanel.jsx",
         "src/App.jsx",
         "src/views/auth/AuthScreen.jsx",
+        "src/components/layout/ProfileMenu.jsx",
+        "src/components/common/ErrorBoundary.jsx",
         "src/services/supabaseClient.js",
         "src/data/constants.js",
         "src/data/seedData.js"

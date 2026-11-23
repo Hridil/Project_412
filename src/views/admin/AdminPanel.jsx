@@ -44,6 +44,8 @@ export default function AdminPanel({
     });
   }, [S.consultants]);
 
+  const allClients = S.cl || [];
+  const allConsultants = S.consultants || [];
   const allFiles = S.fl || [];
   const allAppointments = S.ap || [];
   const allNotes = S.nt || [];
