@@ -107,12 +107,6 @@ export default function AuthScreen({
   const passwordStrength = useMemo(() => {
     return evaluatePasswordStrength(signupPassword);
   }, [signupPassword]);
-
-  const fillAdminCredentials = () => {
-    setRole('admin');
-    setLoginEmail('admin@mindcare.com');
-    setLoginPassword('AdminPassword123!');
-  };
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
       {/* Left Brand Panel */}
@@ -257,7 +251,7 @@ export default function AuthScreen({
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   className={clsInput}
-                  placeholder={role === 'admin' ? 'admin@mindcare.com' : 'Enter your registered email address'}
+                  placeholder={role === 'admin' ? 'Enter administrative email address' : 'Enter your registered email address'}
                   required
                 />
               </div>
@@ -285,21 +279,6 @@ export default function AuthScreen({
                   </button>
                 </div>
               </div>
-
-              {role === 'admin' && (
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60">
-                  <span className="text-[11px] text-[#3c5651] dark:text-[#9bc2bb]">
-                    Demo Admin: <b>admin@mindcare.com</b>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={fillAdminCredentials}
-                    className="text-[11px] font-bold text-teal-700 dark:text-teal-300 hover:underline cursor-pointer"
-                  >
-                    Auto-Fill
-                  </button>
-                </div>
-              )}
 
               <button className={`${clsBtnPrimary} w-full mt-2 py-2.5`}>
                 Sign In as {role === 'consultant' ? 'Consultant' : role === 'admin' ? 'Administrator' : 'Client'}
@@ -380,7 +359,6 @@ export default function AuthScreen({
                   <input
                     name="specialization"
                     className={clsInput}
-                    defaultValue="Practice Administrator"
                     placeholder="e.g. Practice Administrator / Operations"
                     required
                   />

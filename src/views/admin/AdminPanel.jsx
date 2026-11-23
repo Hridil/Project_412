@@ -23,43 +23,48 @@ export default function AdminPanel({
 }) {
   const [activeTab, setActiveTab] = useState('clients'); // 'clients' | 'consultants' | 'overview'
   const [clientSearch, setClientSearch] = useState('');
-  const [clientStatusFilter, setClientStatusFilter] = useState('all');
   const [consultantSearch, setConsultantSearch] = useState('');
 
   // Target item selected for removal confirmation modal
   const [confirmRemovalTarget, setConfirmRemovalTarget] = useState(null); // { type: 'client'|'consultant', item: object }
   const [isRemoving, setIsRemoving] = useState(false);
 
-  const allClients = S.cl || [];
-  const allConsultants = S.consultants || [];
+  // Exclusively show active clients & active consultants
+  const activeClients = useMemo(() => {
+    return (S.cl || []).filter((c) => {
+      const status = String(c.status || c.account_status || 'ACTIVE').toUpperCase();
+      return status === 'ACTIVE' || status === 'ACCEPTED';
+    });
+  }, [S.cl]);
+
+  const activeConsultants = useMemo(() => {
+    return (S.consultants || []).filter((co) => {
+      const status = String(co.status || co.account_status || 'ACTIVE').toUpperCase();
+      return status !== 'INACTIVE' && status !== 'SUSPENDED' && status !== 'DEACTIVATED';
+    });
+  }, [S.consultants]);
+
   const allFiles = S.fl || [];
   const allAppointments = S.ap || [];
   const allNotes = S.nt || [];
 
-  // Filtered Clients
+  // Filtered Clients (Active only)
   const filteredClients = useMemo(() => {
-    return allClients.filter((c) => {
+    return activeClients.filter((c) => {
       const q = clientSearch.trim().toLowerCase();
-      const matchesSearch =
+      return (
         !q ||
         (c.name || '').toLowerCase().includes(q) ||
         (c.email || '').toLowerCase().includes(q) ||
         (c.contact_no || '').toLowerCase().includes(q) ||
-        String(c.id).includes(q);
-
-      const matchesStatus =
-        clientStatusFilter === 'all' ||
-        (clientStatusFilter === 'ACTIVE' && (c.status === 'ACTIVE' || c.status === 'Accepted')) ||
-        (clientStatusFilter === 'Pending' && c.status === 'Pending') ||
-        (clientStatusFilter === 'INACTIVE' && (c.status === 'INACTIVE' || c.status === 'Rejected'));
-
-      return matchesSearch && matchesStatus;
+        String(c.id).includes(q)
+      );
     });
-  }, [allClients, clientSearch, clientStatusFilter]);
+  }, [activeClients, clientSearch]);
 
-  // Filtered Consultants
+  // Filtered Consultants (Active only)
   const filteredConsultants = useMemo(() => {
-    return allConsultants.filter((co) => {
+    return activeConsultants.filter((co) => {
       const q = consultantSearch.trim().toLowerCase();
       return (
         !q ||
@@ -70,7 +75,7 @@ export default function AdminPanel({
         String(co.id).includes(q)
       );
     });
-  }, [allConsultants, consultantSearch]);
+  }, [activeConsultants, consultantSearch]);
 
   const openClientDossier = (clientId) => {
     if (setSelectedClientId && setClientModalTab) {
@@ -130,15 +135,15 @@ export default function AdminPanel({
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon="groups"
-          label="Total Enrolled Clients"
-          val={allClients.length}
-          sub="Registered sanctuary patients"
+          label="Active Clients"
+          val={activeClients.length}
+          sub="Enrolled & active sanctuary clients"
         />
         <StatCard
           icon="medical_services"
           label="Active Practitioners"
-          val={allConsultants.length}
-          sub="Licensed clinical staff"
+          val={activeConsultants.length}
+          sub="Licensed active clinical staff"
         />
         <StatCard
           icon="folder_special"
@@ -166,7 +171,7 @@ export default function AdminPanel({
           }`}
         >
           <span className="material-symbols-outlined text-[17px]">groups</span>
-          <span>All Enrolled Clients ({allClients.length})</span>
+          <span>Active Clients ({activeClients.length})</span>
         </button>
 
         <button
@@ -179,7 +184,7 @@ export default function AdminPanel({
           }`}
         >
           <span className="material-symbols-outlined text-[17px]">medical_services</span>
-          <span>All Clinical Practitioners ({allConsultants.length})</span>
+          <span>Active Practitioners ({activeConsultants.length})</span>
         </button>
 
         <button
@@ -210,22 +215,16 @@ export default function AdminPanel({
                   type="text"
                   value={clientSearch}
                   onChange={(e) => setClientSearch(e.target.value)}
-                  placeholder="Search clients by name, email, phone, ID..."
+                  placeholder="Search active clients by name, email, phone, ID..."
                   className={`${clsInput} pl-9 py-2 text-xs`}
                 />
               </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto">
-                <select
-                  value={clientStatusFilter}
-                  onChange={(e) => setClientStatusFilter(e.target.value)}
-                  className={`${clsInput} py-2 text-xs w-full sm:w-44`}
-                >
-                  <option value="all">All Statuses ({allClients.length})</option>
-                  <option value="ACTIVE">Active / Accepted</option>
-                  <option value="Pending">Pending Triage</option>
-                  <option value="INACTIVE">Inactive / Suspended</option>
-                </select>
+                <span className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[15px] text-emerald-600">verified</span>
+                  <span>Active Clients Only ({activeClients.length})</span>
+                </span>
 
                 {clientSearch && (
                   <button
@@ -410,20 +409,27 @@ export default function AdminPanel({
                   type="text"
                   value={consultantSearch}
                   onChange={(e) => setConsultantSearch(e.target.value)}
-                  placeholder="Search practitioners by name, email, specialty..."
+                  placeholder="Search active practitioners by name, email, specialty..."
                   className={`${clsInput} pl-9 py-2 text-xs`}
                 />
               </div>
 
-              {consultantSearch && (
-                <button
-                  type="button"
-                  onClick={() => setConsultantSearch('')}
-                  className="text-xs text-rose-600 hover:underline cursor-pointer flex items-center gap-1 shrink-0"
-                >
-                  Clear search
-                </button>
-              )}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[15px] text-emerald-600">verified</span>
+                  <span>Active Practitioners Only ({activeConsultants.length})</span>
+                </span>
+
+                {consultantSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setConsultantSearch('')}
+                    className="text-xs text-rose-600 hover:underline cursor-pointer flex items-center gap-1 shrink-0"
+                  >
+                    Clear search
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
