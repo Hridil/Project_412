@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   clsInput,
   clsTextarea,
@@ -6,6 +6,89 @@ import {
   clsBtnPrimary,
   clsMuted
 } from '../../data/constants.js';
+
+// Password strength evaluator for clinical sanctuary authentication
+export function evaluatePasswordStrength(password = '') {
+  if (!password) {
+    return {
+      score: 0,
+      label: '',
+      colorClass: 'bg-gray-200 dark:bg-gray-700',
+      textClass: 'text-gray-400',
+      badgeClass: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+      checks: {
+        minLength: false,
+        upper: false,
+        lower: false,
+        number: false,
+        special: false
+      }
+    };
+  }
+
+  const checks = {
+    minLength: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[^a-zA-Z0-9]/.test(password)
+  };
+
+  const passedCount = Object.values(checks).filter(Boolean).length;
+
+  if (password.length < 8) {
+    return {
+      score: 1,
+      label: 'Too Weak',
+      colorClass: 'bg-rose-500',
+      textClass: 'text-rose-600 dark:text-rose-400',
+      badgeClass: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300',
+      checks
+    };
+  }
+
+  if (passedCount <= 2) {
+    return {
+      score: 2,
+      label: 'Weak',
+      colorClass: 'bg-orange-500',
+      textClass: 'text-orange-600 dark:text-orange-400',
+      badgeClass: 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300',
+      checks
+    };
+  }
+
+  if (passedCount === 3) {
+    return {
+      score: 3,
+      label: 'Fair',
+      colorClass: 'bg-amber-500',
+      textClass: 'text-amber-600 dark:text-amber-400',
+      badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+      checks
+    };
+  }
+
+  if (passedCount === 4) {
+    return {
+      score: 4,
+      label: 'Strong',
+      colorClass: 'bg-teal-600 dark:bg-teal-400',
+      textClass: 'text-teal-700 dark:text-teal-300',
+      badgeClass: 'bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300',
+      checks
+    };
+  }
+
+  return {
+    score: 5,
+    label: 'Very Strong',
+    colorClass: 'bg-emerald-600 dark:bg-emerald-400',
+    textClass: 'text-emerald-700 dark:text-emerald-300',
+    badgeClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+    checks
+  };
+}
 
 export default function AuthScreen({
   role,
@@ -15,6 +98,13 @@ export default function AuthScreen({
   handleLogin,
   handleSignup
 }) {
+  const [signupPassword, setSignupPassword] = useState('');
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+
+  const passwordStrength = useMemo(() => {
+    return evaluatePasswordStrength(signupPassword);
+  }, [signupPassword]);
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
       {/* Left Brand Panel */}
@@ -142,13 +232,25 @@ export default function AuthScreen({
               </div>
               <div>
                 <label className={clsLabel}>Password</label>
-                <input
-                  name="pw"
-                  type="password"
-                  className={clsInput}
-                  placeholder="Enter your password"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    name="pw"
+                    type={showLoginPassword ? 'text' : 'password'}
+                    className={`${clsInput} pr-10`}
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword((prev) => !prev)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5f7571] dark:text-[#8fa8a3] hover:text-[#14302c] dark:hover:text-[#e3efec] p-1 transition cursor-pointer"
+                    title={showLoginPassword ? 'Hide password' : 'Show password'}
+                  >
+                    <span className="material-symbols-outlined text-[19px]">
+                      {showLoginPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
+                </div>
               </div>
               <button className={`${clsBtnPrimary} w-full mt-2 py-2.5`}>
                 Sign In as {role === 'consultant' ? 'Consultant' : 'Client'}
@@ -226,15 +328,127 @@ export default function AuthScreen({
               )}
 
               <div>
-                <label className={clsLabel}>Choose Password (min 8 characters)</label>
-                <input
-                  name="pw"
-                  type="password"
-                  minLength={8}
-                  className={clsInput}
-                  placeholder="Create a secure password"
-                  required
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className={clsLabel}>Choose Password</label>
+                  {signupPassword && passwordStrength.label && (
+                    <span
+                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${passwordStrength.badgeClass}`}
+                    >
+                      {passwordStrength.label}
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <input
+                    name="pw"
+                    type={showSignupPassword ? 'text' : 'password'}
+                    minLength={8}
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
+                    className={`${clsInput} pr-10`}
+                    placeholder="Create a secure password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignupPassword((prev) => !prev)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5f7571] dark:text-[#8fa8a3] hover:text-[#14302c] dark:hover:text-[#e3efec] p-1 transition cursor-pointer"
+                    title={showSignupPassword ? 'Hide password' : 'Show password'}
+                  >
+                    <span className="material-symbols-outlined text-[19px]">
+                      {showSignupPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Password Strength Indicator */}
+                {signupPassword && (
+                  <div className="mt-2.5 space-y-2">
+                    {/* Visual Segmented Progress Bar */}
+                    <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
+                      {[1, 2, 3, 4].map((step) => {
+                        const active =
+                          step === 1 ? passwordStrength.score >= 1 :
+                          step === 2 ? passwordStrength.score >= 2 :
+                          step === 3 ? passwordStrength.score >= 3 :
+                          passwordStrength.score >= 4;
+                        return (
+                          <div
+                            key={step}
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              active ? passwordStrength.colorClass : 'bg-[#dde7e3] dark:bg-[#23403f]'
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    {/* Criteria Checklist */}
+                    <div className="p-2.5 rounded-xl bg-[#f7faf9] dark:bg-[#0f2120] border border-[#dde7e3]/70 dark:border-[#23403f]/70 grid grid-cols-2 gap-1.5 text-[11px]">
+                      <div
+                        className={`flex items-center gap-1.5 ${
+                          passwordStrength.checks.minLength
+                            ? 'text-teal-700 dark:text-teal-300 font-medium'
+                            : 'text-[#7d938f]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {passwordStrength.checks.minLength ? 'check_circle' : 'radio_button_unchecked'}
+                        </span>
+                        <span>8+ characters</span>
+                      </div>
+                      <div
+                        className={`flex items-center gap-1.5 ${
+                          passwordStrength.checks.upper
+                            ? 'text-teal-700 dark:text-teal-300 font-medium'
+                            : 'text-[#7d938f]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {passwordStrength.checks.upper ? 'check_circle' : 'radio_button_unchecked'}
+                        </span>
+                        <span>Uppercase letter (A-Z)</span>
+                      </div>
+                      <div
+                        className={`flex items-center gap-1.5 ${
+                          passwordStrength.checks.lower
+                            ? 'text-teal-700 dark:text-teal-300 font-medium'
+                            : 'text-[#7d938f]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {passwordStrength.checks.lower ? 'check_circle' : 'radio_button_unchecked'}
+                        </span>
+                        <span>Lowercase letter (a-z)</span>
+                      </div>
+                      <div
+                        className={`flex items-center gap-1.5 ${
+                          passwordStrength.checks.number
+                            ? 'text-teal-700 dark:text-teal-300 font-medium'
+                            : 'text-[#7d938f]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {passwordStrength.checks.number ? 'check_circle' : 'radio_button_unchecked'}
+                        </span>
+                        <span>Number (0-9)</span>
+                      </div>
+                      <div
+                        className={`flex items-center gap-1.5 col-span-2 ${
+                          passwordStrength.checks.special
+                            ? 'text-teal-700 dark:text-teal-300 font-medium'
+                            : 'text-[#7d938f]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {passwordStrength.checks.special ? 'check_circle' : 'radio_button_unchecked'}
+                        </span>
+                        <span>Special character (@, #, $, %, etc.)</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               <button className={`${clsBtnPrimary} w-full mt-2 py-2.5`}>
                 {role === 'consultant' ? 'Create Practitioner Account' : 'Submit Intake Application'}
@@ -249,7 +463,10 @@ export default function AuthScreen({
                 <button
                   type="button"
                   className="text-teal-700 dark:text-teal-400 font-bold hover:underline cursor-pointer"
-                  onClick={() => setIsSignup(false)}
+                  onClick={() => {
+                    setIsSignup(false);
+                    setSignupPassword('');
+                  }}
                 >
                   Sign in
                 </button>
@@ -260,7 +477,10 @@ export default function AuthScreen({
                 <button
                   type="button"
                   className="text-teal-700 dark:text-teal-400 font-bold hover:underline cursor-pointer"
-                  onClick={() => setIsSignup(true)}
+                  onClick={() => {
+                    setIsSignup(true);
+                    setSignupPassword('');
+                  }}
                 >
                   {role === 'consultant' ? 'Register as Consultant' : 'Create Client Profile'}
                 </button>
