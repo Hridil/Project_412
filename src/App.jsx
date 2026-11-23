@@ -13,6 +13,7 @@ import Header from './components/layout/Header.jsx';
 import Sidebar from './components/layout/Sidebar.jsx';
 import Toast from './components/common/Toast.jsx';
 import AiAssistantWidget from './components/common/AiAssistantWidget.jsx';
+import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 
 // Supabase Integration Client
 import { supabaseApi, isSupabaseConfigured, uploadImageToSupabase, isAppointmentSlotOccupied } from './services/supabaseClient.js';
@@ -479,7 +480,7 @@ export default function App() {
       setPage(prev);
       window.location.hash = prev;
     } else {
-      const homePage = U?.role === 'client' ? 'cl-home' : 'c-home';
+      const homePage = U?.role === 'client' ? 'cl-home' : U?.role === 'admin' ? 'admin-panel' : 'c-home';
       if (page !== homePage) {
         setPage(homePage);
         window.location.hash = homePage;
@@ -491,7 +492,7 @@ export default function App() {
   };
 
   const canGoBack = Boolean(
-    U && (page !== (U.role === 'client' ? 'cl-home' : 'c-home') || pageHistory.length > 0)
+    U && (page !== (U.role === 'client' ? 'cl-home' : U.role === 'admin' ? 'admin-panel' : 'c-home') || pageHistory.length > 0)
   );
 
   const logout = () => {
@@ -2409,7 +2410,9 @@ ${feedback.reply || 'None logged yet.'}
                   </nav>
                 )}
 
-                {renderPageContent()}
+                <ErrorBoundary>
+                  {renderPageContent()}
+                </ErrorBoundary>
 
                 <div className="text-center text-xs text-[#5f7571] dark:text-[#8fa8a3] mt-12 mb-4">
                   MindCare Sanctuary · Modern Clinical Health Portal · In case of immediate psychiatric emergency, call 988.

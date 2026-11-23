@@ -80,7 +80,7 @@ export default function ProfileMenu({
         <div className="py-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5f7571] dark:text-[#8fa8a3]">
-              {U.role === 'consultant' ? 'Practitioner Overview' : 'Client Sanctuary Overview'}
+              {U.role === 'consultant' ? 'Practitioner Overview' : U.role === 'admin' ? 'Administration Overview' : 'Client Sanctuary Overview'}
             </span>
             <span className="text-[11px] text-teal-700 dark:text-teal-400 font-semibold">Active Profile</span>
           </div>
@@ -106,6 +106,25 @@ export default function ProfileMenu({
               <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
                 <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Vault Documents</div>
                 <div className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec] mt-0.5">{S.fl.length} files</div>
+              </div>
+            </div>
+          ) : U.role === 'admin' ? (
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Active Clients</div>
+                <div className="font-serif text-lg font-bold text-teal-900 dark:text-teal-200 mt-0.5">{acc().length}</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Practitioners</div>
+                <div className="font-serif text-lg font-bold text-teal-900 dark:text-teal-200 mt-0.5">{(S.consultants || []).length}</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Appointments</div>
+                <div className="font-serif text-lg font-bold text-[#6c8ebf] mt-0.5">{(S.ap || []).length}</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
+                <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Vault Files</div>
+                <div className="font-serif text-lg font-bold text-[#14302c] dark:text-[#e3efec] mt-0.5">{(S.fl || []).length} files</div>
               </div>
             </div>
           ) : (
@@ -143,7 +162,7 @@ export default function ProfileMenu({
             className={`${clsBtnSecondary} text-xs py-1.5 px-3 flex-1 justify-center cursor-pointer`}
             onClick={() => {
               setProfileMenuOpen(false);
-              go(U.role === 'client' ? 'cl-home' : 'c-home');
+              go(U.role === 'client' ? 'cl-home' : U.role === 'admin' ? 'admin-panel' : 'c-home');
             }}
           >
             <span className="material-symbols-outlined text-[16px]">dashboard</span>
