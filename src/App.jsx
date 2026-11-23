@@ -685,7 +685,6 @@ export default function App() {
     // Save to Supabase if configured
     if (isSupabaseConfigured()) {
       try {
-        showToast('Saving to Supabase database...');
         const reg = await supabaseApi.register({
           name: d.name.trim(),
           email: em,
@@ -796,8 +795,8 @@ export default function App() {
     go(role === 'client' ? 'cl-home' : 'c-home');
     showToast(
       role === 'consultant'
-        ? `Practitioner account created for ${newAcc.name} (Stored in Supabase)`
-        : `Welcome to MindCare, ${newAcc.name}! (Stored in Supabase)`
+        ? `Practitioner account created for ${newAcc.name}`
+        : `Welcome to MindCare, ${newAcc.name}!`
     );
     e.target.reset();
     setIsSignup(false);
@@ -1826,7 +1825,7 @@ ${feedback.reply || 'None logged yet.'}
     }));
 
     setU((prev) => (prev ? { ...prev, avatar: dataUrl } : prev));
-    showToast('Profile picture saved to database successfully!');
+    showToast('Profile picture saved successfully!');
     e.target.value = '';
   };
 
