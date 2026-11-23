@@ -136,6 +136,44 @@ check("isConsultantSlotOccupied" in consultant_schedule_js, "ConsultantSchedule.
 check("This time is occupied" in consultant_schedule_js, "ConsultantSchedule.jsx warns clinician if slot is occupied")
 check("disabled={isConsultantSlotOccupied}" in consultant_schedule_js, "ConsultantSchedule.jsx disables submit when slot is occupied")
 
+print("\n[TEST 6] Verifying Appointment Deduplication & Acceptance Handlers:")
+check("export const deduplicateAppointments" in supabase_client_js, "deduplicateAppointments exported from supabaseClient.js")
+check("export const getAppointmentSlotKey" in supabase_client_js, "getAppointmentSlotKey exported from supabaseClient.js")
+check("updateAppointmentStatus: async" in supabase_client_js, "updateAppointmentStatus API in supabaseClient.js")
+check("deduplicateAppointments" in consultant_schedule_js, "ConsultantSchedule.jsx uses deduplicateAppointments")
+check("deduplicateAppointments" in app_js, "App.jsx uses deduplicateAppointments")
+
+# Python emulation of deduplicateAppointments
+def emulate_dedup(appointments):
+    slot_map = {}
+    for a in appointments:
+        d = normalize_date(a.get("date") or a.get("appointment_date"))
+        t = normalize_time(a.get("time") or a.get("appointment_time"))
+        cons = str(a.get("consultant_id") or "").replace("u", "").replace("U", "")
+        cli = str(a.get("cid") or a.get("uid") or a.get("client_id") or "").replace("u", "").replace("U", "")
+        key = f"{d}_{t}_{cons}_{cli}"
+        if key not in slot_map:
+            slot_map[key] = dict(a)
+        else:
+            existing = slot_map[key]
+            is_ex_conf = str(existing.get("status") or "").upper() == "CONFIRMED"
+            is_inc_conf = str(a.get("status") or "").upper() == "CONFIRMED"
+            status = "CONFIRMED" if (is_ex_conf or is_inc_conf) else (existing.get("status") or a.get("status") or "REQUESTED")
+            slot_map[key]["status"] = status
+    return list(slot_map.values())
+
+duplicate_sample = [
+    {"id": "1732380001", "consultant_id": "u7", "cid": 5, "date": "2026-11-29", "time": "17:00", "status": "REQUESTED"},
+    {"id": 42, "consultant_id": 7, "client_id": 5, "date": "2026-11-29", "time": "17:00", "status": "CONFIRMED"},
+    {"id": "1732380002", "consultant_id": "u7", "cid": 5, "date": "2026-11-29", "time": "10:00", "status": "CONFIRMED"},
+    {"id": 41, "consultant_id": 7, "client_id": 5, "date": "2026-11-29", "time": "10:00", "status": "CONFIRMED"}
+]
+
+deduped = emulate_dedup(duplicate_sample)
+check(len(deduped) == 2, f"Deduplicated 4 raw entries into exactly 2 unique slots ({len(deduped)}==2)")
+slot_17 = [x for x in deduped if x["time"] == "17:00"][0]
+check(slot_17["status"] == "CONFIRMED", "Confirmed slot takes precedence when consultant accepted it")
+
 print("\n" + "=" * 75)
 print("ALL APPOINTMENT SLOT AVAILABILITY CHECKS PASSED!")
 print("=" * 75)

@@ -179,8 +179,6 @@ export default function AuthScreen({
             {isSignup
               ? role === 'consultant'
                 ? 'Register Practitioner Profile'
-                : role === 'admin'
-                ? 'Register Administrator Account'
                 : 'Apply for Clinical Intake'
               : role === 'admin'
               ? 'Sanctuary Administration'
@@ -190,8 +188,6 @@ export default function AuthScreen({
             {isSignup
               ? role === 'consultant'
                 ? 'Set up your clinical practice and practitioner credentials.'
-                : role === 'admin'
-                ? 'Create an administrative profile with system governance access.'
                 : 'Create your secure, confidential patient profile.'
               : role === 'admin'
               ? 'Access master oversight for clients, practitioners, and clinical operations.'
@@ -235,6 +231,7 @@ export default function AuthScreen({
               }`}
               onClick={() => {
                 setRole('admin');
+                setIsSignup(false);
               }}
             >
               Admin
@@ -334,7 +331,7 @@ export default function AuthScreen({
                     />
                   </div>
                 </>
-              ) : role === 'consultant' ? (
+              ) : (
                 <>
                   <div>
                     <label className={clsLabel}>Clinical Specialization</label>
@@ -355,16 +352,6 @@ export default function AuthScreen({
                     />
                   </div>
                 </>
-              ) : (
-                <div>
-                  <label className={clsLabel}>Administrative Title</label>
-                  <input
-                    name="specialization"
-                    className={clsInput}
-                    placeholder="e.g. Practice Administrator / Operations"
-                    required
-                  />
-                </div>
               )}
 
               <div>
@@ -493,15 +480,17 @@ export default function AuthScreen({
               <button className={`${clsBtnPrimary} w-full mt-2 py-2.5`}>
                 {role === 'consultant'
                   ? 'Create Practitioner Account'
-                  : role === 'admin'
-                  ? 'Create Administrator Account'
                   : 'Submit Intake Application'}
               </button>
             </form>
           )}
 
           <div className="mt-6 text-center text-xs text-[#5f7571] dark:text-[#8fa8a3]">
-            {isSignup ? (
+            {role === 'admin' ? (
+              <p className="text-xs text-[#5f7571] dark:text-[#8fa8a3]">
+                Dedicated master administrative portal for sanctuary governance.
+              </p>
+            ) : isSignup ? (
               <p>
                 Already have an active {role} account?{' '}
                 <button
@@ -528,8 +517,6 @@ export default function AuthScreen({
                 >
                   {role === 'consultant'
                     ? 'Register as Consultant'
-                    : role === 'admin'
-                    ? 'Register as Administrator'
                     : 'Create Client Profile'}
                 </button>
               </p>

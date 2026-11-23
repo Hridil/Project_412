@@ -9,6 +9,7 @@ import {
 } from '../../data/constants.js';
 import Chip from '../../components/common/Chip.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
+import { deduplicateAppointments } from '../../services/supabaseClient.js';
 
 export default function ClientSessions({
   U,
@@ -17,7 +18,15 @@ export default function ClientSessions({
   go,
   handleCancelAp
 }) {
-  const sessions = S.ap.filter((a) => a.uid === U.id).sort(srt);
+  const sessions = deduplicateAppointments(
+    (S.ap || []).filter(
+      (a) =>
+        a.uid === U?.id ||
+        a.cid === U?.client_id ||
+        a.cid === U?.id ||
+        (U?.person_id && a.uid === 'u' + U.person_id)
+    )
+  ).sort(srt);
 
   return (
     <div className="space-y-6">
