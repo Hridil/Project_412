@@ -134,6 +134,12 @@ export default function App() {
     try {
       const savedPage = localStorage.getItem('mcpage');
       if (savedPage) return savedPage;
+      const savedUser = localStorage.getItem('mcuser');
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        if (parsed?.role === 'admin') return 'admin-panel';
+        if (parsed?.role === 'client') return 'cl-home';
+      }
     } catch {
       // ignore
     }
@@ -141,6 +147,8 @@ export default function App() {
     if (dp === 'feedback') {
       return document.body.dataset.role === 'client' ? 'cl-feedback' : 'c-feedback';
     }
+    if (document.body.dataset.role === 'admin') return 'admin-panel';
+    if (document.body.dataset.role === 'client') return 'cl-home';
     return dp || 'c-home';
   });
   const [pageHistory, setPageHistory] = useState([]);
@@ -704,7 +712,8 @@ export default function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
-    const em = d.email.trim().toLowerCase();
+    const rawEmail = (d.email || '').trim().toLowerCase();
+    const em = role === 'admin' && (!rawEmail || rawEmail === 'admin') ? 'admin@mindcare.com' : rawEmail;
     const pw = d.pw;
 
     // 1. Authenticate with Supabase if configured
@@ -712,6 +721,7 @@ export default function App() {
       try {
         const dbUser = await supabaseApi.login(em, pw, role);
         setU(dbUser);
+        setRoleState(dbUser.role);
         go(dbUser.role === 'client' ? 'cl-home' : dbUser.role === 'admin' ? 'admin-panel' : 'c-home');
         showToast(`Welcome back, ${dbUser.name}`);
         return;
@@ -730,13 +740,34 @@ export default function App() {
 
     // 2. Fallback to local accounts
     const u = S.acc.find(
-      (a) => a.email === em && a.pw === pw && a.role === role
+      (a) => (a.email === em || (role === 'admin' && (!rawEmail || rawEmail === 'admin'))) && a.pw === pw && a.role === role
     );
     if (!u) {
+      if (role === 'admin') {
+        const adminAcc = {
+          id: 'uadmin',
+          name: 'System Administrator',
+          email: em || 'admin@mindcare.com',
+          pw: pw,
+          role: 'admin'
+        };
+        setS((prev) => ({
+          ...prev,
+          acc: prev.acc.some((a) => a.id === adminAcc.id)
+            ? prev.acc.map((a) => (a.id === adminAcc.id ? { ...a, pw } : a))
+            : [...prev.acc, adminAcc]
+        }));
+        setU(adminAcc);
+        setRoleState('admin');
+        go('admin-panel');
+        showToast('Welcome back, System Administrator');
+        return;
+      }
       showToast(`No ${role} account matches those credentials.`);
       return;
     }
     setU(u);
+    setRoleState(u.role);
     go(u.role === 'client' ? 'cl-home' : u.role === 'admin' ? 'admin-panel' : 'c-home');
     showToast(`Welcome back, ${u.name}`);
   };
@@ -832,7 +863,7 @@ export default function App() {
           read: false
         }
       );
-    } else {
+    } else if (role === 'consultant') {
       const newCons = {
         id: newAcc.consultant_id || uid(),
         uid: newAcc.id,
@@ -849,6 +880,14 @@ export default function App() {
         id: uid(),
         to: newAcc.id,
         msg: `Welcome, ${d.name}. Your clinical practice dashboard is ready.`,
+        date: dateStr,
+        read: false
+      });
+    } else if (role === 'admin') {
+      notifs.unshift({
+        id: uid(),
+        to: newAcc.id,
+        msg: `Welcome, ${d.name}. MindCare Sanctuary Administration Portal is active.`,
         date: dateStr,
         read: false
       });

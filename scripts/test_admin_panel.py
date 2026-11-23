@@ -79,15 +79,19 @@ def test_app_jsx_wiring():
     assert "case 'admin-consultants':" in content, "Missing admin-consultants route in App.jsx"
     assert "U?.role === 'admin' ? NA :" in content, "Missing NA navigation selection for admin role"
     assert "role === 'admin' ? 'admin-panel'" in content, "Missing admin redirect in auth handlers"
+    assert "adminAcc" in content, "Missing resilient admin account provisioning in handleLogin"
+    assert "parsed?.role === 'admin') return 'admin-panel'" in content, "Missing initial page restore for admin"
 
-    print("  -> App.jsx routes, handlers, and navigation integration verified.")
+    print("  -> App.jsx routes, handlers, resilient admin login, and navigation integration verified.")
 
 def test_auth_screen_no_demo_values():
-    print("[4/5] Verifying src/views/auth/AuthScreen.jsx (No Demo Values)...")
+    print("[4/5] Verifying src/views/auth/AuthScreen.jsx (No Demo Values & Flexible Admin Input)...")
     content = check_file_exists("src/views/auth/AuthScreen.jsx")
 
     assert "role === 'admin'" in content, "Missing admin role logic in AuthScreen.jsx"
     assert "setRole('admin')" in content, "Missing admin tab trigger in AuthScreen.jsx"
+    assert "type={role === 'admin' ? 'text' : 'email'}" in content, "Missing flexible input type for admin"
+    assert "required={role !== 'admin'}" in content, "Email should be optional for admin role"
     
     # Ensure demo fillup and hardcoded credentials are completely removed
     assert "fillAdminCredentials" not in content, "fillAdminCredentials still present - should be removed"
@@ -99,7 +103,7 @@ def test_auth_screen_no_demo_values():
     seed_content = check_file_exists("src/data/seedData.js")
     assert "uadmin" not in seed_content, "Hardcoded uadmin still in seedData.js - should be clean"
 
-    print("  -> Demo fillup values successfully removed; clean admin authentication verified.")
+    print("  -> Flexible admin login input and demo value removal verified.")
 
 def test_bracket_balance():
     print("[5/5] Verifying structural syntax & bracket balance...")
