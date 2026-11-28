@@ -52,13 +52,79 @@ import WellbeingToolkit from './views/client/WellbeingToolkit.jsx';
 import ClientNotif from './views/client/ClientNotif.jsx';
 import ClientFeedback from './views/client/ClientFeedback.jsx';
 
+// Removal governance helpers: Maintain persistent blocklist of admin-removed accounts
+const getRemovedAccounts = () => {
+  try {
+    const raw = localStorage.getItem('mcremoved_accounts');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const recordRemovedAccount = (account) => {
+  if (!account) return [];
+  const email = (account.email || '').trim().toLowerCase();
+  const id = account.id ? String(account.id) : null;
+  const uid = account.uid ? String(account.uid) : null;
+  const personId = account.person_id ? String(account.person_id) : null;
+  const clientId = account.client_id ? String(account.client_id) : null;
+  const consultantId = account.consultant_id ? String(account.consultant_id) : null;
+
+  const currentList = getRemovedAccounts();
+  const entry = {
+    email,
+    id,
+    uid,
+    personId,
+    clientId,
+    consultantId,
+    removedAt: new Date().toISOString()
+  };
+
+  const nextList = [
+    entry,
+    ...currentList.filter((x) => {
+      const xEmail = (x.email || (typeof x === 'string' ? x : '')).trim().toLowerCase();
+      const xId = String(x.id || x.uid || '');
+      if (email && xEmail === email) return false;
+      if (id && xId === id) return false;
+      if (uid && xId === uid) return false;
+      return true;
+    })
+  ];
+
+  try {
+    localStorage.setItem('mcremoved_accounts', JSON.stringify(nextList));
+  } catch {
+    // ignore
+  }
+  return nextList;
+};
+
+const isAccountRemoved = (userOrEmail, removedList = null) => {
+  if (!userOrEmail) return false;
+  const list = removedList || getRemovedAccounts();
+  const targetEmail = (typeof userOrEmail === 'string' ? userOrEmail : userOrEmail.email || '').trim().toLowerCase();
+  const targetId = typeof userOrEmail === 'object' ? String(userOrEmail.id || userOrEmail.uid || userOrEmail.client_id || userOrEmail.consultant_id || '') : String(userOrEmail);
+
+  return list.some((r) => {
+    const rEmail = (typeof r === 'string' ? r : r.email || '').trim().toLowerCase();
+    const rId = typeof r === 'object' ? String(r.id || r.uid || r.clientId || r.consultantId || '') : String(r);
+    if (targetEmail && rEmail && targetEmail === rEmail) return true;
+    if (targetId && rId && targetId === rId) return true;
+    return false;
+  });
+};
+
 export default function App() {
   const [S, setS] = useState(() => {
     try {
+      const removedList = getRemovedAccounts();
       const saved = localStorage.getItem('mcpro');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Clean out legacy dummy records
+        // Clean out legacy dummy records & admin-removed accounts
         const dummyUserIds = new Set(['cons', 'cdemo', 'jamie', 'u1', 'u2']);
         const dummyEmails = new Set([
           'demo@mindcare.com',
@@ -70,14 +136,15 @@ export default function App() {
         ]);
 
         parsed.acc = (parsed.acc || []).filter(
-          (a) => !dummyUserIds.has(a.id) && !dummyEmails.has(a.email)
+          (a) => !dummyUserIds.has(a.id) && !dummyEmails.has(a.email) && !isAccountRemoved(a, removedList)
         );
         parsed.cl = (parsed.cl || []).filter(
-          (c) => !dummyUserIds.has(c.uid) && !dummyEmails.has(c.email)
+          (c) => !dummyUserIds.has(c.uid) && !dummyEmails.has(c.email) && !isAccountRemoved(c, removedList)
         );
         parsed.consultants = (parsed.consultants || []).filter(
-          (c) => !dummyUserIds.has(c.uid) && !dummyEmails.has(c.email)
+          (c) => !dummyUserIds.has(c.uid) && !dummyEmails.has(c.email) && !isAccountRemoved(c, removedList)
         );
+        parsed.removedAccounts = removedList;
         parsed.ap = deduplicateAppointments((parsed.ap || []).filter((a) => !dummyUserIds.has(a.uid)));
         parsed.slots = parsed.slots || [];
         parsed.nt = (parsed.nt || []).filter((n) => n.id !== 101);
@@ -99,17 +166,19 @@ export default function App() {
     } catch {
       // ignore
     }
-    return seed();
+    return { ...seed(), removedAccounts: getRemovedAccounts() };
   });
 
   const [U, setU] = useState(() => {
     try {
+      const removedList = getRemovedAccounts();
       const savedUser = localStorage.getItem('mcuser');
       if (savedUser) {
         const parsed = JSON.parse(savedUser);
         if (
           ['cons', 'cdemo', 'jamie'].includes(parsed?.id) ||
-          ['demo@mindcare.com', 'client@mindcare.com', 'jamie@example.com'].includes(parsed?.email)
+          ['demo@mindcare.com', 'client@mindcare.com', 'jamie@example.com'].includes(parsed?.email) ||
+          isAccountRemoved(parsed, removedList)
         ) {
           localStorage.removeItem('mcuser');
           return null;
@@ -204,26 +273,30 @@ export default function App() {
       .then((data) => {
         if (!isMounted || !data) return;
         setS((prev) => {
-          // 1. Clients: Merge and resolve canonical status & caseload
+          // 1. Clients: Merge and resolve canonical status & caseload (excluding admin-removed accounts)
+          const removedRegistry = prev.removedAccounts || getRemovedAccounts();
           const existingClMap = new Map((prev.cl || []).map((c) => [c.id, c]));
-          const mergedClients = (data.clients || []).map((dbClient) => {
-            const existing = existingClMap.get(dbClient.id);
-            return {
-              ...(existing || {}),
-              ...dbClient,
-              status: dbClient.status || existing?.status || 'ACTIVE',
-              assignedConsultantId:
-                dbClient.assignedConsultantId !== undefined
-                  ? dbClient.assignedConsultantId
-                  : existing?.assignedConsultantId,
-              consultant_id:
-                dbClient.consultant_id !== undefined
-                  ? dbClient.consultant_id
-                  : existing?.consultant_id
-            };
-          });
+          const mergedClients = (data.clients || [])
+            .filter((c) => !isAccountRemoved(c, removedRegistry))
+            .map((dbClient) => {
+              const existing = existingClMap.get(dbClient.id);
+              return {
+                ...(existing || {}),
+                ...dbClient,
+                status: dbClient.status || existing?.status || 'ACTIVE',
+                assignedConsultantId:
+                  dbClient.assignedConsultantId !== undefined
+                    ? dbClient.assignedConsultantId
+                    : existing?.assignedConsultantId,
+                consultant_id:
+                  dbClient.consultant_id !== undefined
+                    ? dbClient.consultant_id
+                    : existing?.consultant_id
+              };
+            });
           const dbClientIds = new Set((data.clients || []).map((c) => c.id));
-          const localOnlyClients = (prev.cl || []).filter((c) => !dbClientIds.has(c.id));
+          const localOnlyClients = (prev.cl || [])
+            .filter((c) => !dbClientIds.has(c.id) && !isAccountRemoved(c, removedRegistry));
           const finalClients = [...mergedClients, ...localOnlyClients];
 
           // 2. Files: Populate client linkage and sync vault files across devices
@@ -259,16 +332,22 @@ export default function App() {
           const localOnlyFb = (prev.fb || []).filter((f) => !dbFbIds.has(f.id));
           const finalFeedback = [...(data.feedback || []), ...localOnlyFb];
 
-          // 6. Consultants: Authoritative from database CONSULTANT table
-          const finalCons = (data.consultants && data.consultants.length > 0)
+          // 6. Consultants: Authoritative from database CONSULTANT table (excluding admin-removed accounts)
+          const rawCons = (data.consultants && data.consultants.length > 0)
             ? data.consultants
             : (prev.consultants || []);
+          const finalCons = rawCons.filter((c) => !isAccountRemoved(c, removedRegistry));
 
-          // Purge removed consultants from acc list
+          // Purge removed accounts from acc list
           const activeConsEmails = new Set((finalCons || []).map((c) => (c.email || '').toLowerCase()));
+          const activeClientEmails = new Set((finalClients || []).map((c) => (c.email || '').toLowerCase()));
           const cleanedPrevAcc = (prev.acc || []).filter((a) => {
+            if (isAccountRemoved(a, removedRegistry)) return false;
             if (a.role === 'consultant') {
               return activeConsEmails.has((a.email || '').toLowerCase());
+            }
+            if (a.role === 'client') {
+              return activeClientEmails.has((a.email || '').toLowerCase());
             }
             return true;
           });
@@ -632,26 +711,81 @@ export default function App() {
     }
   };
 
-  // Administrator Handlers: Remove Client or Consultant from System
+  // Administrator Handlers: Permanently Remove Client or Consultant from System
   const handleAdminRemoveClient = async (client) => {
     if (!client) return;
     const clientId = client.id;
     const clientUid = client.uid;
     const clientPersonId = client.person_id;
+    const clientEmail = (client.email || '').trim().toLowerCase();
 
-    // 1. Remove from local state and clean up linked references
-    setS((prev) => ({
-      ...prev,
-      cl: (prev.cl || []).filter((c) => c.id !== clientId && c.uid !== clientUid),
-      acc: (prev.acc || []).filter(
+    // 1. Record in persistent removal registry to block future local & remote logins
+    const updatedRemoved = recordRemovedAccount(client);
+
+    // 2. Remove from local state and clean up linked references
+    setS((prev) => {
+      const nextAcc = (prev.acc || []).filter(
         (a) =>
-          a.id !== clientUid &&
-          a.client_id !== clientId &&
-          a.email?.toLowerCase() !== client.email?.toLowerCase()
-      )
-    }));
+          !isAccountRemoved(a, updatedRemoved) &&
+          String(a.id) !== String(clientUid) &&
+          String(a.client_id) !== String(clientId) &&
+          (a.email || '').trim().toLowerCase() !== clientEmail
+      );
+      const nextCl = (prev.cl || []).filter(
+        (c) =>
+          !isAccountRemoved(c, updatedRemoved) &&
+          String(c.id) !== String(clientId) &&
+          String(c.uid) !== String(clientUid) &&
+          (c.email || '').trim().toLowerCase() !== clientEmail
+      );
+      const nextPl = (prev.pl || []).filter(
+        (p) =>
+          String(p.cid) !== String(clientId) &&
+          String(p.client_id) !== String(clientId) &&
+          String(p.uid) !== String(clientUid) &&
+          (p.client_email || '').trim().toLowerCase() !== clientEmail
+      );
+      const nextAp = (prev.ap || []).filter(
+        (a) =>
+          String(a.cid) !== String(clientId) &&
+          String(a.uid) !== String(clientUid)
+      );
+      const nextFl = (prev.fl || []).filter(
+        (f) =>
+          String(f.cid) !== String(clientId) &&
+          String(f.uid) !== String(clientUid)
+      );
+      const nextNf = (prev.nf || []).filter(
+        (n) => String(n.to) !== String(clientUid) && String(n.to) !== String(clientId)
+      );
 
-    // 2. Delete from Supabase if configured
+      return {
+        ...prev,
+        removedAccounts: updatedRemoved,
+        cl: nextCl,
+        acc: nextAcc,
+        pl: nextPl,
+        ap: nextAp,
+        fl: nextFl,
+        nf: nextNf
+      };
+    });
+
+    // 3. Immediately invalidate active session if removed client is currently logged in
+    if (
+      U &&
+      (isAccountRemoved(U, updatedRemoved) ||
+        String(U.id) === String(clientUid) ||
+        String(U.client_id) === String(clientId) ||
+        (U.email || '').trim().toLowerCase() === clientEmail)
+    ) {
+      setU(null);
+      try {
+        localStorage.removeItem('mcuser');
+      } catch {}
+    }
+
+    // 4. Delete from Supabase if configured
     if (isSupabaseConfigured()) {
       try {
         await supabaseApi.deleteClient(clientId, clientPersonId);
@@ -660,7 +794,7 @@ export default function App() {
       }
     }
 
-    showToast(`Client ${client.name || 'Account'} has been removed from the system.`);
+    showToast(`Client ${client.name || 'Account'} has been permanently removed.`);
   };
 
   const handleAdminRemoveConsultant = async (consultant) => {
@@ -668,29 +802,59 @@ export default function App() {
     const consId = consultant.id;
     const consUid = consultant.uid;
     const consPersonId = consultant.person_id;
+    const consEmail = (consultant.email || '').trim().toLowerCase();
 
-    // 1. Remove from local state and unassign their caseload
-    setS((prev) => ({
-      ...prev,
-      consultants: (prev.consultants || []).filter(
-        (c) => c.id !== consId && c.uid !== consUid
-      ),
-      acc: (prev.acc || []).filter(
+    // 1. Record in persistent removal registry to block future local & remote logins
+    const updatedRemoved = recordRemovedAccount(consultant);
+
+    // 2. Remove from local state and unassign their caseload
+    setS((prev) => {
+      const nextAcc = (prev.acc || []).filter(
         (a) =>
-          a.id !== consUid &&
-          a.consultant_id !== consId &&
-          a.email?.toLowerCase() !== consultant.email?.toLowerCase()
-      ),
-      cl: (prev.cl || []).map((c) =>
-        c.assignedConsultantId === consId ||
-        c.assignedConsultantId === consUid ||
-        c.consultant_id === consId
+          !isAccountRemoved(a, updatedRemoved) &&
+          String(a.id) !== String(consUid) &&
+          String(a.consultant_id) !== String(consId) &&
+          (a.email || '').trim().toLowerCase() !== consEmail
+      );
+      const nextCons = (prev.consultants || []).filter(
+        (c) =>
+          !isAccountRemoved(c, updatedRemoved) &&
+          String(c.id) !== String(consId) &&
+          String(c.uid) !== String(consUid) &&
+          (c.email || '').trim().toLowerCase() !== consEmail
+      );
+      const nextCl = (prev.cl || []).map((c) =>
+        String(c.assignedConsultantId) === String(consId) ||
+        String(c.assignedConsultantId) === String(consUid) ||
+        String(c.consultant_id) === String(consId)
           ? { ...c, assignedConsultantId: null, consultant_id: null }
           : c
-      )
-    }));
+      );
 
-    // 2. Delete from Supabase if configured
+      return {
+        ...prev,
+        removedAccounts: updatedRemoved,
+        consultants: nextCons,
+        acc: nextAcc,
+        cl: nextCl
+      };
+    });
+
+    // 3. Immediately invalidate active session if removed practitioner is currently logged in
+    if (
+      U &&
+      (isAccountRemoved(U, updatedRemoved) ||
+        String(U.id) === String(consUid) ||
+        String(U.consultant_id) === String(consId) ||
+        (U.email || '').trim().toLowerCase() === consEmail)
+    ) {
+      setU(null);
+      try {
+        localStorage.removeItem('mcuser');
+      } catch {}
+    }
+
+    // 4. Delete from Supabase if configured
     if (isSupabaseConfigured()) {
       try {
         await supabaseApi.deleteConsultant(consId, consPersonId);
@@ -699,7 +863,7 @@ export default function App() {
       }
     }
 
-    showToast(`Practitioner ${consultant.name || 'Account'} has been removed from the system.`);
+    showToast(`Practitioner ${consultant.name || 'Account'} has been permanently removed.`);
   };
 
   const moodsOf = (u) => S.md.filter((m) => m.uid === u).sort((a, b) => a.date.localeCompare(b.date));
@@ -728,10 +892,20 @@ export default function App() {
     const em = role === 'admin' && (!rawEmail || rawEmail === 'admin') ? 'admin@mindcare.com' : rawEmail;
     const pw = d.pw;
 
+    // Guard: Strictly block accounts removed by administrator from any login attempt
+    if (isAccountRemoved(em, S.removedAccounts)) {
+      showToast('This account has been removed by administration and cannot be accessed.');
+      return;
+    }
+
     // 1. Authenticate with Supabase if configured
     if (isSupabaseConfigured()) {
       try {
         const dbUser = await supabaseApi.login(em, pw, role);
+        if (isAccountRemoved(dbUser, S.removedAccounts)) {
+          showToast('This account has been removed by administration and cannot be accessed.');
+          return;
+        }
         setU(dbUser);
         setRoleState(dbUser.role);
         go(dbUser.role === 'client' ? 'cl-home' : dbUser.role === 'admin' ? 'admin-panel' : 'c-home');
@@ -750,9 +924,13 @@ export default function App() {
       }
     }
 
-    // 2. Fallback to local accounts
-    const u = S.acc.find(
-      (a) => (a.email === em || (role === 'admin' && (!rawEmail || rawEmail === 'admin'))) && a.pw === pw && a.role === role
+    // 2. Fallback to local accounts (excluding admin-removed accounts)
+    const u = (S.acc || []).find(
+      (a) =>
+        !isAccountRemoved(a, S.removedAccounts) &&
+        ((a.email || '').trim().toLowerCase() === em || (role === 'admin' && (!rawEmail || rawEmail === 'admin'))) &&
+        a.pw === pw &&
+        a.role === role
     );
     if (!u) {
       if (role === 'admin') {
@@ -776,6 +954,10 @@ export default function App() {
         showToast('Welcome back, System Administrator');
         return;
       }
+      if (isAccountRemoved(em, S.removedAccounts)) {
+        showToast('This account has been removed by administration and cannot be accessed.');
+        return;
+      }
       showToast(`No ${role} account matches those credentials.`);
       return;
     }
@@ -793,6 +975,10 @@ export default function App() {
     }
     const d = Object.fromEntries(new FormData(e.target));
     const em = d.email.trim().toLowerCase();
+    if (isAccountRemoved(em, S.removedAccounts)) {
+      showToast('This email has been removed by administration and cannot be re-registered.');
+      return;
+    }
     if (S.acc.some((a) => a.email === em)) {
       showToast('Email already registered. Please sign in.');
       return;
