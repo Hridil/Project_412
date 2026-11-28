@@ -142,7 +142,23 @@ export default function ProfileMenu({
               <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">
                 <div className="text-[10px] text-[#5f7571] dark:text-[#8fa8a3] font-semibold uppercase">Care Goals</div>
                 <div className="font-serif text-lg font-bold text-[#6c8ebf] mt-0.5">
-                  {S.pl.filter((p) => p.uid === U.id && p.done).length} / {S.pl.filter((p) => p.uid === U.id).length}
+                  {(() => {
+                    const client = myC ? myC() : (S.cl || []).find((x) => x.uid === U?.id || String(x.id) === String(U?.id) || (U?.client_id && String(x.id) === String(U.client_id)));
+                    const clientPlans = (S.pl || []).filter((p) => {
+                      if (!p) return false;
+                      if (p.uid === U?.id || String(p.cid) === String(U?.id) || String(p.client_id) === String(U?.id)) return true;
+                      if (U?.client_id && (String(p.cid) === String(U.client_id) || String(p.client_id) === String(U.client_id))) return true;
+                      if (U?.person_id && (p.person_id === U.person_id || p.uid === 'u' + U.person_id)) return true;
+                      if (client) {
+                        if (client.id && (String(p.cid) === String(client.id) || String(p.client_id) === String(client.id))) return true;
+                        if (client.uid && p.uid === client.uid) return true;
+                        if (client.person_id && (p.person_id === client.person_id || p.uid === 'u' + client.person_id)) return true;
+                        if (client.email && p.client_email && client.email.toLowerCase() === p.client_email.toLowerCase()) return true;
+                      }
+                      return false;
+                    });
+                    return `${clientPlans.filter((p) => p.done).length} / ${clientPlans.length}`;
+                  })()}
                 </div>
               </div>
               <div className="p-2.5 rounded-xl bg-[#f2f5f3] dark:bg-[#0d1b1a] border border-[#dde7e3] dark:border-[#23403f]">

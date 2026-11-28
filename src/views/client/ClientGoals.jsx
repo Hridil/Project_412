@@ -15,7 +15,28 @@ export default function ClientGoals({
   S,
   handleTogglePlan
 }) {
-  const pl = S.pl.filter((p) => p.uid === U.id);
+  const clientRecord = (S.cl || []).find(
+    (c) =>
+      c.uid === U?.id ||
+      String(c.id) === String(U?.id) ||
+      (U?.client_id && String(c.id) === String(U.client_id)) ||
+      (U?.person_id && c.person_id === U.person_id) ||
+      (U?.email && (c.email || '').toLowerCase() === (U.email || '').toLowerCase())
+  );
+
+  const pl = (S.pl || []).filter((p) => {
+    if (!p) return false;
+    if (p.uid === U?.id || String(p.cid) === String(U?.id) || String(p.client_id) === String(U?.id)) return true;
+    if (U?.client_id && (String(p.cid) === String(U.client_id) || String(p.client_id) === String(U.client_id))) return true;
+    if (U?.person_id && (p.person_id === U.person_id || p.uid === 'u' + U.person_id)) return true;
+    if (clientRecord) {
+      if (clientRecord.id && (String(p.cid) === String(clientRecord.id) || String(p.client_id) === String(clientRecord.id))) return true;
+      if (clientRecord.uid && p.uid === clientRecord.uid) return true;
+      if (clientRecord.person_id && (p.person_id === clientRecord.person_id || p.uid === 'u' + clientRecord.person_id)) return true;
+      if (clientRecord.email && p.client_email && clientRecord.email.toLowerCase() === p.client_email.toLowerCase()) return true;
+    }
+    return false;
+  });
   const dn = pl.filter((p) => p.done).length;
   const pct = pl.length ? Math.round((dn / pl.length) * 100) : 0;
 
@@ -50,6 +71,12 @@ export default function ClientGoals({
                     <b className={`text-sm ${p.done ? 'line-through opacity-70' : ''}`}>{p.title}</b>
                   </div>
                   {p.due && <div className={`${clsMuted} pl-7 mt-0.5`}>Target completion: {p.due}</div>}
+                  {p.consultant_name && (
+                    <div className="text-xs text-teal-800 dark:text-teal-300 font-medium pl-7 mt-0.5 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[14px]">person</span>
+                      Assigned by {p.consultant_name}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Chip status={p.done ? 'Completed' : 'In progress'} />

@@ -31,8 +31,23 @@ export default function CarePlans({
   );
 
   const myPlans = S.pl.filter((p) => {
-    if (p.consultant_id === U?.id || p.consultant_id === U?.consultant_id || p.consultant_id === U?.uid) return true;
-    const client = S.cl.find((c) => c.id === p.cid || c.uid === p.uid);
+    if (
+      p.consultant_id === U?.id ||
+      String(p.consultant_id) === String(U?.id) ||
+      p.consultant_id === U?.consultant_id ||
+      String(p.consultant_id) === String(U?.consultant_id) ||
+      p.consultant_id === U?.uid ||
+      String(p.consultant_id) === String(U?.uid)
+    ) return true;
+    const client = S.cl.find(
+      (c) =>
+        c.id === p.cid ||
+        String(c.id) === String(p.cid) ||
+        c.id === p.client_id ||
+        String(c.id) === String(p.client_id) ||
+        c.uid === p.uid ||
+        (c.person_id && p.person_id === c.person_id)
+    );
     return isClientAssignedToConsultant ? isClientAssignedToConsultant(client, U) : true;
   });
 

@@ -84,7 +84,16 @@ export default function ClientDossierModal({
       appointment_mode: a.appointment_mode || (a.type?.includes('Online') ? 'ONLINE' : 'OFFLINE'),
       type: a.type
     }));
-  const clientPlans = S.pl.filter((p) => p.cid === selectedClient.id || p.uid === selectedClient.uid);
+  const clientPlans = S.pl.filter(
+    (p) =>
+      p.cid === selectedClient.id ||
+      String(p.cid) === String(selectedClient.id) ||
+      p.client_id === selectedClient.id ||
+      String(p.client_id) === String(selectedClient.id) ||
+      p.uid === selectedClient.uid ||
+      (selectedClient.person_id && (p.person_id === selectedClient.person_id || p.uid === 'u' + selectedClient.person_id)) ||
+      (selectedClient.email && p.client_email && selectedClient.email.toLowerCase() === p.client_email.toLowerCase())
+  );
   const clientNotes = S.nt.filter((n) => n.cid === selectedClient.id);
   const clientFeedbacks = (S.fb || []).filter((f) => f.clientId === selectedClient.uid);
   const completedPlans = clientPlans.filter((p) => p.done).length;

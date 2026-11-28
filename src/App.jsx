@@ -526,7 +526,15 @@ export default function App() {
         c.person_id === U?.person_id ||
         (U?.email && (c.email || '').toLowerCase() === U.email.toLowerCase())
     );
-  const cn = (id) => S.cl.find((c) => c.id === id)?.name || 'Client';
+  const cn = (id) =>
+    S.cl.find(
+      (c) =>
+        c.id === id ||
+        String(c.id) === String(id) ||
+        c.uid === id ||
+        String(c.uid) === String(id) ||
+        (c.person_id && String(c.person_id) === String(id))
+    )?.name || 'Client';
   const selectedClient = S.cl.find((c) => c.id === selectedClientId) || null;
   const acc = () => S.cl.filter((c) => c.status === 'Accepted' || c.status === 'ACTIVE');
 
@@ -576,7 +584,12 @@ export default function App() {
       // 4. Care plans assigned by consultant to this client
       const hasPl = (S.pl || []).some(
         (p) =>
-          (p.cid === client.id || p.uid === client.uid) &&
+          (p.cid === client.id ||
+            String(p.cid) === String(client.id) ||
+            p.client_id === client.id ||
+            String(p.client_id) === String(client.id) ||
+            p.uid === client.uid ||
+            (client.person_id && (p.person_id === client.person_id || p.uid === 'u' + client.person_id))) &&
           matchesCons(p.consultant_id)
       );
       if (hasPl) return true;
@@ -1149,26 +1162,72 @@ export default function App() {
   const handleAddPlan = (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
-    const c = S.cl.find((x) => x.id === +d.cid);
+    const targetCid = String(d.cid || '').trim();
+    const c =
+      S.cl.find(
+        (x) =>
+          String(x.id) === targetCid ||
+          x.id === +targetCid ||
+          String(x.uid) === targetCid ||
+          String(x.client_id) === targetCid ||
+          (x.person_id && String(x.person_id) === targetCid)
+      ) ||
+      S.cl.find(
+        (x) =>
+          x.email &&
+          targetCid &&
+          String(x.email).toLowerCase() === targetCid.toLowerCase()
+      );
     if (!c) return;
     const dateStr = getNowDateString();
+    const clientUid = c.uid || (c.person_id ? 'u' + c.person_id : 'u' + c.id);
+    const consultantName =
+      U?.name ||
+      (S.consultants || []).find(
+        (co) =>
+          String(co.id) === String(U?.id) ||
+          String(co.consultant_id) === String(U?.id) ||
+          String(co.uid) === String(U?.id)
+      )?.name ||
+      'Care Consultant';
+
     const newPlan = {
       id: uid(),
       cid: c.id,
-      uid: c.uid,
-      consultant_id: U?.id || 'cons',
-      title: d.title,
-      due: d.due,
-      details: d.details,
-      done: false
+      client_id: c.id,
+      uid: clientUid,
+      person_id: c.person_id || null,
+      client_email: c.email || '',
+      consultant_id: U?.id || U?.consultant_id || 'cons',
+      consultant_name: consultantName,
+      title: (d.title || '').trim(),
+      due: d.due || null,
+      details: (d.details || '').trim(),
+      done: false,
+      created_at: new Date().toISOString()
     };
+    const notifs = [
+      {
+        id: uid(),
+        to: clientUid,
+        msg: `New care plan action step assigned: ${newPlan.title}`,
+        date: dateStr,
+        read: false
+      }
+    ];
+    if (c.id && String(c.id) !== String(clientUid)) {
+      notifs.push({
+        id: uid(),
+        to: String(c.id),
+        msg: `New care plan action step assigned: ${newPlan.title}`,
+        date: dateStr,
+        read: false
+      });
+    }
     setS((prev) => ({
       ...prev,
       pl: [newPlan, ...prev.pl],
-      nf: [
-        { id: uid(), to: c.uid, msg: `New care plan action step assigned: ${d.title}`, date: dateStr, read: false },
-        ...prev.nf
-      ]
+      nf: [...notifs, ...prev.nf]
     }));
     e.target.reset();
     showToast('Care action step added');
