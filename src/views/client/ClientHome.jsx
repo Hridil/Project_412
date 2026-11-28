@@ -34,7 +34,19 @@ export default function ClientHome({
 }) {
   const c = myC();
   const as = S.ap.filter((a) => a.uid === U.id && a.date >= T()).sort(srt);
-  const pl = S.pl.filter((p) => p.uid === U.id);
+  const pl = S.pl.filter((p) => {
+    if (!p) return false;
+    if (p.uid === U?.id || String(p.cid) === String(U?.id) || String(p.client_id) === String(U?.id)) return true;
+    if (U?.client_id && (String(p.cid) === String(U.client_id) || String(p.client_id) === String(U.client_id))) return true;
+    if (U?.person_id && (p.person_id === U.person_id || p.uid === 'u' + U.person_id)) return true;
+    if (c) {
+      if (c.id && (String(p.cid) === String(c.id) || String(p.client_id) === String(c.id))) return true;
+      if (c.uid && p.uid === c.uid) return true;
+      if (c.person_id && (p.person_id === c.person_id || p.uid === 'u' + c.person_id)) return true;
+      if (c.email && p.client_email && c.email.toLowerCase() === p.client_email.toLowerCase()) return true;
+    }
+    return false;
+  });
   const dn = pl.filter((p) => p.done).length;
   const td = S.md.find((m) => m.uid === U.id && m.date === T());
   const clientImages = S.dashImages?.[U.id] || [];
